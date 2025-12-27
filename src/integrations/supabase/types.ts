@@ -14,7 +14,184 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      wh_categories: {
+        Row: {
+          created_at: string | null
+          id: string
+          image_url: string | null
+          name_en: string
+          name_zh: string
+          slug: string
+          sort_order: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+          name_en: string
+          name_zh: string
+          slug: string
+          sort_order?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+          name_en?: string
+          name_zh?: string
+          slug?: string
+          sort_order?: number | null
+        }
+        Relationships: []
+      }
+      wh_inquiries: {
+        Row: {
+          created_at: string | null
+          customer_company: string | null
+          customer_email: string | null
+          customer_im: string | null
+          customer_name: string | null
+          customer_phone: string | null
+          id: string
+          message: string | null
+          product_id: string | null
+          source: string | null
+          status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          customer_company?: string | null
+          customer_email?: string | null
+          customer_im?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          id?: string
+          message?: string | null
+          product_id?: string | null
+          source?: string | null
+          status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          customer_company?: string | null
+          customer_email?: string | null
+          customer_im?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          id?: string
+          message?: string | null
+          product_id?: string | null
+          source?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wh_inquiries_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "wh_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wh_products: {
+        Row: {
+          category_id: string | null
+          created_at: string | null
+          description_en: string | null
+          description_zh: string | null
+          id: string
+          images: string[] | null
+          is_featured: boolean | null
+          is_new: boolean | null
+          min_order: number | null
+          name_en: string
+          name_zh: string
+          price_max: number | null
+          price_min: number | null
+          seo_description: string | null
+          seo_title: string | null
+          slug: string
+          sort_order: number | null
+          specs: Json | null
+          stock_status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string | null
+          description_en?: string | null
+          description_zh?: string | null
+          id?: string
+          images?: string[] | null
+          is_featured?: boolean | null
+          is_new?: boolean | null
+          min_order?: number | null
+          name_en: string
+          name_zh: string
+          price_max?: number | null
+          price_min?: number | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug: string
+          sort_order?: number | null
+          specs?: Json | null
+          stock_status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string | null
+          description_en?: string | null
+          description_zh?: string | null
+          id?: string
+          images?: string[] | null
+          is_featured?: boolean | null
+          is_new?: boolean | null
+          min_order?: number | null
+          name_en?: string
+          name_zh?: string
+          price_max?: number | null
+          price_min?: number | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug?: string
+          sort_order?: number | null
+          specs?: Json | null
+          stock_status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wh_products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "wh_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wh_site_settings: {
+        Row: {
+          description: string | null
+          key: string
+          updated_at: string | null
+          value: Json | null
+        }
+        Insert: {
+          description?: string | null
+          key: string
+          updated_at?: string | null
+          value?: Json | null
+        }
+        Update: {
+          description?: string | null
+          key?: string
+          updated_at?: string | null
+          value?: Json | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
