@@ -2,23 +2,28 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, Send, X, MessageSquare } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useSiteSettings } from '@/hooks/useDatabase';
 
 export default function FloatingContact() {
   const [isOpen, setIsOpen] = useState(false);
   const { t } = useLanguage();
+  const { data: settings } = useSiteSettings();
+
+  const whatsappNumber = (settings?.whatsapp_number as string) || '8613800138000';
+  const telegramUsername = (settings?.telegram_username as string) || 'posstore';
 
   const contacts = [
     {
       name: 'WhatsApp',
       icon: MessageCircle,
       color: '#25D366',
-      href: 'https://wa.me/8613800138000?text=Hello%2C%20I%20am%20interested%20in%20your%20POS%20products',
+      href: `https://wa.me/${whatsappNumber}?text=Hello%2C%20I%20am%20interested%20in%20your%20POS%20products`,
     },
     {
       name: 'Telegram',
       icon: Send,
       color: '#0088cc',
-      href: 'https://t.me/posstore',
+      href: `https://t.me/${telegramUsername}`,
     },
   ];
 

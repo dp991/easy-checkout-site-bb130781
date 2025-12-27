@@ -127,3 +127,43 @@ export async function submitInquiry(inquiry: {
   if (error) throw error;
   return data;
 }
+
+// Fetch site settings
+export function useSiteSettings() {
+  return useQuery({
+    queryKey: ['site-settings'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('wh_site_settings')
+        .select('*');
+      
+      if (error) throw error;
+      
+      // Convert to key-value object
+      const settings: Record<string, unknown> = {};
+      data?.forEach(item => {
+        settings[item.key] = item.value;
+      });
+      
+      return settings;
+    },
+  });
+}
+
+// Fetch specific setting
+export function useSiteSetting(key: string) {
+  return useQuery({
+    queryKey: ['site-settings', key],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('wh_site_settings')
+        .select('value')
+        .eq('key', key)
+        .maybeSingle();
+      
+      if (error) throw error;
+      return data?.value;
+    },
+    enabled: !!key,
+  });
+}
