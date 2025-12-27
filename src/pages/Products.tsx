@@ -1,11 +1,13 @@
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { products } from '@/lib/mockData';
+import { useProducts } from '@/hooks/useDatabase';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/products/ProductCard';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Products() {
   const { t, locale } = useLanguage();
+  const { data: products, isLoading } = useProducts();
 
   return (
     <Layout>
@@ -41,11 +43,19 @@ export default function Products() {
       {/* Products Grid */}
       <section className="py-12 md:py-16">
         <div className="container-wide">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {products.map((product, index) => (
-              <ProductCard key={product.id} product={product} index={index} />
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {[...Array(8)].map((_, i) => (
+                <Skeleton key={i} className="aspect-[4/3] rounded-xl" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {products?.map((product, index) => (
+                <ProductCard key={product.id} product={product} index={index} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </Layout>

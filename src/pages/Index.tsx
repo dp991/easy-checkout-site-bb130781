@@ -2,15 +2,18 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Shield, Truck, Headphones, Award } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { featuredProducts, categories } from '@/lib/mockData';
+import { useCategories, useFeaturedProducts } from '@/hooks/useDatabase';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/products/ProductCard';
 import CategoryCard from '@/components/products/CategoryCard';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import heroImage from '@/assets/hero-pos.jpg';
 
 export default function Index() {
   const { t, locale } = useLanguage();
+  const { data: categories, isLoading: categoriesLoading } = useCategories();
+  const { data: featuredProducts, isLoading: productsLoading } = useFeaturedProducts();
 
   const features = [
     {
@@ -37,16 +40,8 @@ export default function Index() {
 
   return (
     <Layout>
-      {/* SEO */}
-      <title>{locale === 'zh' ? '收银机商城 - 专业POS设备供应商' : 'POS Store - Professional Cash Register & POS Solutions'}</title>
-      <meta name="description" content={locale === 'zh' 
-        ? '专业收银机、POS终端及零售设备供应商。优质产品，极具竞争力的价格，全球快速交付。' 
-        : 'Professional supplier of cash registers, POS terminals and retail equipment. Quality products, competitive prices, fast worldwide delivery.'
-      } />
-
       {/* Hero Section */}
       <section className="relative min-h-[90vh] flex items-center overflow-hidden industrial-grid">
-        {/* Background */}
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-r from-background via-background/95 to-background/70" />
           <img
@@ -57,7 +52,6 @@ export default function Index() {
           <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/50" />
         </div>
 
-        {/* Content */}
         <div className="container-wide relative z-10 py-20">
           <div className="max-w-2xl">
             <motion.div
@@ -110,7 +104,6 @@ export default function Index() {
           </div>
         </div>
 
-        {/* Scroll Indicator */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -182,11 +175,19 @@ export default function Index() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {categories.slice(0, 6).map((category, index) => (
-              <CategoryCard key={category.id} category={category} index={index} />
-            ))}
-          </div>
+          {categoriesLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <Skeleton key={i} className="aspect-[4/3] rounded-xl" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {categories?.slice(0, 6).map((category, index) => (
+                <CategoryCard key={category.id} category={category} index={index} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -221,11 +222,19 @@ export default function Index() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featuredProducts.map((product, index) => (
-              <ProductCard key={product.id} product={product} index={index} />
-            ))}
-          </div>
+          {productsLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(3)].map((_, i) => (
+                <Skeleton key={i} className="aspect-[4/3] rounded-xl" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {featuredProducts?.map((product, index) => (
+                <ProductCard key={product.id} product={product} index={index} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -265,7 +274,6 @@ export default function Index() {
               </div>
             </div>
 
-            {/* Decorative Elements */}
             <div className="absolute right-0 top-0 w-1/2 h-full opacity-20">
               <div className="absolute right-10 top-10 w-40 h-40 rounded-full bg-primary blur-3xl" />
               <div className="absolute right-40 bottom-10 w-60 h-60 rounded-full bg-primary/50 blur-3xl" />

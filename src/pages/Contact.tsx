@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, MessageCircle, Send, Clock, CheckCircle } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { submitInquiry } from '@/hooks/useDatabase';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,14 +36,22 @@ export default function Contact() {
       contactSchema.parse(formData);
       setIsSubmitting(true);
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await submitInquiry({
+        customer_name: formData.name,
+        customer_email: formData.email,
+        customer_phone: formData.phone || undefined,
+        customer_company: formData.company || undefined,
+        message: formData.message,
+        source: 'web',
+      });
       
       toast.success(t.contact.success);
       setFormData({ name: '', email: '', phone: '', company: '', message: '' });
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast.error(error.errors[0].message);
+      } else {
+        toast.error(locale === 'zh' ? '提交失败，请重试' : 'Submission failed, please try again');
       }
     } finally {
       setIsSubmitting(false);
