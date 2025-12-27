@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Eye, MessageCircle } from 'lucide-react';
+import { Eye, MessageCircle, ShoppingCart } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useCart } from '@/contexts/CartContext';
 import { DbProduct } from '@/lib/supabase';
 import { Badge } from '@/components/ui/badge';
 
@@ -12,6 +13,7 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   const { locale, t } = useLanguage();
+  const { addToCart } = useCart();
 
   const name = locale === 'zh' ? product.name_zh : product.name_en;
   const priceMin = product.price_min ?? 0;
@@ -60,6 +62,18 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
               >
                 <Eye className="w-5 h-5" />
               </motion.div>
+              <motion.button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  addToCart(product.id);
+                }}
+                initial={{ scale: 0 }}
+                whileHover={{ scale: 1.1 }}
+                className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center"
+              >
+                <ShoppingCart className="w-5 h-5" />
+              </motion.button>
               <motion.a
                 href={`https://wa.me/8613800138000?text=I'm interested in ${encodeURIComponent(name)}`}
                 target="_blank"
