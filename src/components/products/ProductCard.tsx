@@ -2,11 +2,11 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Eye, MessageCircle } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Product } from '@/lib/mockData';
+import { DbProduct } from '@/lib/supabase';
 import { Badge } from '@/components/ui/badge';
 
 interface ProductCardProps {
-  product: Product;
+  product: DbProduct;
   index?: number;
 }
 
@@ -14,9 +14,11 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   const { locale, t } = useLanguage();
 
   const name = locale === 'zh' ? product.name_zh : product.name_en;
-  const priceRange = product.price_min === product.price_max
-    ? `$${product.price_min}`
-    : `$${product.price_min} - $${product.price_max}`;
+  const priceMin = product.price_min ?? 0;
+  const priceMax = product.price_max ?? 0;
+  const priceRange = priceMin === priceMax
+    ? `$${priceMin}`
+    : `$${priceMin} - $${priceMax}`;
 
   return (
     <motion.div
@@ -30,7 +32,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
           {/* Image */}
           <div className="relative aspect-[4/3] overflow-hidden bg-muted">
             <img
-              src={product.images[0]}
+              src={product.images?.[0] || 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800'}
               alt={name}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />

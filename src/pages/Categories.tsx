@@ -1,11 +1,13 @@
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { categories } from '@/lib/mockData';
+import { useCategories } from '@/hooks/useDatabase';
 import Layout from '@/components/layout/Layout';
 import CategoryCard from '@/components/products/CategoryCard';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Categories() {
   const { t, locale } = useLanguage();
+  const { data: categories, isLoading } = useCategories();
 
   return (
     <Layout>
@@ -41,11 +43,19 @@ export default function Categories() {
       {/* Categories Grid */}
       <section className="py-12 md:py-16">
         <div className="container-wide">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {categories.map((category, index) => (
-              <CategoryCard key={category.id} category={category} index={index} />
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <Skeleton key={i} className="aspect-[4/3] rounded-xl" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {categories?.map((category, index) => (
+                <CategoryCard key={category.id} category={category} index={index} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </Layout>

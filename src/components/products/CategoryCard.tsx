@@ -2,10 +2,10 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Category } from '@/lib/mockData';
+import { DbCategory } from '@/lib/supabase';
 
 interface CategoryCardProps {
-  category: Category;
+  category: DbCategory;
   index?: number;
 }
 
@@ -27,7 +27,7 @@ export default function CategoryCard({ category, index = 0 }: CategoryCardProps)
         {/* Background Image */}
         <div className="absolute inset-0">
           <img
-            src={category.image_url}
+            src={category.image_url || 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600'}
             alt={name}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
@@ -41,7 +41,7 @@ export default function CategoryCard({ category, index = 0 }: CategoryCardProps)
           </h3>
           <div className="flex items-center justify-between mt-2">
             <p className="text-muted-foreground text-sm">
-              {category.product_count} {locale === 'zh' ? '个产品' : 'Products'}
+              {locale === 'zh' ? '查看产品' : 'View Products'}
             </p>
             <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary transition-colors">
               <ArrowRight className="w-5 h-5 text-primary group-hover:text-primary-foreground transition-colors" />

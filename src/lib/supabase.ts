@@ -1,0 +1,61 @@
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+// Type definitions
+export interface DbCategory {
+  id: string;
+  name_zh: string;
+  name_en: string;
+  slug: string;
+  image_url: string | null;
+  sort_order: number;
+  created_at: string;
+}
+
+export interface DbProduct {
+  id: string;
+  category_id: string | null;
+  name_zh: string;
+  name_en: string;
+  slug: string;
+  description_zh: string | null;
+  description_en: string | null;
+  price_min: number | null;
+  price_max: number | null;
+  min_order: number;
+  specs: Record<string, string>;
+  images: string[];
+  is_featured: boolean;
+  is_new: boolean;
+  stock_status: string;
+  sort_order: number;
+  seo_title: string | null;
+  seo_description: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DbInquiry {
+  id?: string;
+  product_id?: string | null;
+  customer_name?: string;
+  customer_email?: string;
+  customer_phone?: string;
+  customer_company?: string;
+  customer_im?: string;
+  message?: string;
+  source?: string;
+  status?: string;
+  created_at?: string;
+}
+
+export interface DbSiteSetting {
+  key: string;
+  value: unknown;
+  description: string | null;
+  updated_at: string;
+}

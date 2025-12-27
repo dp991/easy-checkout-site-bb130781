@@ -1,20 +1,49 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, MessageCircle, Send, ChevronLeft, ChevronRight, Package, Truck, Shield } from 'lucide-react';
+import { MessageCircle, Send, ChevronLeft, ChevronRight, Package, Truck, Shield } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { getProductBySlug, products, getCategoryBySlug } from '@/lib/mockData';
+import { useProductBySlug, useProducts, useCategoryBySlug } from '@/hooks/useDatabase';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/products/ProductCard';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function ProductDetail() {
   const { slug } = useParams<{ slug: string }>();
   const { t, locale } = useLanguage();
   const [currentImage, setCurrentImage] = useState(0);
 
-  const product = getProductBySlug(slug || '');
+  const { data: product, isLoading } = useProductBySlug(slug || '');
+  const { data: allProducts } = useProducts();
+
+  // Get category slug based on product's category
+  const categorySlugMap: Record<string, string> = {
+    'pos-terminals': 'pos-terminals',
+    'cash-registers': 'cash-registers',
+    'receipt-printers': 'receipt-printers',
+    'barcode-scanners': 'barcode-scanners',
+    'cash-drawers': 'cash-drawers',
+    'accessories': 'accessories',
+  };
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="container-wide py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+            <Skeleton className="aspect-square rounded-xl" />
+            <div className="space-y-4">
+              <Skeleton className="h-12 w-3/4" />
+              <Skeleton className="h-8 w-1/2" />
+              <Skeleton className="h-32 w-full" />
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   if (!product) {
     return (
@@ -33,28 +62,22 @@ export default function ProductDetail() {
 
   const name = locale === 'zh' ? product.name_zh : product.name_en;
   const description = locale === 'zh' ? product.description_zh : product.description_en;
-  const category = getCategoryBySlug(
-    product.category_id === '1' ? 'pos-terminals' :
-    product.category_id === '2' ? 'cash-registers' :
-    product.category_id === '3' ? 'receipt-printers' :
-    product.category_id === '4' ? 'barcode-scanners' :
-    product.category_id === '5' ? 'cash-drawers' : 'accessories'
-  );
+  const priceMin = product.price_min ?? 0;
+  const priceMax = product.price_max ?? 0;
+  const priceRange = priceMin === priceMax ? `$${priceMin}` : `$${priceMin} - $${priceMax}`;
+  const images = product.images || [];
+  const specs = product.specs || {};
 
-  const priceRange = product.price_min === product.price_max
-    ? `$${product.price_min}`
-    : `$${product.price_min} - $${product.price_max}`;
-
-  const relatedProducts = products
-    .filter(p => p.category_id === product.category_id && p.id !== product.id)
-    .slice(0, 3);
+  const relatedProducts = allProducts
+    ?.filter(p => p.category_id === product.category_id && p.id !== product.id)
+    .slice(0, 3) || [];
 
   const whatsappMessage = encodeURIComponent(`Hello, I'm interested in ${name}. Please provide more details and pricing.`);
 
   return (
     <Layout>
       <title>{name} - {locale === 'zh' ? '收银机商城' : 'POS Store'}</title>
-      <meta name="description" content={description.slice(0, 160)} />
+      <meta name="description" content={description?.slice(0, 160) || ''} />
 
       <div className="container-wide py-8">
         {/* Breadcrumb */}
@@ -66,14 +89,6 @@ export default function ProductDetail() {
           <Link to="/products" className="hover:text-foreground transition-colors">
             {t.nav.products}
           </Link>
-          {category && (
-            <>
-              <span>/</span>
-              <Link to={`/categories/${category.slug}`} className="hover:text-foreground transition-colors">
-                {locale === 'zh' ? category.name_zh : category.name_en}
-              </Link>
-            </>
-          )}
           <span>/</span>
           <span className="text-foreground">{name}</span>
         </nav>
@@ -88,21 +103,21 @@ export default function ProductDetail() {
           >
             <div className="relative aspect-square rounded-xl overflow-hidden metal-surface">
               <img
-                src={product.images[currentImage]}
+                src={images[currentImage] || 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800'}
                 alt={name}
                 className="w-full h-full object-cover"
               />
 
-              {product.images.length > 1 && (
+              {images.length > 1 && (
                 <>
                   <button
-                    onClick={() => setCurrentImage(prev => prev === 0 ? product.images.length - 1 : prev - 1)}
+                    onClick={() => setCurrentImage(prev => prev === 0 ? images.length - 1 : prev - 1)}
                     className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors"
                   >
                     <ChevronLeft className="w-5 h-5" />
                   </button>
                   <button
-                    onClick={() => setCurrentImage(prev => prev === product.images.length - 1 ? 0 : prev + 1)}
+                    onClick={() => setCurrentImage(prev => prev === images.length - 1 ? 0 : prev + 1)}
                     className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors"
                   >
                     <ChevronRight className="w-5 h-5" />
@@ -124,9 +139,9 @@ export default function ProductDetail() {
             </div>
 
             {/* Thumbnails */}
-            {product.images.length > 1 && (
+            {images.length > 1 && (
               <div className="flex gap-3">
-                {product.images.map((img, idx) => (
+                {images.map((img, idx) => (
                   <button
                     key={idx}
                     onClick={() => setCurrentImage(idx)}
@@ -166,19 +181,21 @@ export default function ProductDetail() {
             <p className="text-muted-foreground leading-relaxed">{description}</p>
 
             {/* Specs */}
-            <div>
-              <h3 className="font-display font-semibold text-lg text-foreground mb-4">
-                {t.products.specifications}
-              </h3>
-              <div className="grid grid-cols-2 gap-3">
-                {Object.entries(product.specs).map(([key, value]) => (
-                  <div key={key} className="flex justify-between p-3 rounded-lg bg-muted/50">
-                    <span className="text-sm text-muted-foreground">{key}</span>
-                    <span className="text-sm font-medium text-foreground">{value}</span>
-                  </div>
-                ))}
+            {Object.keys(specs).length > 0 && (
+              <div>
+                <h3 className="font-display font-semibold text-lg text-foreground mb-4">
+                  {t.products.specifications}
+                </h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {Object.entries(specs).map(([key, value]) => (
+                    <div key={key} className="flex justify-between p-3 rounded-lg bg-muted/50">
+                      <span className="text-sm text-muted-foreground">{key}</span>
+                      <span className="text-sm font-medium text-foreground">{String(value)}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Min Order */}
             <div className="flex items-center gap-2 text-muted-foreground">
