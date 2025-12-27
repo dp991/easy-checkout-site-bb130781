@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MessageCircle, Send, ChevronLeft, ChevronRight, Package, Truck, Shield } from 'lucide-react';
+import { MessageCircle, Send, ChevronLeft, ChevronRight, Package, Truck, Shield, ShoppingCart } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useCart } from '@/contexts/CartContext';
 import { useProductBySlug, useProducts, useCategoryBySlug } from '@/hooks/useDatabase';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/products/ProductCard';
@@ -13,6 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 export default function ProductDetail() {
   const { slug } = useParams<{ slug: string }>();
   const { t, locale } = useLanguage();
+  const { addToCart } = useCart();
   const [currentImage, setCurrentImage] = useState(0);
 
   const { data: product, isLoading } = useProductBySlug(slug || '');
@@ -205,6 +207,13 @@ export default function ProductDetail() {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 pt-4">
+              <Button 
+                onClick={() => addToCart(product.id)}
+                className="flex-1 h-12 bg-gradient-gold text-primary-foreground hover:opacity-90 font-semibold"
+              >
+                <ShoppingCart className="w-5 h-5 mr-2" />
+                {locale === 'zh' ? '加入购物车' : 'Add to Cart'}
+              </Button>
               <a
                 href={`https://wa.me/8613800138000?text=${whatsappMessage}`}
                 target="_blank"
