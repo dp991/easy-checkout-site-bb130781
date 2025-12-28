@@ -77,6 +77,7 @@ export type Database = {
           image_url: string | null
           name_en: string
           name_zh: string
+          parent_id: string | null
           slug: string
           sort_order: number | null
         }
@@ -86,6 +87,7 @@ export type Database = {
           image_url?: string | null
           name_en: string
           name_zh: string
+          parent_id?: string | null
           slug: string
           sort_order?: number | null
         }
@@ -95,10 +97,19 @@ export type Database = {
           image_url?: string | null
           name_en?: string
           name_zh?: string
+          parent_id?: string | null
           slug?: string
           sort_order?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "wh_categories_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "wh_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       wh_inquiries: {
         Row: {
