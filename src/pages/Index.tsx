@@ -41,66 +41,76 @@ export default function Index() {
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center overflow-hidden industrial-grid">
+      <section className="relative min-h-[85vh] flex items-center overflow-hidden">
+        {/* Background Image - Right Side */}
         <div className="absolute inset-0">
-          <img
-            src={heroImage}
-            alt="POS Terminal"
-            className="absolute inset-0 w-full h-full object-cover object-center opacity-70"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/60 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/20" />
+          <div className="absolute inset-y-0 right-0 w-full lg:w-3/5">
+            <img
+              src={heroImage}
+              alt="POS Terminal"
+              className="w-full h-full object-cover object-center"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
+          </div>
+          <div className="absolute inset-0 bg-background lg:bg-transparent" />
+          <div className="absolute inset-0 lg:hidden bg-background/90" />
         </div>
 
-        <div className="container-wide relative z-10 py-20">
-          <div className="max-w-2xl">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
-                {locale === 'zh' ? '🚀 专业POS解决方案提供商' : '🚀 Professional POS Solutions Provider'}
-              </span>
-            </motion.div>
+        <div className="container-wide relative z-10 py-16 lg:py-20">
+          <div className="grid lg:grid-cols-2 gap-8 items-center">
+            {/* Left Content */}
+            <div className="space-y-6">
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+              >
+                <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
+                  {locale === 'zh' ? '🚀 专业POS解决方案提供商' : '🚀 Professional POS Solutions Provider'}
+                </span>
+              </motion.div>
 
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight"
-            >
-              {t.hero.title}
-              <span className="block text-gradient-gold mt-2">{t.hero.subtitle}</span>
-            </motion.h1>
+              <motion.h1
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+                className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight"
+              >
+                {t.hero.title}
+                <span className="block text-gradient-gold mt-2">{t.hero.subtitle}</span>
+              </motion.h1>
 
-            <motion.p
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="mt-6 text-lg text-muted-foreground max-w-xl"
-            >
-              {t.hero.description}
-            </motion.p>
+              <motion.p
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="text-lg text-muted-foreground max-w-xl"
+              >
+                {t.hero.description}
+              </motion.p>
 
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="mt-8 flex flex-wrap gap-4"
-            >
-              <Link to="/products">
-                <Button size="lg" className="bg-gradient-gold text-primary-foreground hover:opacity-90 font-semibold h-12 px-8">
-                  {t.hero.cta}
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
-              </Link>
-              <Link to="/contact">
-                <Button size="lg" variant="outline" className="h-12 px-8 border-border hover:bg-muted">
-                  {t.hero.ctaSecondary}
-                </Button>
-              </Link>
-            </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="flex flex-wrap gap-4 pt-2"
+              >
+                <Link to="/products">
+                  <Button size="lg" className="bg-gradient-gold text-primary-foreground hover:opacity-90 font-semibold h-12 px-8">
+                    {t.hero.cta}
+                    <ArrowRight className="ml-2 w-5 h-5" />
+                  </Button>
+                </Link>
+                <Link to="/contact">
+                  <Button size="lg" variant="outline" className="h-12 px-8 border-border hover:bg-muted">
+                    {t.hero.ctaSecondary}
+                  </Button>
+                </Link>
+              </motion.div>
+            </div>
+
+            {/* Right Spacer for layout balance */}
+            <div className="hidden lg:block" />
           </div>
         </div>
 

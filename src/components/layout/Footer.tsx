@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Mail, Phone, MapPin, MessageCircle, Send } from 'lucide-react';
+import { Mail, MapPin, MessageCircle, Send } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function Footer() {
@@ -85,15 +85,6 @@ export default function Footer() {
                 </div>
               </li>
               <li className="flex items-start gap-3">
-                <Phone className="w-5 h-5 text-primary mt-0.5" />
-                <div>
-                  <p className="text-sm text-foreground">+86 138 0013 8000</p>
-                  <p className="text-xs text-muted-foreground">
-                    {locale === 'zh' ? '工作日 9:00-18:00' : 'Mon-Fri 9AM-6PM'}
-                  </p>
-                </div>
-              </li>
-              <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-primary mt-0.5" />
                 <div>
                   <p className="text-sm text-foreground">
@@ -134,8 +125,11 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-border">
-          <div className="flex flex-col items-center gap-4">
-            <div className="flex gap-6 text-sm">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-6 text-sm">
+            <p className="text-muted-foreground">
+              {t.footer.copyright}
+            </p>
+            <div className="flex gap-4">
               <Link to="/privacy" className="text-muted-foreground hover:text-foreground transition-colors">
                 {locale === 'zh' ? '隐私政策' : 'Privacy Policy'}
               </Link>
@@ -143,9 +137,6 @@ export default function Footer() {
                 {locale === 'zh' ? '服务条款' : 'Terms of Service'}
               </Link>
             </div>
-            <p className="text-muted-foreground text-sm text-center">
-              {t.footer.copyright}
-            </p>
           </div>
         </div>
       </div>
