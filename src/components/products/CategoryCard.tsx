@@ -18,10 +18,10 @@ export default function CategoryCard({ category, index = 0 }: CategoryCardProps)
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.1, duration: 0.4 }}
+      transition={{ delay: index * 0.05, duration: 0.4 }}
     >
       <Link
-        to={`/categories/${category.slug}`}
+        to={`/categories?category=${category.slug}`}
         className="group block relative overflow-hidden rounded-xl aspect-[4/3] metal-surface"
       >
         {/* Background Image */}
@@ -35,16 +35,16 @@ export default function CategoryCard({ category, index = 0 }: CategoryCardProps)
         </div>
 
         {/* Content */}
-        <div className="relative h-full flex flex-col justify-end p-6">
-          <h3 className="font-display font-bold text-2xl text-foreground group-hover:text-primary transition-colors">
+        <div className="relative h-full flex flex-col justify-end p-4 lg:p-6">
+          <h3 className="font-display font-bold text-lg lg:text-2xl text-foreground group-hover:text-primary transition-colors">
             {name}
           </h3>
           <div className="flex items-center justify-between mt-2">
             <p className="text-muted-foreground text-sm">
               {locale === 'zh' ? '查看产品' : 'View Products'}
             </p>
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary transition-colors">
-              <ArrowRight className="w-5 h-5 text-primary group-hover:text-primary-foreground transition-colors" />
+            <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary transition-colors">
+              <ArrowRight className="w-4 h-4 lg:w-5 lg:h-5 text-primary group-hover:text-primary-foreground transition-colors" />
             </div>
           </div>
         </div>

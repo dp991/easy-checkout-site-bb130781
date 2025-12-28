@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Shield, Truck, Headphones, Award } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useCategories, useFeaturedProducts } from '@/hooks/useDatabase';
+import { useCategories, useProducts } from '@/hooks/useDatabase';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/products/ProductCard';
 import CategoryCard from '@/components/products/CategoryCard';
@@ -13,7 +13,7 @@ import heroImage from '@/assets/hero-pos.jpg';
 export default function Index() {
   const { t, locale } = useLanguage();
   const { data: categories, isLoading: categoriesLoading } = useCategories();
-  const { data: featuredProducts, isLoading: productsLoading } = useFeaturedProducts();
+  const { data: products, isLoading: productsLoading } = useProducts();
 
   const features = [
     {
@@ -95,7 +95,7 @@ export default function Index() {
                 transition={{ duration: 0.6, delay: 0.3 }}
                 className="flex flex-wrap gap-4 pt-2"
               >
-                <Link to="/products">
+                <Link to="/categories">
                   <Button size="lg" className="bg-gradient-gold text-primary-foreground hover:opacity-90 font-semibold h-12 px-8">
                     {t.hero.cta}
                     <ArrowRight className="ml-2 w-5 h-5" />
@@ -113,21 +113,6 @@ export default function Index() {
             <div className="hidden lg:block" />
           </div>
         </div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
-        >
-          <div className="w-6 h-10 rounded-full border-2 border-muted-foreground/30 flex justify-center pt-2">
-            <motion.div
-              animate={{ y: [0, 8, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-              className="w-1.5 h-1.5 rounded-full bg-primary"
-            />
-          </div>
-        </motion.div>
       </section>
 
       {/* Features Section */}
@@ -186,14 +171,14 @@ export default function Index() {
           </div>
 
           {categoriesLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(6)].map((_, i) => (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+              {[...Array(8)].map((_, i) => (
                 <Skeleton key={i} className="aspect-[4/3] rounded-xl" />
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {categories?.slice(0, 6).map((category, index) => (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+              {categories?.filter(c => !c.parent_id).slice(0, 8).map((category, index) => (
                 <CategoryCard key={category.id} category={category} index={index} />
               ))}
             </div>
@@ -224,7 +209,7 @@ export default function Index() {
               </motion.h2>
             </div>
             <Link
-              to="/products"
+              to="/categories"
               className="hidden md:flex items-center gap-2 text-primary hover:text-primary/80 font-medium transition-colors"
             >
               {t.common.seeAll}
@@ -233,14 +218,14 @@ export default function Index() {
           </div>
 
           {productsLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(3)].map((_, i) => (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+              {[...Array(8)].map((_, i) => (
                 <Skeleton key={i} className="aspect-[4/3] rounded-xl" />
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredProducts?.map((product, index) => (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+              {products?.slice(0, 8).map((product, index) => (
                 <ProductCard key={product.id} product={product} index={index} />
               ))}
             </div>

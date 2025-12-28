@@ -13,6 +13,7 @@ export interface DbCategory {
   slug: string;
   image_url: string | null;
   sort_order: number;
+  parent_id: string | null;
   created_at: string;
 }
 

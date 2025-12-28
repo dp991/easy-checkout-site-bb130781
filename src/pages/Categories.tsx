@@ -1,23 +1,62 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useProducts } from '@/hooks/useDatabase';
+import { useProducts, useCategories } from '@/hooks/useDatabase';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/products/ProductCard';
 import CategoryTree from '@/components/products/CategoryTree';
-import { categoryTree } from '@/lib/categoryData';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Categories() {
   const { locale } = useLanguage();
-  const { data: products, isLoading } = useProducts();
+  const [searchParams] = useSearchParams();
+  const { data: products, isLoading: productsLoading } = useProducts();
+  const { data: categories, isLoading: categoriesLoading } = useCategories();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedCategoryName, setSelectedCategoryName] = useState<string>('全部产品');
+  const [selectedCategoryName, setSelectedCategoryName] = useState<string>(
+    locale === 'zh' ? '全部产品' : 'All Products'
+  );
+
+  // Handle URL parameter for category selection
+  useEffect(() => {
+    const categorySlug = searchParams.get('category');
+    if (categorySlug && categories) {
+      const category = categories.find(c => c.slug === categorySlug);
+      if (category) {
+        setSelectedCategory(categorySlug);
+        setSelectedCategoryName(locale === 'zh' ? category.name_zh : category.name_en);
+      }
+    }
+  }, [searchParams, categories, locale]);
 
   const handleSelectCategory = (slug: string, name: string) => {
-    setSelectedCategory(slug);
-    setSelectedCategoryName(name);
+    if (slug === '') {
+      setSelectedCategory(null);
+      setSelectedCategoryName(locale === 'zh' ? '全部产品' : 'All Products');
+    } else {
+      setSelectedCategory(slug);
+      setSelectedCategoryName(name);
+    }
   };
+
+  // Filter products by selected category
+  const filteredProducts = products?.filter(product => {
+    if (!selectedCategory) return true;
+    
+    // Find the selected category
+    const selectedCat = categories?.find(c => c.slug === selectedCategory);
+    if (!selectedCat) return true;
+    
+    // Check if product belongs to this category or its children
+    const categoryIds = [selectedCat.id];
+    const childCategories = categories?.filter(c => c.parent_id === selectedCat.id) || [];
+    childCategories.forEach(child => categoryIds.push(child.id));
+    
+    return product.category_id && categoryIds.includes(product.category_id);
+  });
+
+  const isLoading = productsLoading || categoriesLoading;
 
   return (
     <Layout>
@@ -30,11 +69,19 @@ export default function Categories() {
       <div className="flex min-h-[calc(100vh-80px)]">
         {/* Left Sidebar - Category Tree */}
         <aside className="w-72 shrink-0 border-r border-border bg-card/50 hidden md:block">
-          <CategoryTree
-            categories={categoryTree}
-            selectedCategory={selectedCategory}
-            onSelectCategory={handleSelectCategory}
-          />
+          {categoriesLoading ? (
+            <div className="p-4 space-y-2">
+              {[...Array(10)].map((_, i) => (
+                <Skeleton key={i} className="h-10 w-full" />
+              ))}
+            </div>
+          ) : (
+            <CategoryTree
+              categories={categories || []}
+              selectedCategory={selectedCategory}
+              onSelectCategory={handleSelectCategory}
+            />
+          )}
         </aside>
 
         {/* Right Content - Products Grid */}
@@ -52,8 +99,8 @@ export default function Categories() {
               </h1>
               <p className="text-muted-foreground mt-1">
                 {locale === 'zh' 
-                  ? `共 ${products?.length || 0} 款产品` 
-                  : `${products?.length || 0} products`}
+                  ? `共 ${filteredProducts?.length || 0} 款产品` 
+                  : `${filteredProducts?.length || 0} products`}
               </p>
             </div>
 
@@ -64,9 +111,9 @@ export default function Categories() {
                   <Skeleton key={i} className="aspect-[4/5] rounded-xl" />
                 ))}
               </div>
-            ) : products && products.length > 0 ? (
+            ) : filteredProducts && filteredProducts.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {products.map((product, index) => (
+                {filteredProducts.map((product, index) => (
                   <ProductCard key={product.id} product={product} index={index} />
                 ))}
               </div>
@@ -93,16 +140,23 @@ export default function Categories() {
           <select
             value={selectedCategory || ''}
             onChange={(e) => {
-              const cat = categoryTree.find(c => c.slug === e.target.value);
-              if (cat) {
-                handleSelectCategory(cat.slug, cat.name);
+              const slug = e.target.value;
+              if (slug === '') {
+                handleSelectCategory('', locale === 'zh' ? '全部产品' : 'All Products');
+              } else {
+                const cat = categories?.find(c => c.slug === slug);
+                if (cat) {
+                  handleSelectCategory(cat.slug, locale === 'zh' ? cat.name_zh : cat.name_en);
+                }
               }
             }}
             className="w-full px-4 py-3 rounded-xl bg-card border border-border shadow-lg text-foreground"
           >
-            <option value="">{locale === 'zh' ? '选择分类' : 'Select Category'}</option>
-            {categoryTree.map((cat) => (
-              <option key={cat.slug} value={cat.slug}>{cat.name}</option>
+            <option value="">{locale === 'zh' ? '全部产品' : 'All Products'}</option>
+            {categories?.filter(c => !c.parent_id).map((cat) => (
+              <option key={cat.slug} value={cat.slug}>
+                {locale === 'zh' ? cat.name_zh : cat.name_en}
+              </option>
             ))}
           </select>
         </div>
