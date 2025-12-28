@@ -7,7 +7,6 @@ export default function Footer() {
 
   const quickLinks = [
     { href: '/', label: t.nav.home },
-    { href: '/products', label: t.nav.products },
     { href: '/categories', label: t.nav.categories },
     { href: '/about', label: t.nav.about },
     { href: '/contact', label: t.nav.contact },
@@ -125,18 +124,10 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-border">
-          <div className="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-6 text-sm">
+          <div className="flex items-center justify-center text-sm">
             <p className="text-muted-foreground">
               {t.footer.copyright}
             </p>
-            <div className="flex gap-4">
-              <Link to="/privacy" className="text-muted-foreground hover:text-foreground transition-colors">
-                {locale === 'zh' ? '隐私政策' : 'Privacy Policy'}
-              </Link>
-              <Link to="/terms" className="text-muted-foreground hover:text-foreground transition-colors">
-                {locale === 'zh' ? '服务条款' : 'Terms of Service'}
-              </Link>
-            </div>
           </div>
         </div>
       </div>
