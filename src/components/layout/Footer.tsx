@@ -134,10 +134,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-border">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-muted-foreground text-sm">
-              {t.footer.copyright}
-            </p>
+          <div className="flex flex-col items-center gap-4">
             <div className="flex gap-6 text-sm">
               <Link to="/privacy" className="text-muted-foreground hover:text-foreground transition-colors">
                 {locale === 'zh' ? '隐私政策' : 'Privacy Policy'}
@@ -146,6 +143,9 @@ export default function Footer() {
                 {locale === 'zh' ? '服务条款' : 'Terms of Service'}
               </Link>
             </div>
+            <p className="text-muted-foreground text-sm text-center">
+              {t.footer.copyright}
+            </p>
           </div>
         </div>
       </div>

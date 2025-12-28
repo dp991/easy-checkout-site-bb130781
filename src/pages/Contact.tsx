@@ -92,7 +92,7 @@ export default function Contact() {
       } />
 
       {/* Hero */}
-      <section className="py-16 md:py-24 bg-card/50 border-b border-border">
+      <section className="py-8 md:py-12 bg-card/50 border-b border-border">
         <div className="container-wide">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -102,39 +102,39 @@ export default function Contact() {
             <span className="text-primary text-sm font-medium uppercase tracking-wider">
               {locale === 'zh' ? '联系我们' : 'Get in Touch'}
             </span>
-            <h1 className="font-display text-4xl md:text-5xl font-bold text-foreground mt-3">
+            <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mt-2">
               {t.contact.title}
             </h1>
-            <p className="mt-4 text-lg text-muted-foreground">
+            <p className="mt-2 text-muted-foreground">
               {t.contact.subtitle}
             </p>
           </motion.div>
         </div>
       </section>
 
-      <section className="py-12 md:py-20">
+      <section className="py-8 md:py-12">
         <div className="container-wide">
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
             {/* Contact Info */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="lg:col-span-2 space-y-8"
+              className="lg:col-span-2 space-y-6"
             >
-              <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
                 {contactInfo.map((item) => (
-                  <div key={item.title} className="flex gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <item.icon className="w-5 h-5 text-primary" />
+                  <div key={item.title} className="flex gap-3 p-3 rounded-lg bg-card/50">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <item.icon className="w-4 h-4 text-primary" />
                     </div>
-                    <div>
-                      <h3 className="font-medium text-foreground">{item.title}</h3>
+                    <div className="min-w-0">
+                      <h3 className="font-medium text-foreground text-sm">{item.title}</h3>
                       {item.link ? (
-                        <a href={item.link} className="text-muted-foreground hover:text-primary transition-colors">
+                        <a href={item.link} className="text-muted-foreground hover:text-primary transition-colors text-sm truncate block">
                           {item.value}
                         </a>
                       ) : (
-                        <p className="text-muted-foreground">{item.value}</p>
+                        <p className="text-muted-foreground text-sm">{item.value}</p>
                       )}
                     </div>
                   </div>
@@ -142,19 +142,19 @@ export default function Contact() {
               </div>
 
               {/* IM Buttons */}
-              <div className="pt-6 border-t border-border space-y-4">
-                <h3 className="font-display font-semibold text-lg text-foreground">
+              <div className="pt-4 border-t border-border space-y-3">
+                <h3 className="font-display font-semibold text-foreground">
                   {locale === 'zh' ? '即时通讯' : 'Instant Messaging'}
                 </h3>
-                <div className="flex flex-col gap-3">
+                <div className="grid grid-cols-2 gap-3">
                   <a
                     href="https://wa.me/8613800138000?text=Hello%2C%20I%20want%20to%20inquire%20about%20your%20POS%20products"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <Button className="w-full h-12 bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold">
-                      <MessageCircle className="w-5 h-5 mr-2" />
-                      {t.contact.whatsapp}
+                    <Button className="w-full h-10 bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold text-sm">
+                      <MessageCircle className="w-4 h-4 mr-1.5" />
+                      WhatsApp
                     </Button>
                   </a>
                   <a
@@ -162,9 +162,9 @@ export default function Contact() {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <Button className="w-full h-12 bg-[#0088cc] hover:bg-[#0077b3] text-white font-semibold">
-                      <Send className="w-5 h-5 mr-2" />
-                      {t.contact.telegram}
+                    <Button className="w-full h-10 bg-[#0088cc] hover:bg-[#0077b3] text-white font-semibold text-sm">
+                      <Send className="w-4 h-4 mr-1.5" />
+                      Telegram
                     </Button>
                   </a>
                 </div>
@@ -177,19 +177,19 @@ export default function Contact() {
               animate={{ opacity: 1, x: 0 }}
               className="lg:col-span-3"
             >
-              <form onSubmit={handleSubmit} className="metal-surface rounded-xl p-6 md:p-8 space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div className="space-y-2">
+              <form onSubmit={handleSubmit} className="metal-surface rounded-xl p-5 md:p-6 space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
                     <label className="text-sm font-medium text-foreground">{t.contact.name} *</label>
                     <Input
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       placeholder={locale === 'zh' ? '请输入您的姓名' : 'Enter your name'}
                       required
-                      className="h-12 bg-muted border-border"
+                      className="h-10 bg-muted border-border"
                     />
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
                     <label className="text-sm font-medium text-foreground">{t.contact.email} *</label>
                     <Input
                       type="email"
@@ -197,40 +197,40 @@ export default function Contact() {
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       placeholder={locale === 'zh' ? '请输入邮箱' : 'Enter your email'}
                       required
-                      className="h-12 bg-muted border-border"
+                      className="h-10 bg-muted border-border"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div className="space-y-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
                     <label className="text-sm font-medium text-foreground">{t.contact.phone}</label>
                     <Input
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                       placeholder={locale === 'zh' ? '请输入电话' : 'Enter phone number'}
-                      className="h-12 bg-muted border-border"
+                      className="h-10 bg-muted border-border"
                     />
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
                     <label className="text-sm font-medium text-foreground">{t.contact.company}</label>
                     <Input
                       value={formData.company}
                       onChange={(e) => setFormData({ ...formData, company: e.target.value })}
                       placeholder={locale === 'zh' ? '请输入公司名称' : 'Enter company name'}
-                      className="h-12 bg-muted border-border"
+                      className="h-10 bg-muted border-border"
                     />
                   </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   <label className="text-sm font-medium text-foreground">{t.contact.message} *</label>
                   <Textarea
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     placeholder={locale === 'zh' ? '请描述您的需求...' : 'Describe your requirements...'}
                     required
-                    rows={5}
+                    rows={4}
                     className="bg-muted border-border resize-none"
                   />
                 </div>
@@ -238,20 +238,20 @@ export default function Contact() {
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full h-12 bg-gradient-gold text-primary-foreground hover:opacity-90 font-semibold"
+                  className="w-full h-10 bg-gradient-gold text-primary-foreground hover:opacity-90 font-semibold"
                 >
                   {isSubmitting ? (
                     <span className="flex items-center gap-2">
                       <motion.span
                         animate={{ rotate: 360 }}
                         transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                        className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full"
+                        className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full"
                       />
                       {locale === 'zh' ? '发送中...' : 'Sending...'}
                     </span>
                   ) : (
                     <span className="flex items-center gap-2">
-                      <CheckCircle className="w-5 h-5" />
+                      <CheckCircle className="w-4 h-4" />
                       {t.contact.send}
                     </span>
                   )}

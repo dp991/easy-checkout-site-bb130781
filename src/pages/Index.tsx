@@ -43,13 +43,13 @@ export default function Index() {
       {/* Hero Section */}
       <section className="relative min-h-[90vh] flex items-center overflow-hidden industrial-grid">
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/95 to-background/70" />
           <img
             src={heroImage}
             alt="POS Terminal"
-            className="absolute right-0 top-0 h-full w-2/3 object-cover object-left opacity-60"
+            className="absolute inset-0 w-full h-full object-cover object-center opacity-40"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/50" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-background/50" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/30" />
         </div>
 
         <div className="container-wide relative z-10 py-20">
