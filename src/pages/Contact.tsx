@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, MessageCircle, Send, Clock, CheckCircle } from 'lucide-react';
+import { Mail, MapPin, MessageCircle, Send, Clock, CheckCircle } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { submitInquiry } from '@/hooks/useDatabase';
 import Layout from '@/components/layout/Layout';
@@ -66,12 +66,6 @@ export default function Contact() {
       link: 'mailto:sales@posstore.com',
     },
     {
-      icon: Phone,
-      title: locale === 'zh' ? '电话' : 'Phone',
-      value: '+86 138 0013 8000',
-      link: 'tel:+8613800138000',
-    },
-    {
       icon: MapPin,
       title: locale === 'zh' ? '地址' : 'Address',
       value: locale === 'zh' ? '广东省深圳市宝安区' : "Bao'an District, Shenzhen, China",
@@ -121,20 +115,20 @@ export default function Contact() {
               animate={{ opacity: 1, x: 0 }}
               className="lg:col-span-2 space-y-6"
             >
-              <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-4">
                 {contactInfo.map((item) => (
-                  <div key={item.title} className="flex gap-3 p-3 rounded-lg bg-card/50">
-                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <item.icon className="w-4 h-4 text-primary" />
+                  <div key={item.title} className="flex gap-4 p-4 rounded-lg bg-card/50 border border-border/50">
+                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <item.icon className="w-5 h-5 text-primary" />
                     </div>
-                    <div className="min-w-0">
-                      <h3 className="font-medium text-foreground text-sm">{item.title}</h3>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-medium text-foreground">{item.title}</h3>
                       {item.link ? (
-                        <a href={item.link} className="text-muted-foreground hover:text-primary transition-colors text-sm truncate block">
+                        <a href={item.link} className="text-muted-foreground hover:text-primary transition-colors">
                           {item.value}
                         </a>
                       ) : (
-                        <p className="text-muted-foreground text-sm">{item.value}</p>
+                        <p className="text-muted-foreground">{item.value}</p>
                       )}
                     </div>
                   </div>

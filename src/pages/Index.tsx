@@ -46,10 +46,10 @@ export default function Index() {
           <img
             src={heroImage}
             alt="POS Terminal"
-            className="absolute inset-0 w-full h-full object-cover object-center opacity-40"
+            className="absolute inset-0 w-full h-full object-cover object-center opacity-70"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-background/50" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/30" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/60 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/20" />
         </div>
 
         <div className="container-wide relative z-10 py-20">
