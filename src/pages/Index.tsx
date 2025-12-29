@@ -101,7 +101,7 @@ export default function Index() {
                     <ArrowRight className="ml-2 w-5 h-5" />
                   </Button>
                 </Link>
-                <Link to="/contact">
+                <Link to="/contact" onClick={() => window.scrollTo({ top: 0, behavior: 'instant' })}>
                   <Button size="lg" variant="outline" className="h-12 px-8 border-border hover:bg-muted">
                     {t.hero.ctaSecondary}
                   </Button>
@@ -252,7 +252,7 @@ export default function Index() {
                   : 'Contact our sales team for exclusive quotes and customized solutions.'}
               </p>
               <div className="mt-6 flex flex-wrap gap-4">
-                <Link to="/contact">
+                <Link to="/contact" onClick={() => window.scrollTo({ top: 0, behavior: 'instant' })}>
                   <Button className="bg-gradient-gold text-primary-foreground hover:opacity-90 font-semibold">
                     {t.nav.inquiry}
                   </Button>
