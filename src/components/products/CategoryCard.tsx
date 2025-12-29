@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -11,8 +11,15 @@ interface CategoryCardProps {
 
 export default function CategoryCard({ category, index = 0 }: CategoryCardProps) {
   const { locale } = useLanguage();
+  const navigate = useNavigate();
 
   const name = locale === 'zh' ? category.name_zh : category.name_en;
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    navigate(`/categories?category=${category.slug}`);
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
 
   return (
     <motion.div
@@ -20,8 +27,9 @@ export default function CategoryCard({ category, index = 0 }: CategoryCardProps)
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05, duration: 0.4 }}
     >
-      <Link
-        to={`/categories?category=${category.slug}`}
+      <a
+        href={`/categories?category=${category.slug}`}
+        onClick={handleClick}
         className="group block relative overflow-hidden rounded-xl aspect-[4/3] metal-surface"
       >
         {/* Background Image */}
@@ -53,7 +61,7 @@ export default function CategoryCard({ category, index = 0 }: CategoryCardProps)
         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
         </div>
-      </Link>
+      </a>
     </motion.div>
   );
 }

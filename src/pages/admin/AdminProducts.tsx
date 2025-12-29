@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { Plus, Pencil, Trash2, Search } from 'lucide-react';
 import { supabase, DbProduct, DbCategory } from '@/lib/supabase';
 import AdminLayout from '@/components/admin/AdminLayout';
+import AdminCategoryTree from '@/components/admin/AdminCategoryTree';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -26,6 +27,7 @@ import { toast } from 'sonner';
 export default function AdminProducts() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<DbProduct | null>(null);
   const [formData, setFormData] = useState({
@@ -66,6 +68,40 @@ export default function AdminProducts() {
       return data || [];
     },
   });
+
+  // Get all descendant category IDs for a given category
+  const getDescendantIds = (categoryId: string, cats: DbCategory[]): string[] => {
+    const children = cats.filter(c => c.parent_id === categoryId);
+    let ids = [categoryId];
+    for (const child of children) {
+      ids = [...ids, ...getDescendantIds(child.id, cats)];
+    }
+    return ids;
+  };
+
+  // Filter products by category tree
+  const filteredProducts = useMemo(() => {
+    if (!products) return [];
+    
+    let result = products;
+    
+    // Filter by category (including children)
+    if (selectedCategoryId && categories) {
+      const categoryIds = getDescendantIds(selectedCategoryId, categories);
+      result = result.filter(p => p.category_id && categoryIds.includes(p.category_id));
+    }
+    
+    // Filter by search
+    if (search) {
+      const searchLower = search.toLowerCase();
+      result = result.filter(p =>
+        p.name_zh.toLowerCase().includes(searchLower) ||
+        p.name_en.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    return result;
+  }, [products, categories, selectedCategoryId, search]);
 
   const createMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
@@ -182,10 +218,12 @@ export default function AdminProducts() {
     }
   };
 
-  const filteredProducts = products?.filter(p =>
-    p.name_zh.toLowerCase().includes(search.toLowerCase()) ||
-    p.name_en.toLowerCase().includes(search.toLowerCase())
-  );
+  // Get category name by ID
+  const getCategoryName = (categoryId: string | null) => {
+    if (!categoryId || !categories) return '-';
+    const cat = categories.find(c => c.id === categoryId);
+    return cat?.name_zh || '-';
+  };
 
   return (
     <AdminLayout>
@@ -205,81 +243,103 @@ export default function AdminProducts() {
           </Button>
         </div>
 
-        {/* Search */}
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-          <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="搜索产品..."
-            className="pl-10 bg-card border-border"
-          />
-        </div>
+        <div className="flex gap-6">
+          {/* Category Tree Sidebar */}
+          <Card className="w-64 flex-shrink-0 p-4 bg-card border-border h-fit sticky top-4">
+            <h3 className="font-medium text-foreground mb-3">分类目录</h3>
+            {categories && (
+              <AdminCategoryTree
+                categories={categories}
+                selectedId={selectedCategoryId}
+                onSelect={(cat) => setSelectedCategoryId(cat?.id || null)}
+              />
+            )}
+          </Card>
 
-        {/* Products List */}
-        <Card className="p-6 bg-card border-border">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          {/* Main Content */}
+          <div className="flex-1 space-y-4">
+            {/* Search */}
+            <div className="relative max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="搜索产品..."
+                className="pl-10 bg-card border-border"
+              />
             </div>
-          ) : filteredProducts && filteredProducts.length > 0 ? (
-            <div className="space-y-4">
-              {filteredProducts.map((product, index) => (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="flex items-center gap-4 p-4 rounded-lg bg-muted/50"
-                >
-                  <img
-                    src={product.images?.[0] || 'https://via.placeholder.com/80'}
-                    alt={product.name_zh}
-                    className="w-16 h-16 rounded-lg object-cover"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-foreground truncate">{product.name_zh}</p>
-                    <p className="text-sm text-muted-foreground truncate">{product.name_en}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-sm text-primary font-medium">
-                        ${product.price_min} - ${product.price_max}
-                      </span>
-                      {product.is_featured && (
-                        <span className="text-xs px-2 py-0.5 rounded bg-primary/10 text-primary">热门</span>
-                      )}
-                      {product.is_new && (
-                        <span className="text-xs px-2 py-0.5 rounded bg-green-500/10 text-green-500">新品</span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => openEditDialog(product)}
+
+            {/* Products List */}
+            <Card className="p-6 bg-card border-border">
+              {isLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                </div>
+              ) : filteredProducts && filteredProducts.length > 0 ? (
+                <div className="space-y-4">
+                  {filteredProducts.map((product, index) => (
+                    <motion.div
+                      key={product.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      className="flex items-center gap-4 p-4 rounded-lg bg-muted/50"
                     >
-                      <Pencil className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        if (confirm('确定要删除这个产品吗？')) {
-                          deleteMutation.mutate(product.id);
-                        }
-                      }}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-muted-foreground text-center py-12">暂无产品</p>
-          )}
-        </Card>
+                      <img
+                        src={product.images?.[0] || 'https://via.placeholder.com/80'}
+                        alt={product.name_zh}
+                        className="w-16 h-16 rounded-lg object-cover"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-foreground truncate">{product.name_zh}</p>
+                        <p className="text-sm text-muted-foreground truncate">{product.name_en}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-sm text-primary font-medium">
+                            ${product.price_min} - ${product.price_max}
+                          </span>
+                          <span className="text-xs text-muted-foreground px-2 py-0.5 rounded bg-muted">
+                            {getCategoryName(product.category_id)}
+                          </span>
+                          {product.is_featured && (
+                            <span className="text-xs px-2 py-0.5 rounded bg-primary/10 text-primary">热门</span>
+                          )}
+                          {product.is_new && (
+                            <span className="text-xs px-2 py-0.5 rounded bg-green-500/10 text-green-500">新品</span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => openEditDialog(product)}
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            if (confirm('确定要删除这个产品吗？')) {
+                              deleteMutation.mutate(product.id);
+                            }
+                          }}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-muted-foreground text-center py-12">
+                  {selectedCategoryId ? '该分类下暂无产品' : '暂无产品'}
+                </p>
+              )}
+            </Card>
+          </div>
+        </div>
 
         {/* Dialog */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -330,7 +390,7 @@ export default function AdminProducts() {
                     <SelectContent>
                       {categories?.map((cat) => (
                         <SelectItem key={cat.id} value={cat.id}>
-                          {cat.name_zh}
+                          {cat.parent_id ? '└ ' : ''}{cat.name_zh}
                         </SelectItem>
                       ))}
                     </SelectContent>
