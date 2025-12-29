@@ -10,7 +10,7 @@ import {
   ChartContainer,
   ChartTooltip,
 } from '@/components/ui/chart';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, eachDayOfInterval, eachMonthOfInterval } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 
@@ -240,82 +240,80 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            <div className="h-[240px]">
+            <div className="h-[240px] w-full overflow-hidden">
               {chartLoading ? (
                 <div className="h-full flex items-center justify-center">
                   <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                 </div>
               ) : (
-                <ChartContainer config={chartConfig}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart 
-                      data={chartData || []} 
-                      margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
-                    >
-                      <defs>
-                        <linearGradient id="colorInquiry" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.4}/>
-                          <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0.05}/>
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid 
-                        strokeDasharray="3 3" 
-                        vertical={false}
-                        stroke="hsl(var(--border))"
-                        strokeOpacity={0.5}
-                      />
-                      <XAxis 
-                        dataKey="date" 
-                        stroke="hsl(var(--muted-foreground))"
-                        fontSize={12}
-                        tickLine={false}
-                        axisLine={false}
-                        tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                        interval={timeRange === 'month' ? 2 : 0}
-                      />
-                      <YAxis 
-                        stroke="hsl(var(--muted-foreground))"
-                        fontSize={12}
-                        tickLine={false}
-                        axisLine={false}
-                        allowDecimals={false}
-                        tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                        width={40}
-                      />
-                      <ChartTooltip 
-                        content={({ active, payload }) => {
-                          if (active && payload && payload.length) {
-                            const data = payload[0].payload;
-                            return (
-                              <div className="bg-popover/95 backdrop-blur-sm border border-border rounded-lg shadow-xl px-4 py-3">
-                                <p className="text-xs text-muted-foreground mb-1">{data.fullDate}</p>
-                                <p className="text-base font-semibold text-foreground">
-                                  {data.count} <span className="text-sm font-normal text-muted-foreground">条询盘</span>
-                                </p>
-                              </div>
-                            );
-                          }
-                          return null;
-                        }}
-                        cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 1, strokeDasharray: '4 4' }}
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="count"
-                        stroke="hsl(var(--primary))"
-                        strokeWidth={2.5}
-                        fillOpacity={1}
-                        fill="url(#colorInquiry)"
-                        dot={false}
-                        activeDot={{ 
-                          r: 5, 
-                          fill: 'hsl(var(--primary))', 
-                          stroke: 'hsl(var(--background))', 
-                          strokeWidth: 2 
-                        }}
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
+                <ChartContainer config={chartConfig} className="h-full w-full">
+                  <AreaChart 
+                    data={chartData || []} 
+                    margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                  >
+                    <defs>
+                      <linearGradient id="colorInquiry" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.4}/>
+                        <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0.05}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid 
+                      strokeDasharray="3 3" 
+                      vertical={false}
+                      stroke="hsl(var(--border))"
+                      strokeOpacity={0.5}
+                    />
+                    <XAxis 
+                      dataKey="date" 
+                      stroke="hsl(var(--muted-foreground))"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                      tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                      interval={timeRange === 'month' ? 2 : 0}
+                    />
+                    <YAxis 
+                      stroke="hsl(var(--muted-foreground))"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                      allowDecimals={false}
+                      tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                      width={30}
+                    />
+                    <ChartTooltip 
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          const data = payload[0].payload;
+                          return (
+                            <div className="bg-popover/95 backdrop-blur-sm border border-border rounded-lg shadow-xl px-4 py-3">
+                              <p className="text-xs text-muted-foreground mb-1">{data.fullDate}</p>
+                              <p className="text-base font-semibold text-foreground">
+                                {data.count} <span className="text-sm font-normal text-muted-foreground">条询盘</span>
+                              </p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                      cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 1, strokeDasharray: '4 4' }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="count"
+                      stroke="hsl(var(--primary))"
+                      strokeWidth={2.5}
+                      fillOpacity={1}
+                      fill="url(#colorInquiry)"
+                      dot={false}
+                      activeDot={{ 
+                        r: 5, 
+                        fill: 'hsl(var(--primary))', 
+                        stroke: 'hsl(var(--background))', 
+                        strokeWidth: 2 
+                      }}
+                    />
+                  </AreaChart>
                 </ChartContainer>
               )}
             </div>
