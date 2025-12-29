@@ -1,11 +1,12 @@
-import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState, useRef, useCallback, useEffect } from 'react';
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Eye, Trash2, Mail, Phone, Building, MessageSquare, Circle } from 'lucide-react';
+import { Eye, Trash2, Mail, Phone, Building, MessageSquare, Circle, Check } from 'lucide-react';
 import { supabase, DbInquiry } from '@/lib/supabase';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog,
   DialogContent,
@@ -22,23 +23,86 @@ import {
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
+const PAGE_SIZE = 20;
+
 export default function AdminInquiries() {
   const queryClient = useQueryClient();
   const [selectedInquiry, setSelectedInquiry] = useState<DbInquiry | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [readFilter, setReadFilter] = useState<string>('all');
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
-  const { data: inquiries, isLoading } = useQuery({
-    queryKey: ['admin-inquiries'],
-    queryFn: async (): Promise<DbInquiry[]> => {
-      const { data, error } = await supabase
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+
+  // Infinite query with cursor-based pagination
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+  } = useInfiniteQuery({
+    queryKey: ['admin-inquiries-infinite', statusFilter, readFilter],
+    queryFn: async ({ pageParam }) => {
+      let query = supabase
         .from('wh_inquiries')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(PAGE_SIZE);
+
+      if (pageParam) {
+        query = query.lt('created_at', pageParam);
+      }
+
+      if (statusFilter !== 'all') {
+        query = query.eq('status', statusFilter);
+      }
+
+      if (readFilter === 'unread') {
+        query = query.eq('is_read', false);
+      } else if (readFilter === 'read') {
+        query = query.eq('is_read', true);
+      }
+
+      const { data, error } = await query;
       if (error) throw error;
       return data || [];
     },
+    getNextPageParam: (lastPage) => {
+      if (lastPage.length < PAGE_SIZE) return undefined;
+      return lastPage[lastPage.length - 1]?.created_at;
+    },
+    initialPageParam: null as string | null,
   });
+
+  const allInquiries = data?.pages.flat() || [];
+
+  // Intersection Observer for infinite scroll
+  const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
+    const [entry] = entries;
+    if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+
+  useEffect(() => {
+    observerRef.current = new IntersectionObserver(handleObserver, {
+      root: null,
+      rootMargin: '100px',
+      threshold: 0,
+    });
+
+    if (loadMoreRef.current) {
+      observerRef.current.observe(loadMoreRef.current);
+    }
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [handleObserver]);
 
   const updateStatusMutation = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
@@ -49,7 +113,8 @@ export default function AdminInquiries() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-inquiries'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-inquiries-infinite'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
       toast.success('状态更新成功');
     },
     onError: () => toast.error('更新失败'),
@@ -64,7 +129,8 @@ export default function AdminInquiries() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-inquiries'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-inquiries-infinite'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
     },
     onError: () => toast.error('更新失败'),
   });
@@ -75,10 +141,25 @@ export default function AdminInquiries() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-inquiries'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-inquiries-infinite'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
       toast.success('询盘删除成功');
     },
     onError: () => toast.error('删除失败'),
+  });
+
+  const bulkDeleteMutation = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase.from('wh_inquiries').delete().in('id', ids);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-inquiries-infinite'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+      setSelectedIds(new Set());
+      toast.success('批量删除成功');
+    },
+    onError: () => toast.error('批量删除失败'),
   });
 
   const handleViewInquiry = (inquiry: DbInquiry) => {
@@ -89,16 +170,33 @@ export default function AdminInquiries() {
     }
   };
 
-  const filteredInquiries = inquiries?.filter(i => {
-    const statusMatch = statusFilter === 'all' || i.status === statusFilter;
-    const readMatch = readFilter === 'all' || 
-      (readFilter === 'unread' && !i.is_read) ||
-      (readFilter === 'read' && i.is_read);
-    return statusMatch && readMatch;
-  });
-
   // Count unread inquiries
-  const unreadCount = inquiries?.filter(i => !i.is_read).length || 0;
+  const unreadCount = allInquiries.filter(i => !i.is_read).length;
+
+  const toggleSelect = (id: string) => {
+    const newSet = new Set(selectedIds);
+    if (newSet.has(id)) {
+      newSet.delete(id);
+    } else {
+      newSet.add(id);
+    }
+    setSelectedIds(newSet);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === allInquiries.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(allInquiries.map(i => i.id!)));
+    }
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedIds.size === 0) return;
+    if (confirm(`确定要删除选中的 ${selectedIds.size} 条询盘吗？`)) {
+      bulkDeleteMutation.mutate(Array.from(selectedIds));
+    }
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -141,7 +239,7 @@ export default function AdminInquiries() {
     <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <h1 className="font-display text-3xl font-bold text-foreground">
               询盘列表
@@ -153,7 +251,23 @@ export default function AdminInquiries() {
             </h1>
             <p className="text-muted-foreground mt-1">查看和管理客户询盘</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-3 flex-wrap">
+            {selectedIds.size > 0 && (
+              <Button
+                variant="destructive"
+                onClick={handleBulkDelete}
+                disabled={bulkDeleteMutation.isPending}
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                删除选中 ({selectedIds.size})
+              </Button>
+            )}
+            {allInquiries.length > 0 && (
+              <Button variant="outline" size="sm" onClick={toggleSelectAll}>
+                <Check className="w-4 h-4 mr-2" />
+                {selectedIds.size === allInquiries.length ? '取消全选' : '全选'}
+              </Button>
+            )}
             <Select value={readFilter} onValueChange={setReadFilter}>
               <SelectTrigger className="w-[120px]">
                 <SelectValue placeholder="阅读状态" />
@@ -184,85 +298,105 @@ export default function AdminInquiries() {
             <div className="flex items-center justify-center py-12">
               <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             </div>
-          ) : filteredInquiries && filteredInquiries.length > 0 ? (
-            <div className="space-y-4">
-              {filteredInquiries.map((inquiry, index) => (
-                <motion.div
-                  key={inquiry.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className={cn(
-                    "flex items-center gap-4 p-4 rounded-lg transition-colors",
-                    inquiry.is_read ? "bg-muted/30" : "bg-primary/5 border border-primary/20"
-                  )}
-                >
-                  {/* Read/Unread Indicator */}
-                  <div className="flex-shrink-0">
-                    <Circle 
-                      className={cn(
-                        "w-3 h-3",
-                        inquiry.is_read ? "text-muted-foreground" : "text-primary fill-primary"
-                      )} 
+          ) : allInquiries.length > 0 ? (
+            <>
+              <div className="space-y-4">
+                {allInquiries.map((inquiry, index) => (
+                  <motion.div
+                    key={inquiry.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: Math.min(index * 0.02, 0.3) }}
+                    className={cn(
+                      "flex items-center gap-4 p-4 rounded-lg transition-colors",
+                      inquiry.is_read ? "bg-muted/30" : "bg-primary/5 border border-primary/20",
+                      selectedIds.has(inquiry.id!) && "ring-2 ring-primary/50"
+                    )}
+                  >
+                    {/* Checkbox */}
+                    <Checkbox
+                      checked={selectedIds.has(inquiry.id!)}
+                      onCheckedChange={() => toggleSelect(inquiry.id!)}
+                      className="flex-shrink-0"
                     />
-                  </div>
 
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <MessageSquare className="w-6 h-6 text-primary" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className={cn(
-                        "text-foreground truncate",
-                        !inquiry.is_read && "font-semibold"
-                      )}>
-                        {inquiry.customer_name || '未知客户'}
-                      </p>
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${getStatusBadge(inquiry.status || 'pending')}`}>
-                        {getStatusLabel(inquiry.status || 'pending')}
-                      </span>
-                      {!inquiry.is_read && (
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
-                          未读
+                    {/* Read/Unread Indicator */}
+                    <div className="flex-shrink-0">
+                      <Circle 
+                        className={cn(
+                          "w-3 h-3",
+                          inquiry.is_read ? "text-muted-foreground" : "text-primary fill-primary"
+                        )} 
+                      />
+                    </div>
+
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <MessageSquare className="w-6 h-6 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className={cn(
+                          "text-foreground truncate",
+                          !inquiry.is_read && "font-semibold"
+                        )}>
+                          {inquiry.customer_name || '未知客户'}
+                        </p>
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${getStatusBadge(inquiry.status || 'pending')}`}>
+                          {getStatusLabel(inquiry.status || 'pending')}
                         </span>
-                      )}
+                        {!inquiry.is_read && (
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
+                            未读
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground truncate">
+                        {inquiry.customer_email}
+                      </p>
+                      <p className="text-sm text-muted-foreground line-clamp-1 mt-1">
+                        {inquiry.message}
+                      </p>
                     </div>
-                    <p className="text-sm text-muted-foreground truncate">
-                      {inquiry.customer_email}
-                    </p>
-                    <p className="text-sm text-muted-foreground line-clamp-1 mt-1">
-                      {inquiry.message}
-                    </p>
-                  </div>
-                  <div className="flex flex-col items-end gap-2">
-                    <span className="text-xs text-muted-foreground whitespace-nowrap">
-                      {inquiry.created_at && formatDate(inquiry.created_at)}
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleViewInquiry(inquiry)}
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          if (confirm('确定要删除这条询盘吗？')) {
-                            deleteMutation.mutate(inquiry.id!);
-                          }
-                        }}
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                    <div className="flex flex-col items-end gap-2">
+                      <span className="text-xs text-muted-foreground whitespace-nowrap">
+                        {inquiry.created_at && formatDate(inquiry.created_at)}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleViewInquiry(inquiry)}
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            if (confirm('确定要删除这条询盘吗？')) {
+                              deleteMutation.mutate(inquiry.id!);
+                            }
+                          }}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Load more trigger */}
+              <div ref={loadMoreRef} className="py-4 flex justify-center">
+                {isFetchingNextPage && (
+                  <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                )}
+                {!hasNextPage && allInquiries.length > PAGE_SIZE && (
+                  <p className="text-sm text-muted-foreground">已加载全部数据</p>
+                )}
+              </div>
+            </>
           ) : (
             <p className="text-muted-foreground text-center py-12">暂无询盘</p>
           )}

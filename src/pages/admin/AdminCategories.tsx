@@ -1,12 +1,13 @@
 import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Plus, Pencil, Trash2, ChevronRight, ChevronDown, Folder, FolderOpen, Upload, X } from 'lucide-react';
+import { Plus, Pencil, Trash2, ChevronRight, ChevronDown, Folder, FolderOpen, Upload, X, Check } from 'lucide-react';
 import { supabase, DbCategory, DbProduct } from '@/lib/supabase';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog,
   DialogContent,
@@ -31,9 +32,11 @@ interface CategoryTreeItemProps {
   level: number;
   onEdit: (category: DbCategory) => void;
   onDelete: (id: string) => void;
+  selectedIds: Set<string>;
+  onToggleSelect: (id: string) => void;
 }
 
-function CategoryTreeItem({ category, categories, level, onEdit, onDelete }: CategoryTreeItemProps) {
+function CategoryTreeItem({ category, categories, level, onEdit, onDelete, selectedIds, onToggleSelect }: CategoryTreeItemProps) {
   const [isOpen, setIsOpen] = useState(true);
   const children = categories.filter(c => c.parent_id === category.id);
   const hasChildren = children.length > 0;
@@ -45,9 +48,17 @@ function CategoryTreeItem({ category, categories, level, onEdit, onDelete }: Cat
         animate={{ opacity: 1, x: 0 }}
         className={cn(
           "flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/30 hover:bg-muted/50 transition-colors",
-          level > 0 && "ml-6 border-l-2 border-l-primary/30"
+          level > 0 && "ml-6 border-l-2 border-l-primary/30",
+          selectedIds.has(category.id) && "ring-2 ring-primary/50 border-primary"
         )}
       >
+        {/* Checkbox */}
+        <Checkbox
+          checked={selectedIds.has(category.id)}
+          onCheckedChange={() => onToggleSelect(category.id)}
+          className="flex-shrink-0"
+        />
+
         {hasChildren ? (
           <button
             onClick={() => setIsOpen(!isOpen)}
@@ -121,6 +132,8 @@ function CategoryTreeItem({ category, categories, level, onEdit, onDelete }: Cat
                 level={level + 1}
                 onEdit={onEdit}
                 onDelete={onDelete}
+                selectedIds={selectedIds}
+                onToggleSelect={onToggleSelect}
               />
             ))}
         </div>
@@ -133,6 +146,7 @@ export default function AdminCategories() {
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<DbCategory | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [formData, setFormData] = useState({
     name_zh: '',
     name_en: '',
@@ -241,6 +255,28 @@ export default function AdminCategories() {
     onError: () => toast.error('删除失败，可能存在关联产品'),
   });
 
+  const bulkDeleteMutation = useMutation({
+    mutationFn: async (ids: string[]) => {
+      // Check if any selected category has children
+      const hasChildrenIds = ids.filter(id => 
+        categories?.some(c => c.parent_id === id)
+      );
+      
+      if (hasChildrenIds.length > 0) {
+        throw new Error('选中的分类包含子分类，请先删除子分类');
+      }
+
+      const { error } = await supabase.from('wh_categories').delete().in('id', ids);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-categories'] });
+      setSelectedIds(new Set());
+      toast.success('批量删除成功');
+    },
+    onError: (error: Error) => toast.error(error.message || '批量删除失败'),
+  });
+
   const resetForm = () => {
     setFormData({
       name_zh: '',
@@ -288,6 +324,32 @@ export default function AdminCategories() {
     }
   };
 
+  const toggleSelect = (id: string) => {
+    const newSet = new Set(selectedIds);
+    if (newSet.has(id)) {
+      newSet.delete(id);
+    } else {
+      newSet.add(id);
+    }
+    setSelectedIds(newSet);
+  };
+
+  const toggleSelectAll = () => {
+    if (!categories) return;
+    if (selectedIds.size === categories.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(categories.map(c => c.id)));
+    }
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedIds.size === 0) return;
+    if (confirm(`确定要删除选中的 ${selectedIds.size} 个分类吗？`)) {
+      bulkDeleteMutation.mutate(Array.from(selectedIds));
+    }
+  };
+
   // Get root categories
   const rootCategories = categories?.filter(c => !c.parent_id).sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)) || [];
 
@@ -318,13 +380,31 @@ export default function AdminCategories() {
             <h1 className="font-display text-3xl font-bold text-foreground">分类管理</h1>
             <p className="text-muted-foreground mt-1">管理产品分类（支持多级目录）</p>
           </div>
-          <Button
-            onClick={() => { resetForm(); setIsDialogOpen(true); }}
-            className="bg-gradient-gold text-primary-foreground hover:opacity-90"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            添加分类
-          </Button>
+          <div className="flex gap-2">
+            {selectedIds.size > 0 && (
+              <Button
+                variant="destructive"
+                onClick={handleBulkDelete}
+                disabled={bulkDeleteMutation.isPending}
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                删除选中 ({selectedIds.size})
+              </Button>
+            )}
+            {categories && categories.length > 0 && (
+              <Button variant="outline" onClick={toggleSelectAll}>
+                <Check className="w-4 h-4 mr-2" />
+                {selectedIds.size === categories.length ? '取消全选' : '全选'}
+              </Button>
+            )}
+            <Button
+              onClick={() => { resetForm(); setIsDialogOpen(true); }}
+              className="bg-gradient-gold text-primary-foreground hover:opacity-90"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              添加分类
+            </Button>
+          </div>
         </div>
 
         {/* Categories Tree */}
@@ -343,6 +423,8 @@ export default function AdminCategories() {
                   level={0}
                   onEdit={openEditDialog}
                   onDelete={(id) => deleteMutation.mutate(id)}
+                  selectedIds={selectedIds}
+                  onToggleSelect={toggleSelect}
                 />
               ))}
             </div>
