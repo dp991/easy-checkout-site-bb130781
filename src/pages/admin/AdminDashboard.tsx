@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Package, FolderTree, Users, Eye, FileText, MessageSquare, Calendar, TrendingUp } from 'lucide-react';
+import { Package, FolderTree, Users, MessageSquare, TrendingUp } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Card } from '@/components/ui/card';
@@ -9,10 +9,9 @@ import { Button } from '@/components/ui/button';
 import {
   ChartContainer,
   ChartTooltip,
-  ChartTooltipContent,
 } from '@/components/ui/chart';
-import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer } from 'recharts';
-import { format, subDays, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval } from 'date-fns';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts';
+import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, eachDayOfInterval, eachMonthOfInterval } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 
 type TimeRange = 'week' | 'month' | 'year';
@@ -49,7 +48,7 @@ export default function AdminDashboard() {
   });
 
   // Fetch inquiry chart data based on time range
-  const { data: chartData } = useQuery({
+  const { data: chartData, isLoading: chartLoading } = useQuery({
     queryKey: ['admin-inquiry-chart', timeRange],
     queryFn: async () => {
       const today = new Date();
@@ -69,7 +68,7 @@ export default function AdminDashboard() {
           startDate = startOfMonth(today);
           endDate = endOfMonth(today);
           intervals = eachDayOfInterval({ start: startDate, end: endDate });
-          formatStr = 'M/d';
+          formatStr = 'd日';
           break;
         case 'year':
           startDate = startOfYear(today);
@@ -93,7 +92,6 @@ export default function AdminDashboard() {
         let count = 0;
         
         if (timeRange === 'year') {
-          // Count inquiries in this month
           const monthStart = startOfMonth(intervalDate);
           const monthEnd = endOfMonth(intervalDate);
           count = (inquiries || []).filter(i => {
@@ -101,7 +99,6 @@ export default function AdminDashboard() {
             return date >= monthStart && date <= monthEnd;
           }).length;
         } else {
-          // Count inquiries on this day
           const dayStart = startOfDay(intervalDate);
           const dayEnd = endOfDay(intervalDate);
           count = (inquiries || []).filter(i => {
@@ -112,7 +109,7 @@ export default function AdminDashboard() {
 
         return {
           date: format(intervalDate, formatStr, { locale: zhCN }),
-          fullDate: format(intervalDate, 'yyyy-MM-dd', { locale: zhCN }),
+          fullDate: format(intervalDate, 'yyyy年M月d日', { locale: zhCN }),
           count,
         };
       });
@@ -120,6 +117,9 @@ export default function AdminDashboard() {
       return groupedData;
     },
   });
+
+  // Calculate total inquiries for current period
+  const totalPeriodInquiries = chartData?.reduce((sum, item) => sum + item.count, 0) || 0;
 
   const statCards = [
     { 
@@ -182,7 +182,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           {statCards.map((stat, index) => (
             <motion.div
               key={stat.label}
@@ -190,14 +190,14 @@ export default function AdminDashboard() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
             >
-              <Card className="p-6 bg-card border-border">
+              <Card className="p-5 bg-card border-border hover:border-primary/30 transition-colors">
                 <div className="flex items-center gap-4">
-                  <div className={`w-12 h-12 rounded-xl ${stat.bgColor} flex items-center justify-center`}>
-                    <stat.icon className={`w-6 h-6 ${stat.color}`} />
+                  <div className={`w-11 h-11 rounded-xl ${stat.bgColor} flex items-center justify-center`}>
+                    <stat.icon className={`w-5 h-5 ${stat.color}`} />
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                    <p className="text-sm text-muted-foreground">{stat.label}</p>
+                    <p className="text-xs text-muted-foreground">{stat.label}</p>
                   </div>
                 </div>
               </Card>
@@ -205,7 +205,7 @@ export default function AdminDashboard() {
           ))}
         </div>
 
-        {/* Inquiry Chart */}
+        {/* Inquiry Chart - Redesigned */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -213,23 +213,26 @@ export default function AdminDashboard() {
         >
           <Card className="p-6 bg-card border-border">
             <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <Calendar className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-medium text-foreground">询盘趋势</h3>
-                  <p className="text-sm text-muted-foreground">历史询盘数据统计</p>
+              <div>
+                <div className="flex items-center gap-3">
+                  <h3 className="font-semibold text-lg text-foreground">询盘趋势</h3>
+                  <span className="text-sm text-muted-foreground">
+                    {timeRangeLabels[timeRange]}共 <span className="text-primary font-medium">{totalPeriodInquiries}</span> 条
+                  </span>
                 </div>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-1 bg-muted/50 rounded-lg p-1">
                 {(['week', 'month', 'year'] as TimeRange[]).map((range) => (
                   <Button
                     key={range}
-                    variant={timeRange === range ? 'default' : 'outline'}
+                    variant="ghost"
                     size="sm"
                     onClick={() => setTimeRange(range)}
-                    className={timeRange === range ? 'bg-primary text-primary-foreground' : ''}
+                    className={`h-8 px-4 text-sm transition-all ${
+                      timeRange === range 
+                        ? 'bg-background text-foreground shadow-sm' 
+                        : 'text-muted-foreground hover:text-foreground hover:bg-transparent'
+                    }`}
                   >
                     {timeRangeLabels[range]}
                   </Button>
@@ -237,55 +240,84 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            <div className="h-[300px]">
-              <ChartContainer config={chartConfig}>
-                <AreaChart data={chartData || []} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <XAxis 
-                    dataKey="date" 
-                    stroke="hsl(var(--muted-foreground))"
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <YAxis 
-                    stroke="hsl(var(--muted-foreground))"
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                    allowDecimals={false}
-                  />
-                  <ChartTooltip 
-                    content={({ active, payload }) => {
-                      if (active && payload && payload.length) {
-                        const data = payload[0].payload;
-                        return (
-                          <div className="bg-popover border border-border rounded-lg shadow-lg p-3">
-                            <p className="text-sm font-medium text-foreground">{data.fullDate}</p>
-                            <p className="text-sm text-muted-foreground">
-                              询盘数: <span className="font-medium text-primary">{data.count}</span>
-                            </p>
-                          </div>
-                        );
-                      }
-                      return null;
-                    }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="count"
-                    stroke="hsl(var(--primary))"
-                    strokeWidth={2}
-                    fillOpacity={1}
-                    fill="url(#colorCount)"
-                  />
-                </AreaChart>
-              </ChartContainer>
+            <div className="h-[240px]">
+              {chartLoading ? (
+                <div className="h-full flex items-center justify-center">
+                  <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                </div>
+              ) : (
+                <ChartContainer config={chartConfig}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart 
+                      data={chartData || []} 
+                      margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                    >
+                      <defs>
+                        <linearGradient id="colorInquiry" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.4}/>
+                          <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0.05}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid 
+                        strokeDasharray="3 3" 
+                        vertical={false}
+                        stroke="hsl(var(--border))"
+                        strokeOpacity={0.5}
+                      />
+                      <XAxis 
+                        dataKey="date" 
+                        stroke="hsl(var(--muted-foreground))"
+                        fontSize={12}
+                        tickLine={false}
+                        axisLine={false}
+                        tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                        interval={timeRange === 'month' ? 2 : 0}
+                      />
+                      <YAxis 
+                        stroke="hsl(var(--muted-foreground))"
+                        fontSize={12}
+                        tickLine={false}
+                        axisLine={false}
+                        allowDecimals={false}
+                        tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                        width={40}
+                      />
+                      <ChartTooltip 
+                        content={({ active, payload }) => {
+                          if (active && payload && payload.length) {
+                            const data = payload[0].payload;
+                            return (
+                              <div className="bg-popover/95 backdrop-blur-sm border border-border rounded-lg shadow-xl px-4 py-3">
+                                <p className="text-xs text-muted-foreground mb-1">{data.fullDate}</p>
+                                <p className="text-base font-semibold text-foreground">
+                                  {data.count} <span className="text-sm font-normal text-muted-foreground">条询盘</span>
+                                </p>
+                              </div>
+                            );
+                          }
+                          return null;
+                        }}
+                        cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 1, strokeDasharray: '4 4' }}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="count"
+                        stroke="hsl(var(--primary))"
+                        strokeWidth={2.5}
+                        fillOpacity={1}
+                        fill="url(#colorInquiry)"
+                        dot={false}
+                        activeDot={{ 
+                          r: 5, 
+                          fill: 'hsl(var(--primary))', 
+                          stroke: 'hsl(var(--background))', 
+                          strokeWidth: 2 
+                        }}
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              )}
             </div>
           </Card>
         </motion.div>
