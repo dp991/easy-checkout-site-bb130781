@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Plus, Pencil, Trash2, ChevronRight, ChevronDown, Folder, FolderOpen } from 'lucide-react';
-import { supabase, DbCategory } from '@/lib/supabase';
+import { Plus, Pencil, Trash2, ChevronRight, ChevronDown, Folder, FolderOpen, Upload, X } from 'lucide-react';
+import { supabase, DbCategory, DbProduct } from '@/lib/supabase';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,6 +22,8 @@ import {
 } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { useImageUpload } from '@/hooks/useImageUpload';
+import { generateSnowflakeId } from '@/lib/snowflake';
 
 interface CategoryTreeItemProps {
   category: DbCategory;
@@ -80,10 +82,6 @@ function CategoryTreeItem({ category, categories, level, onEdit, onDelete }: Cat
           <p className="text-sm text-muted-foreground truncate">{category.name_en}</p>
         </div>
 
-        <span className="text-xs text-muted-foreground px-2 py-1 rounded bg-muted">
-          排序: {category.sort_order}
-        </span>
-
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
@@ -140,9 +138,11 @@ export default function AdminCategories() {
     name_en: '',
     slug: '',
     image_url: '',
-    sort_order: '0',
     parent_id: '',
   });
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { uploadImages, isUploading, uploadProgress } = useImageUpload();
 
   const { data: categories, isLoading } = useQuery({
     queryKey: ['admin-categories'],
@@ -156,14 +156,37 @@ export default function AdminCategories() {
     },
   });
 
+  const { data: products } = useQuery({
+    queryKey: ['admin-products-for-images'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('wh_products')
+        .select('id, category_id, images');
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  // Get random product image from category
+  const getRandomProductImage = (categoryId: string): string | null => {
+    if (!products) return null;
+    const categoryProducts = products.filter(p => 
+      p.category_id === categoryId && p.images && p.images.length > 0
+    );
+    if (categoryProducts.length === 0) return null;
+    const randomProduct = categoryProducts[Math.floor(Math.random() * categoryProducts.length)];
+    return randomProduct.images?.[0] || null;
+  };
+
   const createMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
+      const imageUrl = data.image_url || null;
       const { error } = await supabase.from('wh_categories').insert([{
         name_zh: data.name_zh,
         name_en: data.name_en,
-        slug: data.slug,
-        image_url: data.image_url || null,
-        sort_order: parseInt(data.sort_order) || 0,
+        slug: generateSnowflakeId(),
+        image_url: imageUrl,
+        sort_order: 0,
         parent_id: data.parent_id || null,
       }]);
       if (error) throw error;
@@ -179,13 +202,19 @@ export default function AdminCategories() {
 
   const updateMutation = useMutation({
     mutationFn: async (data: typeof formData & { id: string }) => {
+      let imageUrl = data.image_url || null;
+      
+      // If no image provided, try to get one from products
+      if (!imageUrl) {
+        imageUrl = getRandomProductImage(data.id);
+      }
+
       const { error } = await supabase.from('wh_categories')
         .update({
           name_zh: data.name_zh,
           name_en: data.name_en,
-          slug: data.slug,
-          image_url: data.image_url || null,
-          sort_order: parseInt(data.sort_order) || 0,
+          slug: generateSnowflakeId(),
+          image_url: imageUrl,
           parent_id: data.parent_id || null,
         })
         .eq('id', data.id);
@@ -218,7 +247,6 @@ export default function AdminCategories() {
       name_en: '',
       slug: '',
       image_url: '',
-      sort_order: '0',
       parent_id: '',
     });
     setEditingCategory(null);
@@ -231,7 +259,6 @@ export default function AdminCategories() {
       name_en: category.name_en,
       slug: category.slug,
       image_url: category.image_url || '',
-      sort_order: String(category.sort_order || 0),
       parent_id: category.parent_id || '',
     });
     setIsDialogOpen(true);
@@ -243,6 +270,21 @@ export default function AdminCategories() {
       updateMutation.mutate({ ...formData, id: editingCategory.id });
     } else {
       createMutation.mutate(formData);
+    }
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const urls = await uploadImages(files);
+    if (urls.length > 0) {
+      setFormData(prev => ({ ...prev, image_url: urls[0] }));
+      toast.success('图片上传成功');
+    }
+    
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -356,31 +398,47 @@ export default function AdminCategories() {
                 />
               </div>
 
+              {/* Image Upload */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">URL Slug *</label>
-                <Input
-                  value={formData.slug}
-                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">封面图片 URL</label>
-                <Input
-                  value={formData.image_url}
-                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  placeholder="https://example.com/image.jpg"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">排序</label>
-                <Input
-                  type="number"
-                  value={formData.sort_order}
-                  onChange={(e) => setFormData({ ...formData, sort_order: e.target.value })}
-                />
+                <label className="text-sm font-medium">封面图片</label>
+                <p className="text-xs text-muted-foreground">如不上传，将自动从该分类下的产品中选择一张图片</p>
+                <div className="border-2 border-dashed border-border rounded-lg p-4">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                  
+                  {formData.image_url ? (
+                    <div className="relative">
+                      <img
+                        src={formData.image_url}
+                        alt="封面图片"
+                        className="w-full h-32 object-cover rounded-lg"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, image_url: '' }))}
+                        className="absolute top-2 right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploading}
+                      className="w-full"
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      {isUploading ? `上传中 ${uploadProgress}%` : '选择图片上传'}
+                    </Button>
+                  )}
+                </div>
               </div>
 
               <div className="flex justify-end gap-3 pt-4">
