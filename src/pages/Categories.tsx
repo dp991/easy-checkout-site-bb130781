@@ -132,9 +132,9 @@ export default function Categories() {
         : 'Browse POS Store categories including POS terminals, cash registers, printers, scanners and more.'
       } />
 
-      <div className="flex min-h-[calc(100vh-80px)]">
-        {/* Left Sidebar - Category Tree (Sticky) */}
-        <aside className="w-72 shrink-0 border-r border-border bg-card/50 hidden md:block sticky top-[80px] h-[calc(100vh-80px)] overflow-y-auto">
+      <div className="relative">
+        {/* Left Sidebar - Category Tree (Fixed Position) */}
+        <aside className="w-72 fixed left-0 top-[80px] bottom-0 border-r border-border bg-card/50 hidden md:block overflow-y-auto z-30">
           {categoriesLoading ? (
             <div className="p-4 space-y-2">
               {[...Array(10)].map((_, i) => (
@@ -150,8 +150,8 @@ export default function Categories() {
           )}
         </aside>
 
-        {/* Right Content - Products Grid */}
-        <main className="flex-1 p-6 lg:p-8">
+        {/* Right Content - Products Grid (with left margin for fixed sidebar) */}
+        <main className="md:ml-72 p-6 lg:p-8 min-h-[calc(100vh-80px)]">
           <motion.div
             key={selectedCategory}
             initial={{ opacity: 0, y: 10 }}
