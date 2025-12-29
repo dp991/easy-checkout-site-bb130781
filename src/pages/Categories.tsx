@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -6,26 +6,45 @@ import { useProducts, useCategories } from '@/hooks/useDatabase';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/products/ProductCard';
 import CategoryTree from '@/components/products/CategoryTree';
+import ProductPagination from '@/components/products/ProductPagination';
 import { Skeleton } from '@/components/ui/skeleton';
+
+const PAGE_SIZE = 12;
 
 export default function Categories() {
   const { locale } = useLanguage();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { data: products, isLoading: productsLoading } = useProducts();
   const { data: categories, isLoading: categoriesLoading } = useCategories();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedCategoryName, setSelectedCategoryName] = useState<string>(
     locale === 'zh' ? '全部产品' : 'All Products'
   );
+  const [currentPage, setCurrentPage] = useState(1);
+  const [loadedPages, setLoadedPages] = useState(1); // For "Load More" feature
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  // Handle URL parameter for category selection
+  // Handle URL parameter for category and page
   useEffect(() => {
     const categorySlug = searchParams.get('category');
+    const pageParam = searchParams.get('page');
+    
     if (categorySlug && categories) {
       const category = categories.find(c => c.slug === categorySlug);
       if (category) {
         setSelectedCategory(categorySlug);
         setSelectedCategoryName(locale === 'zh' ? category.name_zh : category.name_en);
+      }
+    } else if (!categorySlug) {
+      setSelectedCategory(null);
+      setSelectedCategoryName(locale === 'zh' ? '全部产品' : 'All Products');
+    }
+    
+    if (pageParam) {
+      const page = parseInt(pageParam, 10);
+      if (!isNaN(page) && page >= 1) {
+        setCurrentPage(page);
+        setLoadedPages(page);
       }
     }
   }, [searchParams, categories, locale]);
@@ -34,27 +53,74 @@ export default function Categories() {
     if (slug === '') {
       setSelectedCategory(null);
       setSelectedCategoryName(locale === 'zh' ? '全部产品' : 'All Products');
+      setSearchParams({});
     } else {
       setSelectedCategory(slug);
       setSelectedCategoryName(name);
+      setSearchParams({ category: slug });
     }
+    // Reset pagination when category changes
+    setCurrentPage(1);
+    setLoadedPages(1);
   };
 
   // Filter products by selected category
-  const filteredProducts = products?.filter(product => {
-    if (!selectedCategory) return true;
+  const filteredProducts = useMemo(() => {
+    if (!products) return [];
+    if (!selectedCategory) return products;
     
     // Find the selected category
     const selectedCat = categories?.find(c => c.slug === selectedCategory);
-    if (!selectedCat) return true;
+    if (!selectedCat) return products;
     
     // Check if product belongs to this category or its children
     const categoryIds = [selectedCat.id];
     const childCategories = categories?.filter(c => c.parent_id === selectedCat.id) || [];
     childCategories.forEach(child => categoryIds.push(child.id));
     
-    return product.category_id && categoryIds.includes(product.category_id);
-  });
+    return products.filter(product => 
+      product.category_id && categoryIds.includes(product.category_id)
+    );
+  }, [products, selectedCategory, categories]);
+
+  // Pagination calculations
+  const totalCount = filteredProducts.length;
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+  
+  // Products to display (supports "load more" by showing all loaded pages)
+  const displayedProducts = useMemo(() => {
+    const endIndex = loadedPages * PAGE_SIZE;
+    return filteredProducts.slice(0, endIndex);
+  }, [filteredProducts, loadedPages]);
+
+  const handlePageChange = (page: number) => {
+    if (page < 1 || page > totalPages) return;
+    
+    setCurrentPage(page);
+    setLoadedPages(page); // Reset loaded pages to match current page
+    
+    // Update URL
+    const newParams = new URLSearchParams(searchParams);
+    if (page === 1) {
+      newParams.delete('page');
+    } else {
+      newParams.set('page', page.toString());
+    }
+    setSearchParams(newParams);
+    
+    // Scroll to top of products grid
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleLoadMore = async () => {
+    if (loadedPages >= totalPages) return;
+    
+    setIsLoadingMore(true);
+    // Simulate async loading delay for smooth UX
+    await new Promise(resolve => setTimeout(resolve, 300));
+    setLoadedPages(prev => prev + 1);
+    setIsLoadingMore(false);
+  };
 
   const isLoading = productsLoading || categoriesLoading;
 
@@ -67,8 +133,8 @@ export default function Categories() {
       } />
 
       <div className="flex min-h-[calc(100vh-80px)]">
-        {/* Left Sidebar - Category Tree */}
-        <aside className="w-72 shrink-0 border-r border-border bg-card/50 hidden md:block">
+        {/* Left Sidebar - Category Tree (Sticky) */}
+        <aside className="w-72 shrink-0 border-r border-border bg-card/50 hidden md:block sticky top-[80px] h-[calc(100vh-80px)] overflow-y-auto">
           {categoriesLoading ? (
             <div className="p-4 space-y-2">
               {[...Array(10)].map((_, i) => (
@@ -99,24 +165,38 @@ export default function Categories() {
               </h1>
               <p className="text-muted-foreground mt-1">
                 {locale === 'zh' 
-                  ? `共 ${filteredProducts?.length || 0} 款产品` 
-                  : `${filteredProducts?.length || 0} products`}
+                  ? `共 ${totalCount} 款产品` 
+                  : `${totalCount} products`}
               </p>
             </div>
 
             {/* Products Grid */}
             {isLoading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {[...Array(8)].map((_, i) => (
+                {[...Array(PAGE_SIZE)].map((_, i) => (
                   <Skeleton key={i} className="aspect-[4/5] rounded-xl" />
                 ))}
               </div>
-            ) : filteredProducts && filteredProducts.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredProducts.map((product, index) => (
-                  <ProductCard key={product.id} product={product} index={index} />
-                ))}
-              </div>
+            ) : displayedProducts.length > 0 ? (
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {displayedProducts.map((product, index) => (
+                    <ProductCard key={product.id} product={product} index={index} />
+                  ))}
+                </div>
+
+                {/* Pagination */}
+                <ProductPagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                  showLoadMore={displayedProducts.length < totalCount}
+                  onLoadMore={handleLoadMore}
+                  loadedCount={displayedProducts.length}
+                  totalCount={totalCount}
+                  isLoadingMore={isLoadingMore}
+                />
+              </>
             ) : (
               <div className="flex flex-col items-center justify-center py-20 text-center">
                 <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-4">
