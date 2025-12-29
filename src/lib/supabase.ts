@@ -51,6 +51,7 @@ export interface DbInquiry {
   message?: string;
   source?: string;
   status?: string;
+  is_read?: boolean;
   created_at?: string;
 }
 

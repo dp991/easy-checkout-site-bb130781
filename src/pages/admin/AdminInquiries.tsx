@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Eye, Trash2, Mail, Phone, Building, MessageSquare } from 'lucide-react';
+import { Eye, Trash2, Mail, Phone, Building, MessageSquare, Circle } from 'lucide-react';
 import { supabase, DbInquiry } from '@/lib/supabase';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
@@ -20,11 +20,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 export default function AdminInquiries() {
   const queryClient = useQueryClient();
   const [selectedInquiry, setSelectedInquiry] = useState<DbInquiry | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [readFilter, setReadFilter] = useState<string>('all');
 
   const { data: inquiries, isLoading } = useQuery({
     queryKey: ['admin-inquiries'],
@@ -53,6 +55,20 @@ export default function AdminInquiries() {
     onError: () => toast.error('更新失败'),
   });
 
+  const markAsReadMutation = useMutation({
+    mutationFn: async ({ id, is_read }: { id: string; is_read: boolean }) => {
+      const { error } = await supabase
+        .from('wh_inquiries')
+        .update({ is_read })
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-inquiries'] });
+    },
+    onError: () => toast.error('更新失败'),
+  });
+
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase.from('wh_inquiries').delete().eq('id', id);
@@ -65,9 +81,24 @@ export default function AdminInquiries() {
     onError: () => toast.error('删除失败'),
   });
 
-  const filteredInquiries = inquiries?.filter(i => 
-    statusFilter === 'all' || i.status === statusFilter
-  );
+  const handleViewInquiry = (inquiry: DbInquiry) => {
+    setSelectedInquiry(inquiry);
+    // Mark as read when viewing
+    if (!inquiry.is_read && inquiry.id) {
+      markAsReadMutation.mutate({ id: inquiry.id, is_read: true });
+    }
+  };
+
+  const filteredInquiries = inquiries?.filter(i => {
+    const statusMatch = statusFilter === 'all' || i.status === statusFilter;
+    const readMatch = readFilter === 'all' || 
+      (readFilter === 'unread' && !i.is_read) ||
+      (readFilter === 'read' && i.is_read);
+    return statusMatch && readMatch;
+  });
+
+  // Count unread inquiries
+  const unreadCount = inquiries?.filter(i => !i.is_read).length || 0;
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -95,26 +126,56 @@ export default function AdminInquiries() {
     }
   };
 
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleString('zh-CN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
   return (
     <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="font-display text-3xl font-bold text-foreground">询盘列表</h1>
+            <h1 className="font-display text-3xl font-bold text-foreground">
+              询盘列表
+              {unreadCount > 0 && (
+                <span className="ml-3 inline-flex items-center justify-center w-6 h-6 text-xs font-medium bg-destructive text-destructive-foreground rounded-full">
+                  {unreadCount}
+                </span>
+              )}
+            </h1>
             <p className="text-muted-foreground mt-1">查看和管理客户询盘</p>
           </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[150px]">
-              <SelectValue placeholder="筛选状态" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">全部</SelectItem>
-              <SelectItem value="pending">待处理</SelectItem>
-              <SelectItem value="replied">已回复</SelectItem>
-              <SelectItem value="closed">已关闭</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex gap-3">
+            <Select value={readFilter} onValueChange={setReadFilter}>
+              <SelectTrigger className="w-[120px]">
+                <SelectValue placeholder="阅读状态" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全部</SelectItem>
+                <SelectItem value="unread">未读</SelectItem>
+                <SelectItem value="read">已读</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[120px]">
+                <SelectValue placeholder="处理状态" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全部</SelectItem>
+                <SelectItem value="pending">待处理</SelectItem>
+                <SelectItem value="replied">已回复</SelectItem>
+                <SelectItem value="closed">已关闭</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {/* Inquiries List */}
@@ -131,19 +192,40 @@ export default function AdminInquiries() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className="flex items-center gap-4 p-4 rounded-lg bg-muted/50"
+                  className={cn(
+                    "flex items-center gap-4 p-4 rounded-lg transition-colors",
+                    inquiry.is_read ? "bg-muted/30" : "bg-primary/5 border border-primary/20"
+                  )}
                 >
+                  {/* Read/Unread Indicator */}
+                  <div className="flex-shrink-0">
+                    <Circle 
+                      className={cn(
+                        "w-3 h-3",
+                        inquiry.is_read ? "text-muted-foreground" : "text-primary fill-primary"
+                      )} 
+                    />
+                  </div>
+
                   <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                     <MessageSquare className="w-6 h-6 text-primary" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className="font-medium text-foreground truncate">
+                      <p className={cn(
+                        "text-foreground truncate",
+                        !inquiry.is_read && "font-semibold"
+                      )}>
                         {inquiry.customer_name || '未知客户'}
                       </p>
                       <span className={`text-xs px-2 py-0.5 rounded-full ${getStatusBadge(inquiry.status || 'pending')}`}>
                         {getStatusLabel(inquiry.status || 'pending')}
                       </span>
+                      {!inquiry.is_read && (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
+                          未读
+                        </span>
+                      )}
                     </div>
                     <p className="text-sm text-muted-foreground truncate">
                       {inquiry.customer_email}
@@ -154,13 +236,13 @@ export default function AdminInquiries() {
                   </div>
                   <div className="flex flex-col items-end gap-2">
                     <span className="text-xs text-muted-foreground whitespace-nowrap">
-                      {inquiry.created_at && new Date(inquiry.created_at).toLocaleDateString('zh-CN')}
+                      {inquiry.created_at && formatDate(inquiry.created_at)}
                     </span>
                     <div className="flex items-center gap-2">
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => setSelectedInquiry(inquiry)}
+                        onClick={() => handleViewInquiry(inquiry)}
                       >
                         <Eye className="w-4 h-4" />
                       </Button>
@@ -220,6 +302,16 @@ export default function AdminInquiries() {
                         <span className="text-foreground">{selectedInquiry.customer_company}</span>
                       </div>
                     )}
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="text-muted-foreground">来源:</span>
+                      <span className="text-foreground capitalize">{selectedInquiry.source || 'web'}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="text-muted-foreground">时间:</span>
+                      <span className="text-foreground">
+                        {selectedInquiry.created_at && formatDate(selectedInquiry.created_at)}
+                      </span>
+                    </div>
                   </div>
                 </div>
 

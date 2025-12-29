@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Eye, MessageCircle, ShoppingCart } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -14,6 +14,7 @@ interface ProductCardProps {
 export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   const { locale, t } = useLanguage();
   const { addToCart } = useCart();
+  const navigate = useNavigate();
 
   const name = locale === 'zh' ? product.name_zh : product.name_en;
   const priceMin = product.price_min ?? 0;
@@ -22,6 +23,11 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
     ? `$${priceMin}`
     : `$${priceMin} - $${priceMax}`;
 
+  const handleClick = () => {
+    navigate(`/products/${product.slug}`);
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -29,7 +35,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
       transition={{ delay: index * 0.1, duration: 0.4 }}
       className="group"
     >
-      <Link to={`/products/${product.slug}`}>
+      <div onClick={handleClick} className="cursor-pointer">
         <div className="metal-surface rounded-xl overflow-hidden transition-all duration-300 hover:border-primary/50 hover:shadow-card">
           {/* Image */}
           <div className="relative aspect-[4/3] overflow-hidden bg-muted">
@@ -111,7 +117,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             </div>
           </div>
         </div>
-      </Link>
+      </div>
     </motion.div>
   );
 }

@@ -1,0 +1,112 @@
+import { useState } from 'react';
+import { ChevronRight, ChevronDown, Folder, FolderOpen } from 'lucide-react';
+import { DbCategory } from '@/lib/supabase';
+import { cn } from '@/lib/utils';
+
+interface AdminCategoryTreeProps {
+  categories: DbCategory[];
+  selectedId?: string | null;
+  onSelect: (category: DbCategory | null) => void;
+}
+
+interface TreeNodeProps {
+  category: DbCategory;
+  categories: DbCategory[];
+  level: number;
+  selectedId?: string | null;
+  onSelect: (category: DbCategory | null) => void;
+}
+
+function TreeNode({ category, categories, level, selectedId, onSelect }: TreeNodeProps) {
+  const [isOpen, setIsOpen] = useState(true);
+  
+  const children = categories.filter(c => c.parent_id === category.id);
+  const hasChildren = children.length > 0;
+  const isSelected = selectedId === category.id;
+
+  return (
+    <div>
+      <div
+        className={cn(
+          "flex items-center gap-2 py-2 px-3 rounded-lg cursor-pointer transition-colors",
+          isSelected ? "bg-primary/10 text-primary" : "hover:bg-muted"
+        )}
+        style={{ paddingLeft: `${12 + level * 16}px` }}
+        onClick={() => onSelect(category)}
+      >
+        {hasChildren ? (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsOpen(!isOpen);
+            }}
+            className="p-0.5 hover:bg-muted rounded"
+          >
+            {isOpen ? (
+              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+            ) : (
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            )}
+          </button>
+        ) : (
+          <span className="w-5" />
+        )}
+        {isOpen && hasChildren ? (
+          <FolderOpen className="w-4 h-4 text-primary" />
+        ) : (
+          <Folder className="w-4 h-4 text-muted-foreground" />
+        )}
+        <span className="text-sm truncate">{category.name_zh}</span>
+      </div>
+      
+      {hasChildren && isOpen && (
+        <div>
+          {children
+            .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+            .map(child => (
+              <TreeNode
+                key={child.id}
+                category={child}
+                categories={categories}
+                level={level + 1}
+                selectedId={selectedId}
+                onSelect={onSelect}
+              />
+            ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function AdminCategoryTree({ categories, selectedId, onSelect }: AdminCategoryTreeProps) {
+  const rootCategories = categories
+    .filter(c => !c.parent_id)
+    .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+
+  return (
+    <div className="space-y-1">
+      <div
+        className={cn(
+          "flex items-center gap-2 py-2 px-3 rounded-lg cursor-pointer transition-colors",
+          selectedId === null ? "bg-primary/10 text-primary" : "hover:bg-muted"
+        )}
+        onClick={() => onSelect(null)}
+      >
+        <Folder className="w-4 h-4" />
+        <span className="text-sm font-medium">全部分类</span>
+      </div>
+      
+      {rootCategories.map(category => (
+        <TreeNode
+          key={category.id}
+          category={category}
+          categories={categories}
+          level={0}
+          selectedId={selectedId}
+          onSelect={onSelect}
+        />
+      ))}
+    </div>
+  );
+}

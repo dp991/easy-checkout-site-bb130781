@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, ChevronRight, ChevronDown, Folder, FolderOpen } from 'lucide-react';
 import { supabase, DbCategory } from '@/lib/supabase';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
@@ -13,7 +13,123 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
+
+interface CategoryTreeItemProps {
+  category: DbCategory;
+  categories: DbCategory[];
+  level: number;
+  onEdit: (category: DbCategory) => void;
+  onDelete: (id: string) => void;
+}
+
+function CategoryTreeItem({ category, categories, level, onEdit, onDelete }: CategoryTreeItemProps) {
+  const [isOpen, setIsOpen] = useState(true);
+  const children = categories.filter(c => c.parent_id === category.id);
+  const hasChildren = children.length > 0;
+
+  return (
+    <div>
+      <motion.div
+        initial={{ opacity: 0, x: -10 }}
+        animate={{ opacity: 1, x: 0 }}
+        className={cn(
+          "flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/30 hover:bg-muted/50 transition-colors",
+          level > 0 && "ml-6 border-l-2 border-l-primary/30"
+        )}
+      >
+        {hasChildren ? (
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="p-1 hover:bg-muted rounded"
+          >
+            {isOpen ? (
+              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+            ) : (
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            )}
+          </button>
+        ) : (
+          <span className="w-6" />
+        )}
+        
+        {isOpen && hasChildren ? (
+          <FolderOpen className="w-5 h-5 text-primary" />
+        ) : (
+          <Folder className="w-5 h-5 text-muted-foreground" />
+        )}
+
+        {category.image_url && (
+          <img
+            src={category.image_url}
+            alt={category.name_zh}
+            className="w-10 h-10 rounded-lg object-cover"
+          />
+        )}
+
+        <div className="flex-1 min-w-0">
+          <p className="font-medium text-foreground truncate">{category.name_zh}</p>
+          <p className="text-sm text-muted-foreground truncate">{category.name_en}</p>
+        </div>
+
+        <span className="text-xs text-muted-foreground px-2 py-1 rounded bg-muted">
+          排序: {category.sort_order}
+        </span>
+
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onEdit(category)}
+          >
+            <Pencil className="w-4 h-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              if (hasChildren) {
+                toast.error('请先删除子分类');
+                return;
+              }
+              if (confirm('确定要删除这个分类吗？')) {
+                onDelete(category.id);
+              }
+            }}
+            className="text-destructive hover:text-destructive"
+          >
+            <Trash2 className="w-4 h-4" />
+          </Button>
+        </div>
+      </motion.div>
+
+      {hasChildren && isOpen && (
+        <div className="mt-2 space-y-2">
+          {children
+            .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+            .map(child => (
+              <CategoryTreeItem
+                key={child.id}
+                category={child}
+                categories={categories}
+                level={level + 1}
+                onEdit={onEdit}
+                onDelete={onDelete}
+              />
+            ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function AdminCategories() {
   const queryClient = useQueryClient();
@@ -25,6 +141,7 @@ export default function AdminCategories() {
     slug: '',
     image_url: '',
     sort_order: '0',
+    parent_id: '',
   });
 
   const { data: categories, isLoading } = useQuery({
@@ -47,6 +164,7 @@ export default function AdminCategories() {
         slug: data.slug,
         image_url: data.image_url || null,
         sort_order: parseInt(data.sort_order) || 0,
+        parent_id: data.parent_id || null,
       }]);
       if (error) throw error;
     },
@@ -68,6 +186,7 @@ export default function AdminCategories() {
           slug: data.slug,
           image_url: data.image_url || null,
           sort_order: parseInt(data.sort_order) || 0,
+          parent_id: data.parent_id || null,
         })
         .eq('id', data.id);
       if (error) throw error;
@@ -100,6 +219,7 @@ export default function AdminCategories() {
       slug: '',
       image_url: '',
       sort_order: '0',
+      parent_id: '',
     });
     setEditingCategory(null);
   };
@@ -112,6 +232,7 @@ export default function AdminCategories() {
       slug: category.slug,
       image_url: category.image_url || '',
       sort_order: String(category.sort_order || 0),
+      parent_id: category.parent_id || '',
     });
     setIsDialogOpen(true);
   };
@@ -125,6 +246,27 @@ export default function AdminCategories() {
     }
   };
 
+  // Get root categories
+  const rootCategories = categories?.filter(c => !c.parent_id).sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)) || [];
+
+  // Get available parent categories (exclude current category and its children when editing)
+  const getAvailableParents = () => {
+    if (!categories) return [];
+    if (!editingCategory) return categories;
+    
+    const getDescendantIds = (id: string): string[] => {
+      const children = categories.filter(c => c.parent_id === id);
+      let ids = [id];
+      for (const child of children) {
+        ids = [...ids, ...getDescendantIds(child.id)];
+      }
+      return ids;
+    };
+    
+    const excludeIds = getDescendantIds(editingCategory.id);
+    return categories.filter(c => !excludeIds.includes(c.id));
+  };
+
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -132,7 +274,7 @@ export default function AdminCategories() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="font-display text-3xl font-bold text-foreground">分类管理</h1>
-            <p className="text-muted-foreground mt-1">管理产品分类</p>
+            <p className="text-muted-foreground mt-1">管理产品分类（支持多级目录）</p>
           </div>
           <Button
             onClick={() => { resetForm(); setIsDialogOpen(true); }}
@@ -143,56 +285,23 @@ export default function AdminCategories() {
           </Button>
         </div>
 
-        {/* Categories Grid */}
+        {/* Categories Tree */}
         <Card className="p-6 bg-card border-border">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
               <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             </div>
-          ) : categories && categories.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {categories.map((category, index) => (
-                <motion.div
+          ) : rootCategories.length > 0 ? (
+            <div className="space-y-3">
+              {rootCategories.map(category => (
+                <CategoryTreeItem
                   key={category.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="relative group rounded-xl overflow-hidden border border-border"
-                >
-                  <div className="aspect-video relative">
-                    <img
-                      src={category.image_url || 'https://via.placeholder.com/400x225'}
-                      alt={category.name_zh}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 p-4">
-                      <p className="font-semibold text-foreground">{category.name_zh}</p>
-                      <p className="text-sm text-muted-foreground">{category.name_en}</p>
-                    </div>
-                  </div>
-                  <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => openEditDialog(category)}
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => {
-                        if (confirm('确定要删除这个分类吗？')) {
-                          deleteMutation.mutate(category.id);
-                        }
-                      }}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </motion.div>
+                  category={category}
+                  categories={categories || []}
+                  level={0}
+                  onEdit={openEditDialog}
+                  onDelete={(id) => deleteMutation.mutate(id)}
+                />
               ))}
             </div>
           ) : (
@@ -209,6 +318,26 @@ export default function AdminCategories() {
               </DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">父级分类</label>
+                <Select
+                  value={formData.parent_id}
+                  onValueChange={(value) => setFormData({ ...formData, parent_id: value === 'none' ? '' : value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="选择父级分类（可选）" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">无（一级分类）</SelectItem>
+                    {getAvailableParents().map((cat) => (
+                      <SelectItem key={cat.id} value={cat.id}>
+                        {cat.parent_id ? '└ ' : ''}{cat.name_zh}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
               <div className="space-y-2">
                 <label className="text-sm font-medium">中文名称 *</label>
                 <Input
