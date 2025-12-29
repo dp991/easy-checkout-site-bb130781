@@ -92,11 +92,11 @@ export default function AdminProducts() {
       let query = supabase
         .from('wh_products')
         .select('*')
-        .order('created_at', { ascending: false })
+        .order('updated_at', { ascending: false })
         .limit(PAGE_SIZE);
 
       if (pageParam) {
-        query = query.lt('created_at', pageParam);
+        query = query.lt('updated_at', pageParam);
       }
 
       if (selectedCategoryId && categories) {
@@ -114,7 +114,7 @@ export default function AdminProducts() {
     },
     getNextPageParam: (lastPage) => {
       if (lastPage.length < PAGE_SIZE) return undefined;
-      return lastPage[lastPage.length - 1]?.created_at;
+      return lastPage[lastPage.length - 1]?.updated_at;
     },
     initialPageParam: null as string | null,
   });
