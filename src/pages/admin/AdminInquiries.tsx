@@ -293,13 +293,13 @@ export default function AdminInquiries() {
         </div>
 
         {/* Inquiries List */}
-        <Card className="p-6 bg-card border-border">
+        <Card className="p-0 bg-card border-border overflow-hidden flex flex-col" style={{ maxHeight: 'calc(100vh - 220px)' }}>
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
               <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             </div>
           ) : allInquiries.length > 0 ? (
-            <>
+            <div className="flex-1 overflow-y-auto p-6">
               <div className="space-y-4">
                 {allInquiries.map((inquiry, index) => (
                   <motion.div
@@ -396,7 +396,7 @@ export default function AdminInquiries() {
                   <p className="text-sm text-muted-foreground">已加载全部数据</p>
                 )}
               </div>
-            </>
+            </div>
           ) : (
             <p className="text-muted-foreground text-center py-12">暂无询盘</p>
           )}
