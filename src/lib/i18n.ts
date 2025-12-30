@@ -69,7 +69,7 @@ export const translations = {
       quickLinks: "Quick Links",
       contactInfo: "Contact Info",
       followUs: "Follow Us",
-      copyright: "© 2024 POS Store. All rights reserved.",
+      copyright: "© 2024 杭州兴微技术有限公司 版权所有",
     },
     // Common
     common: {
@@ -145,7 +145,7 @@ export const translations = {
       quickLinks: "快速链接",
       contactInfo: "联系信息",
       followUs: "关注我们",
-      copyright: "© 2024 杭州兴微信息技术有限公司 版权所有",
+      copyright: "© 2024 杭州兴微技术有限公司 版权所有",
     },
     // Common
     common: {
