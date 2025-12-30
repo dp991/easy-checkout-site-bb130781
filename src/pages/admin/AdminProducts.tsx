@@ -449,9 +449,11 @@ export default function AdminProducts() {
                                     ? `$${product.price_max}`
                                     : '询价'}
                             </span>
-                            <span className="text-xs text-muted-foreground px-1 py-0.5 rounded bg-muted truncate max-w-[80px]">
-                              {getCategoryName(product.category_id)}
-                            </span>
+                            {product.category_id && getCategoryName(product.category_id) !== '-' && (
+                              <span className="text-xs text-muted-foreground px-1 py-0.5 rounded bg-muted truncate max-w-[80px]">
+                                {getCategoryName(product.category_id)}
+                              </span>
+                            )}
                           </div>
                           <div className="flex gap-1">
                             {product.is_featured && (
