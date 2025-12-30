@@ -161,15 +161,14 @@ export default function AdminDashboard() {
   // Calculate total inquiries for current period
   const totalPeriodInquiries = chartData?.reduce((sum, item) => sum + item.count, 0) || 0;
 
-  // Traffic stats cards - today
-  const todayTrafficCards = [
+  // Traffic stats cards - combined today and total
+  const trafficCards = [
     { 
       label: '今日浏览量', 
       value: trafficStats?.todayPageViews || 0, 
       icon: Eye, 
       color: 'text-cyan-500',
       bgColor: 'bg-cyan-500/10',
-      description: '页面被加载的次数',
     },
     { 
       label: '今日访客数', 
@@ -177,7 +176,6 @@ export default function AdminDashboard() {
       icon: UserCheck, 
       color: 'text-emerald-500',
       bgColor: 'bg-emerald-500/10',
-      description: '去重后的访客数量',
     },
     { 
       label: '今日访问次数', 
@@ -185,19 +183,13 @@ export default function AdminDashboard() {
       icon: Activity, 
       color: 'text-violet-500',
       bgColor: 'bg-violet-500/10',
-      description: '独立会话数',
     },
-  ];
-
-  // Traffic stats cards - total
-  const totalTrafficCards = [
     { 
       label: '总浏览量', 
       value: trafficStats?.totalPageViews || 0, 
       icon: Eye, 
       color: 'text-cyan-600',
       bgColor: 'bg-cyan-600/10',
-      description: '累计页面浏览次数',
     },
     { 
       label: '总访客数', 
@@ -205,7 +197,6 @@ export default function AdminDashboard() {
       icon: UserCheck, 
       color: 'text-emerald-600',
       bgColor: 'bg-emerald-600/10',
-      description: '累计去重访客数量',
     },
     { 
       label: '总访问次数', 
@@ -213,7 +204,6 @@ export default function AdminDashboard() {
       icon: Activity, 
       color: 'text-violet-600',
       bgColor: 'bg-violet-600/10',
-      description: '累计独立会话数',
     },
   ];
 
@@ -270,61 +260,26 @@ export default function AdminDashboard() {
 
   return (
     <AdminLayout>
-      <div className="space-y-8">
-        {/* Header */}
+      <div className="space-y-6">
+        {/* Traffic Stats - Combined in one row */}
         <div>
-          <h1 className="font-display text-3xl font-bold text-foreground">仪表板</h1>
-          <p className="text-muted-foreground mt-1">欢迎回来，这是您的网站概览</p>
-        </div>
-
-        {/* Today Traffic Stats */}
-        <div>
-          <h2 className="text-lg font-semibold text-foreground mb-4">今日流量</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {todayTrafficCards.map((stat, index) => (
+          <h2 className="text-lg font-semibold text-foreground mb-3">流量概览</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            {trafficCards.map((stat, index) => (
               <motion.div
                 key={stat.label}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
+                transition={{ delay: index * 0.05 }}
               >
-                <Card className="p-5 bg-card border-border hover:border-primary/30 transition-colors">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-xl ${stat.bgColor} flex items-center justify-center`}>
-                      <stat.icon className={`w-6 h-6 ${stat.color}`} />
+                <Card className="p-4 bg-card border-border hover:border-primary/30 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-lg ${stat.bgColor} flex items-center justify-center shrink-0`}>
+                      <stat.icon className={`w-5 h-5 ${stat.color}`} />
                     </div>
-                    <div className="flex-1">
-                      <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                      <p className="text-sm font-medium text-foreground">{stat.label}</p>
-                      <p className="text-xs text-muted-foreground">{stat.description}</p>
-                    </div>
-                  </div>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-
-        {/* Total Traffic Stats */}
-        <div>
-          <h2 className="text-lg font-semibold text-foreground mb-4">累计流量</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {totalTrafficCards.map((stat, index) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 + 0.15 }}
-              >
-                <Card className="p-5 bg-card border-border hover:border-primary/30 transition-colors">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-xl ${stat.bgColor} flex items-center justify-center`}>
-                      <stat.icon className={`w-6 h-6 ${stat.color}`} />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                      <p className="text-sm font-medium text-foreground">{stat.label}</p>
-                      <p className="text-xs text-muted-foreground">{stat.description}</p>
+                    <div className="min-w-0">
+                      <p className="text-xl font-bold text-foreground">{stat.value}</p>
+                      <p className="text-xs text-muted-foreground truncate">{stat.label}</p>
                     </div>
                   </div>
                 </Card>
@@ -335,23 +290,23 @@ export default function AdminDashboard() {
 
         {/* Business Stats Grid */}
         <div>
-          <h2 className="text-lg font-semibold text-foreground mb-4">业务指标</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          <h2 className="text-lg font-semibold text-foreground mb-3">业务指标</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             {statCards.map((stat, index) => (
               <motion.div
                 key={stat.label}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 + 0.3 }}
+                transition={{ delay: index * 0.05 + 0.2 }}
               >
-                <Card className="p-5 bg-card border-border hover:border-primary/30 transition-colors">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-11 h-11 rounded-xl ${stat.bgColor} flex items-center justify-center`}>
+                <Card className="p-4 bg-card border-border hover:border-primary/30 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-lg ${stat.bgColor} flex items-center justify-center shrink-0`}>
                       <stat.icon className={`w-5 h-5 ${stat.color}`} />
                     </div>
-                    <div>
-                      <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                      <p className="text-xs text-muted-foreground">{stat.label}</p>
+                    <div className="min-w-0">
+                      <p className="text-xl font-bold text-foreground">{stat.value}</p>
+                      <p className="text-xs text-muted-foreground truncate">{stat.label}</p>
                     </div>
                   </div>
                 </Card>
