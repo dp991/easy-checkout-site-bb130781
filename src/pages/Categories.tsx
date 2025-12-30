@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useProducts, useCategories } from '@/hooks/useDatabase';
+import { usePaginatedProducts, useCategories } from '@/hooks/useDatabase';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/products/ProductCard';
 import CategoryTree from '@/components/products/CategoryTree';
@@ -14,15 +14,33 @@ const PAGE_SIZE = 12;
 export default function Categories() {
   const { locale } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { data: products, isLoading: productsLoading } = useProducts();
   const { data: categories, isLoading: categoriesLoading } = useCategories();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedCategoryName, setSelectedCategoryName] = useState<string>(
     locale === 'zh' ? '全部产品' : 'All Products'
   );
   const [currentPage, setCurrentPage] = useState(1);
-  const [loadedPages, setLoadedPages] = useState(1); // For "Load More" feature
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  // Calculate category IDs for filtering (including children)
+  const categoryIds = useMemo(() => {
+    if (!selectedCategory || !categories) return null;
+    
+    const selectedCat = categories.find(c => c.slug === selectedCategory);
+    if (!selectedCat) return null;
+    
+    const ids = [selectedCat.id];
+    const childCategories = categories.filter(c => c.parent_id === selectedCat.id);
+    childCategories.forEach(child => ids.push(child.id));
+    
+    return ids;
+  }, [selectedCategory, categories]);
+
+  // Use paginated query
+  const { data: paginatedData, isLoading: productsLoading } = usePaginatedProducts({
+    categoryIds,
+    page: currentPage,
+    pageSize: PAGE_SIZE,
+  });
 
   // Handle URL parameter for category and page
   useEffect(() => {
@@ -33,7 +51,7 @@ export default function Categories() {
       const category = categories.find(c => c.slug === categorySlug);
       if (category) {
         setSelectedCategory(categorySlug);
-        setSelectedCategoryName(locale === 'zh' ? category.name_zh : category.name_en);
+        setSelectedCategoryName(locale === 'zh' ? category.name_zh : (category.name_en || category.name_zh));
       }
     } else if (!categorySlug) {
       setSelectedCategory(null);
@@ -44,7 +62,6 @@ export default function Categories() {
       const page = parseInt(pageParam, 10);
       if (!isNaN(page) && page >= 1) {
         setCurrentPage(page);
-        setLoadedPages(page);
       }
     }
   }, [searchParams, categories, locale]);
@@ -61,43 +78,13 @@ export default function Categories() {
     }
     // Reset pagination when category changes
     setCurrentPage(1);
-    setLoadedPages(1);
   };
 
-  // Filter products by selected category
-  const filteredProducts = useMemo(() => {
-    if (!products) return [];
-    if (!selectedCategory) return products;
-    
-    // Find the selected category
-    const selectedCat = categories?.find(c => c.slug === selectedCategory);
-    if (!selectedCat) return products;
-    
-    // Check if product belongs to this category or its children
-    const categoryIds = [selectedCat.id];
-    const childCategories = categories?.filter(c => c.parent_id === selectedCat.id) || [];
-    childCategories.forEach(child => categoryIds.push(child.id));
-    
-    return products.filter(product => 
-      product.category_id && categoryIds.includes(product.category_id)
-    );
-  }, [products, selectedCategory, categories]);
-
-  // Pagination calculations
-  const totalCount = filteredProducts.length;
-  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
-  
-  // Products to display (supports "load more" by showing all loaded pages)
-  const displayedProducts = useMemo(() => {
-    const endIndex = loadedPages * PAGE_SIZE;
-    return filteredProducts.slice(0, endIndex);
-  }, [filteredProducts, loadedPages]);
-
   const handlePageChange = (page: number) => {
+    const totalPages = paginatedData?.totalPages || 1;
     if (page < 1 || page > totalPages) return;
     
     setCurrentPage(page);
-    setLoadedPages(page); // Reset loaded pages to match current page
     
     // Update URL
     const newParams = new URLSearchParams(searchParams);
@@ -112,17 +99,10 @@ export default function Categories() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleLoadMore = async () => {
-    if (loadedPages >= totalPages) return;
-    
-    setIsLoadingMore(true);
-    // Simulate async loading delay for smooth UX
-    await new Promise(resolve => setTimeout(resolve, 300));
-    setLoadedPages(prev => prev + 1);
-    setIsLoadingMore(false);
-  };
-
   const isLoading = productsLoading || categoriesLoading;
+  const products = paginatedData?.products || [];
+  const totalCount = paginatedData?.totalCount || 0;
+  const totalPages = paginatedData?.totalPages || 1;
 
   return (
     <Layout>
@@ -153,7 +133,7 @@ export default function Categories() {
         {/* Right Content - Products Grid (with left margin for fixed sidebar) */}
         <main className="md:ml-72 p-6 lg:p-8 min-h-[calc(100vh-80px)]">
           <motion.div
-            key={selectedCategory}
+            key={`${selectedCategory}-${currentPage}`}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
@@ -177,25 +157,25 @@ export default function Categories() {
                   <Skeleton key={i} className="aspect-[4/5] rounded-xl" />
                 ))}
               </div>
-            ) : displayedProducts.length > 0 ? (
+            ) : products.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {displayedProducts.map((product, index) => (
+                  {products.map((product, index) => (
                     <ProductCard key={product.id} product={product} index={index} />
                   ))}
                 </div>
 
                 {/* Pagination */}
-                <ProductPagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  onPageChange={handlePageChange}
-                  showLoadMore={displayedProducts.length < totalCount}
-                  onLoadMore={handleLoadMore}
-                  loadedCount={displayedProducts.length}
-                  totalCount={totalCount}
-                  isLoadingMore={isLoadingMore}
-                />
+                {totalPages > 1 && (
+                  <ProductPagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                    showLoadMore={false}
+                    loadedCount={products.length}
+                    totalCount={totalCount}
+                  />
+                )}
               </>
             ) : (
               <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -226,7 +206,7 @@ export default function Categories() {
               } else {
                 const cat = categories?.find(c => c.slug === slug);
                 if (cat) {
-                  handleSelectCategory(cat.slug, locale === 'zh' ? cat.name_zh : cat.name_en);
+                  handleSelectCategory(cat.slug, locale === 'zh' ? cat.name_zh : (cat.name_en || cat.name_zh));
                 }
               }
             }}
@@ -235,7 +215,7 @@ export default function Categories() {
             <option value="">{locale === 'zh' ? '全部产品' : 'All Products'}</option>
             {categories?.filter(c => !c.parent_id).map((cat) => (
               <option key={cat.slug} value={cat.slug}>
-                {locale === 'zh' ? cat.name_zh : cat.name_en}
+                {locale === 'zh' ? cat.name_zh : (cat.name_en || cat.name_zh)}
               </option>
             ))}
           </select>

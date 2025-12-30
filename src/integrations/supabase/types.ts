@@ -14,21 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          company: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          company?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          company?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
-          created_at: string | null
+          created_at: string
           id: string
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           id?: string
-          role: Database["public"]["Enums"]["app_role"]
+          role?: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
@@ -37,27 +70,27 @@ export type Database = {
       }
       wh_cart_items: {
         Row: {
-          created_at: string | null
+          created_at: string
           id: string
           product_id: string
           quantity: number
-          updated_at: string | null
+          updated_at: string
           user_id: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           id?: string
           product_id: string
           quantity?: number
-          updated_at?: string | null
+          updated_at?: string
           user_id: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           id?: string
           product_id?: string
           quantity?: number
-          updated_at?: string | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: [
@@ -72,34 +105,46 @@ export type Database = {
       }
       wh_categories: {
         Row: {
-          created_at: string | null
+          created_at: string
+          description_en: string | null
+          description_zh: string | null
           id: string
           image_url: string | null
-          name_en: string
+          is_active: boolean | null
+          name_en: string | null
           name_zh: string
           parent_id: string | null
           slug: string
           sort_order: number | null
+          updated_at: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
+          description_en?: string | null
+          description_zh?: string | null
           id?: string
           image_url?: string | null
-          name_en: string
+          is_active?: boolean | null
+          name_en?: string | null
           name_zh: string
           parent_id?: string | null
           slug: string
           sort_order?: number | null
+          updated_at?: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
+          description_en?: string | null
+          description_zh?: string | null
           id?: string
           image_url?: string | null
-          name_en?: string
+          is_active?: boolean | null
+          name_en?: string | null
           name_zh?: string
           parent_id?: string | null
           slug?: string
           sort_order?: number | null
+          updated_at?: string
         }
         Relationships: [
           {
@@ -113,46 +158,46 @@ export type Database = {
       }
       wh_inquiries: {
         Row: {
-          created_at: string | null
+          admin_notes: string | null
+          created_at: string
           customer_company: string | null
-          customer_email: string | null
-          customer_im: string | null
-          customer_name: string | null
+          customer_email: string
+          customer_name: string
           customer_phone: string | null
           id: string
-          is_read: boolean | null
-          message: string | null
+          message: string
           product_id: string | null
           source: string | null
           status: string | null
+          updated_at: string
         }
         Insert: {
-          created_at?: string | null
+          admin_notes?: string | null
+          created_at?: string
           customer_company?: string | null
-          customer_email?: string | null
-          customer_im?: string | null
-          customer_name?: string | null
+          customer_email: string
+          customer_name: string
           customer_phone?: string | null
           id?: string
-          is_read?: boolean | null
-          message?: string | null
+          message: string
           product_id?: string | null
           source?: string | null
           status?: string | null
+          updated_at?: string
         }
         Update: {
-          created_at?: string | null
+          admin_notes?: string | null
+          created_at?: string
           customer_company?: string | null
-          customer_email?: string | null
-          customer_im?: string | null
-          customer_name?: string | null
+          customer_email?: string
+          customer_name?: string
           customer_phone?: string | null
           id?: string
-          is_read?: boolean | null
-          message?: string | null
+          message?: string
           product_id?: string | null
           source?: string | null
           status?: string | null
+          updated_at?: string
         }
         Relationships: [
           {
@@ -167,69 +212,69 @@ export type Database = {
       wh_products: {
         Row: {
           category_id: string | null
-          created_at: string | null
+          created_at: string
           description_en: string | null
           description_zh: string | null
           id: string
           images: string[] | null
+          is_active: boolean | null
           is_featured: boolean | null
           is_new: boolean | null
           min_order: number | null
-          name_en: string
+          name_en: string | null
           name_zh: string
+          price: number | null
           price_max: number | null
           price_min: number | null
-          seo_description: string | null
-          seo_title: string | null
           slug: string
           sort_order: number | null
-          specs: Json | null
-          stock_status: string | null
-          updated_at: string | null
+          specifications: Json | null
+          unit: string | null
+          updated_at: string
         }
         Insert: {
           category_id?: string | null
-          created_at?: string | null
+          created_at?: string
           description_en?: string | null
           description_zh?: string | null
           id?: string
           images?: string[] | null
+          is_active?: boolean | null
           is_featured?: boolean | null
           is_new?: boolean | null
           min_order?: number | null
-          name_en: string
+          name_en?: string | null
           name_zh: string
+          price?: number | null
           price_max?: number | null
           price_min?: number | null
-          seo_description?: string | null
-          seo_title?: string | null
           slug: string
           sort_order?: number | null
-          specs?: Json | null
-          stock_status?: string | null
-          updated_at?: string | null
+          specifications?: Json | null
+          unit?: string | null
+          updated_at?: string
         }
         Update: {
           category_id?: string | null
-          created_at?: string | null
+          created_at?: string
           description_en?: string | null
           description_zh?: string | null
           id?: string
           images?: string[] | null
+          is_active?: boolean | null
           is_featured?: boolean | null
           is_new?: boolean | null
           min_order?: number | null
-          name_en?: string
+          name_en?: string | null
           name_zh?: string
+          price?: number | null
           price_max?: number | null
           price_min?: number | null
-          seo_description?: string | null
-          seo_title?: string | null
           slug?: string
           sort_order?: number | null
-          specs?: Json | null
-          stock_status?: string | null
-          updated_at?: string | null
+          specifications?: Json | null
+          unit?: string | null
+          updated_at?: string
         }
         Relationships: [
           {
@@ -243,55 +288,28 @@ export type Database = {
       }
       wh_site_settings: {
         Row: {
+          created_at: string
           description: string | null
+          id: string
           key: string
-          updated_at: string | null
+          updated_at: string
           value: Json | null
         }
         Insert: {
+          created_at?: string
           description?: string | null
+          id?: string
           key: string
-          updated_at?: string | null
+          updated_at?: string
           value?: Json | null
         }
         Update: {
+          created_at?: string
           description?: string | null
+          id?: string
           key?: string
-          updated_at?: string | null
+          updated_at?: string
           value?: Json | null
-        }
-        Relationships: []
-      }
-      wh_users: {
-        Row: {
-          avatar_url: string | null
-          created_at: string | null
-          email: string
-          id: string
-          nickname: string | null
-          phone: string | null
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          avatar_url?: string | null
-          created_at?: string | null
-          email: string
-          id?: string
-          nickname?: string | null
-          phone?: string | null
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          avatar_url?: string | null
-          created_at?: string | null
-          email?: string
-          id?: string
-          nickname?: string | null
-          phone?: string | null
-          updated_at?: string | null
-          user_id?: string
         }
         Relationships: []
       }
@@ -309,7 +327,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "editor"
+      app_role: "admin" | "moderator" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -437,7 +455,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "editor"],
+      app_role: ["admin", "moderator", "user"],
     },
   },
 } as const
