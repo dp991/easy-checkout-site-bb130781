@@ -11,7 +11,7 @@ import {
   ChartTooltip,
 } from '@/components/ui/chart';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid } from 'recharts';
-import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, eachDayOfInterval, eachMonthOfInterval } from 'date-fns';
+import { format, startOfDay, endOfDay, subDays, subMonths, eachDayOfInterval, eachMonthOfInterval } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 
 type TimeRange = 'week' | 'month' | 'year';
@@ -47,7 +47,7 @@ export default function AdminDashboard() {
     },
   });
 
-  // Fetch traffic stats (page views, unique visitors, sessions) for today
+  // Fetch traffic stats - today and total
   const { data: trafficStats } = useQuery({
     queryKey: ['admin-traffic-stats'],
     queryFn: async () => {
@@ -55,22 +55,34 @@ export default function AdminDashboard() {
       const startOfToday = startOfDay(today).toISOString();
       const endOfToday = endOfDay(today).toISOString();
 
-      const { data: pageViews, error } = await supabase
+      // Fetch today's page views
+      const { data: todayViews, error: todayError } = await supabase
         .from('wh_page_views')
         .select('id, visitor_id, session_id')
         .gte('created_at', startOfToday)
         .lte('created_at', endOfToday);
 
-      if (error) throw error;
+      if (todayError) throw todayError;
 
-      const views = pageViews || [];
-      const uniqueVisitors = new Set(views.map(v => v.visitor_id)).size;
-      const uniqueSessions = new Set(views.map(v => v.session_id)).size;
+      // Fetch all page views for totals
+      const { data: allViews, error: allError } = await supabase
+        .from('wh_page_views')
+        .select('id, visitor_id, session_id');
+
+      if (allError) throw allError;
+
+      const todayData = todayViews || [];
+      const allData = allViews || [];
 
       return {
-        pageViews: views.length,
-        uniqueVisitors,
-        sessions: uniqueSessions,
+        // Today stats
+        todayPageViews: todayData.length,
+        todayUniqueVisitors: new Set(todayData.map(v => v.visitor_id)).size,
+        todaySessions: new Set(todayData.map(v => v.session_id)).size,
+        // Total stats
+        totalPageViews: allData.length,
+        totalUniqueVisitors: new Set(allData.map(v => v.visitor_id)).size,
+        totalSessions: new Set(allData.map(v => v.session_id)).size,
       };
     },
   });
@@ -81,27 +93,27 @@ export default function AdminDashboard() {
     queryFn: async () => {
       const today = new Date();
       let startDate: Date;
-      let endDate: Date = endOfDay(today);
+      const endDate: Date = endOfDay(today);
       let intervals: Date[];
       let formatStr: string;
 
       switch (timeRange) {
         case 'week':
-          startDate = startOfWeek(today, { weekStartsOn: 1 });
-          endDate = endOfWeek(today, { weekStartsOn: 1 });
-          intervals = eachDayOfInterval({ start: startDate, end: endDate });
-          formatStr = 'EEE';
+          // 近7天
+          startDate = subDays(today, 6);
+          intervals = eachDayOfInterval({ start: startOfDay(startDate), end: today });
+          formatStr = 'M/d';
           break;
         case 'month':
-          startDate = startOfMonth(today);
-          endDate = endOfMonth(today);
-          intervals = eachDayOfInterval({ start: startDate, end: endDate });
-          formatStr = 'd日';
+          // 近30天
+          startDate = subDays(today, 29);
+          intervals = eachDayOfInterval({ start: startOfDay(startDate), end: today });
+          formatStr = 'M/d';
           break;
         case 'year':
-          startDate = startOfYear(today);
-          endDate = endOfYear(today);
-          intervals = eachMonthOfInterval({ start: startDate, end: endDate });
+          // 近12个月
+          startDate = subMonths(today, 11);
+          intervals = eachMonthOfInterval({ start: startOfDay(startDate), end: today });
           formatStr = 'M月';
           break;
       }
@@ -110,7 +122,7 @@ export default function AdminDashboard() {
         .from('wh_inquiries')
         .select('created_at')
         .gte('created_at', startOfDay(startDate).toISOString())
-        .lte('created_at', endOfDay(endDate).toISOString())
+        .lte('created_at', endDate.toISOString())
         .order('created_at', { ascending: true });
 
       if (error) throw error;
@@ -120,8 +132,8 @@ export default function AdminDashboard() {
         let count = 0;
         
         if (timeRange === 'year') {
-          const monthStart = startOfMonth(intervalDate);
-          const monthEnd = endOfMonth(intervalDate);
+          const monthStart = startOfDay(new Date(intervalDate.getFullYear(), intervalDate.getMonth(), 1));
+          const monthEnd = endOfDay(new Date(intervalDate.getFullYear(), intervalDate.getMonth() + 1, 0));
           count = (inquiries || []).filter(i => {
             const date = new Date(i.created_at);
             return date >= monthStart && date <= monthEnd;
@@ -149,11 +161,11 @@ export default function AdminDashboard() {
   // Calculate total inquiries for current period
   const totalPeriodInquiries = chartData?.reduce((sum, item) => sum + item.count, 0) || 0;
 
-  // Traffic stats cards (new)
-  const trafficCards = [
+  // Traffic stats cards - today
+  const todayTrafficCards = [
     { 
       label: '今日浏览量', 
-      value: trafficStats?.pageViews || 0, 
+      value: trafficStats?.todayPageViews || 0, 
       icon: Eye, 
       color: 'text-cyan-500',
       bgColor: 'bg-cyan-500/10',
@@ -161,7 +173,7 @@ export default function AdminDashboard() {
     },
     { 
       label: '今日访客数', 
-      value: trafficStats?.uniqueVisitors || 0, 
+      value: trafficStats?.todayUniqueVisitors || 0, 
       icon: UserCheck, 
       color: 'text-emerald-500',
       bgColor: 'bg-emerald-500/10',
@@ -169,11 +181,39 @@ export default function AdminDashboard() {
     },
     { 
       label: '今日访问次数', 
-      value: trafficStats?.sessions || 0, 
+      value: trafficStats?.todaySessions || 0, 
       icon: Activity, 
       color: 'text-violet-500',
       bgColor: 'bg-violet-500/10',
       description: '独立会话数',
+    },
+  ];
+
+  // Traffic stats cards - total
+  const totalTrafficCards = [
+    { 
+      label: '总浏览量', 
+      value: trafficStats?.totalPageViews || 0, 
+      icon: Eye, 
+      color: 'text-cyan-600',
+      bgColor: 'bg-cyan-600/10',
+      description: '累计页面浏览次数',
+    },
+    { 
+      label: '总访客数', 
+      value: trafficStats?.totalUniqueVisitors || 0, 
+      icon: UserCheck, 
+      color: 'text-emerald-600',
+      bgColor: 'bg-emerald-600/10',
+      description: '累计去重访客数量',
+    },
+    { 
+      label: '总访问次数', 
+      value: trafficStats?.totalSessions || 0, 
+      icon: Activity, 
+      color: 'text-violet-600',
+      bgColor: 'bg-violet-600/10',
+      description: '累计独立会话数',
     },
   ];
 
@@ -223,9 +263,9 @@ export default function AdminDashboard() {
   };
 
   const timeRangeLabels: Record<TimeRange, string> = {
-    week: '本周',
-    month: '本月',
-    year: '本年',
+    week: '近7天',
+    month: '近30天',
+    year: '近一年',
   };
 
   return (
@@ -237,16 +277,44 @@ export default function AdminDashboard() {
           <p className="text-muted-foreground mt-1">欢迎回来，这是您的网站概览</p>
         </div>
 
-        {/* Traffic Stats Grid (New) */}
+        {/* Today Traffic Stats */}
         <div>
-          <h2 className="text-lg font-semibold text-foreground mb-4">流量指标</h2>
+          <h2 className="text-lg font-semibold text-foreground mb-4">今日流量</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {trafficCards.map((stat, index) => (
+            {todayTrafficCards.map((stat, index) => (
               <motion.div
                 key={stat.label}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
+              >
+                <Card className="p-5 bg-card border-border hover:border-primary/30 transition-colors">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 rounded-xl ${stat.bgColor} flex items-center justify-center`}>
+                      <stat.icon className={`w-6 h-6 ${stat.color}`} />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                      <p className="text-sm font-medium text-foreground">{stat.label}</p>
+                      <p className="text-xs text-muted-foreground">{stat.description}</p>
+                    </div>
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        {/* Total Traffic Stats */}
+        <div>
+          <h2 className="text-lg font-semibold text-foreground mb-4">累计流量</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {totalTrafficCards.map((stat, index) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 + 0.15 }}
               >
                 <Card className="p-5 bg-card border-border hover:border-primary/30 transition-colors">
                   <div className="flex items-center gap-4">
