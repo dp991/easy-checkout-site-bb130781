@@ -67,8 +67,13 @@ function TreeNode({ category, categories, level, selectedId, onSelect }: TreeNod
             <span className="text-sm truncate">{category.name_zh}</span>
           </div>
         </TooltipTrigger>
-        <TooltipContent side="top" sideOffset={5} className="z-[100] max-w-xs bg-popover border border-border shadow-lg">
-          <p>{category.name_zh}</p>
+        <TooltipContent 
+          side="top" 
+          align="start"
+          sideOffset={8} 
+          className="z-[100] max-w-xs bg-primary text-primary-foreground border-primary shadow-lg"
+        >
+          <p className="font-medium">{category.name_zh}</p>
         </TooltipContent>
       </Tooltip>
       
