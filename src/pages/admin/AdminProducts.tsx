@@ -158,13 +158,13 @@ export default function AdminProducts() {
         category_id: data.category_id || null,
         description_zh: data.description_zh,
         description_en: data.description_en,
-        price_min: parseFloat(data.price_min) || 0,
-        price_max: parseFloat(data.price_max) || 0,
+        price_min: parseFloat(data.price_min) || null,
+        price_max: parseFloat(data.price_max) || null,
         min_order: parseInt(data.min_order) || 1,
         images: data.images,
         is_featured: data.is_featured,
         is_new: data.is_new,
-        specs: {},
+        specifications: {},
       }]);
       if (error) throw error;
     },
