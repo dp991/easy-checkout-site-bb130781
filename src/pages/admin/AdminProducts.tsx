@@ -27,13 +27,14 @@ import { toast } from 'sonner';
 import { useImageUpload } from '@/hooks/useImageUpload';
 import { generateSnowflakeId } from '@/lib/snowflake';
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE_OPTIONS = [12, 20, 40, 60];
 
 export default function AdminProducts() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<DbProduct | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -78,15 +79,15 @@ export default function AdminProducts() {
     return ids;
   };
 
-  // Reset page when category or search changes
+  // Reset page when category, search, or pageSize changes
   useEffect(() => {
     setCurrentPage(1);
     setSelectedIds(new Set());
-  }, [selectedCategoryId, search]);
+  }, [selectedCategoryId, search, pageSize]);
 
   // Paginated query
   const { data: paginatedData, isLoading } = useQuery({
-    queryKey: ['admin-products-paginated', selectedCategoryId, search, currentPage, categories],
+    queryKey: ['admin-products-paginated', selectedCategoryId, search, currentPage, pageSize, categories],
     queryFn: async () => {
       // Build category filter
       let categoryIds: string[] | null = null;
@@ -110,12 +111,12 @@ export default function AdminProducts() {
       if (countError) throw countError;
 
       // Get paginated data
-      const offset = (currentPage - 1) * PAGE_SIZE;
+      const offset = (currentPage - 1) * pageSize;
       let query = supabase
         .from('wh_products')
         .select('*')
         .order('updated_at', { ascending: false })
-        .range(offset, offset + PAGE_SIZE - 1);
+        .range(offset, offset + pageSize - 1);
 
       if (categoryIds) {
         query = query.in('category_id', categoryIds);
@@ -130,7 +131,7 @@ export default function AdminProducts() {
       return {
         products: data || [],
         totalCount: count || 0,
-        totalPages: Math.ceil((count || 0) / PAGE_SIZE),
+        totalPages: Math.ceil((count || 0) / pageSize),
       };
     },
     enabled: !!categories,
@@ -173,6 +174,10 @@ export default function AdminProducts() {
     if (page < 1 || page > totalPages) return;
     setCurrentPage(page);
     setSelectedIds(new Set());
+  };
+
+  const handlePageSizeChange = (newSize: string) => {
+    setPageSize(parseInt(newSize));
   };
 
   const createMutation = useMutation({
@@ -518,52 +523,71 @@ export default function AdminProducts() {
                     ))}
                   </div>
 
-                  {/* Pagination */}
-                  {totalPages > 1 && (
-                    <div className="flex items-center justify-center gap-1 mt-6 pt-4 border-t border-border">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handlePageChange(currentPage - 1)}
-                        disabled={currentPage === 1}
-                        className="h-9 w-9"
-                      >
-                        <ChevronLeft className="w-4 h-4" />
-                      </Button>
-
-                      {getPageNumbers().map((page, index) => (
-                        page === 'ellipsis' ? (
-                          <div key={`ellipsis-${index}`} className="w-9 h-9 flex items-center justify-center">
-                            <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
-                          </div>
-                        ) : (
-                          <Button
-                            key={page}
-                            variant={currentPage === page ? 'default' : 'ghost'}
-                            size="icon"
-                            onClick={() => handlePageChange(page)}
-                            className={`h-9 w-9 ${currentPage === page ? 'bg-primary text-primary-foreground' : ''}`}
-                          >
-                            {page}
-                          </Button>
-                        )
-                      ))}
-
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handlePageChange(currentPage + 1)}
-                        disabled={currentPage === totalPages}
-                        className="h-9 w-9"
-                      >
-                        <ChevronRight className="w-4 h-4" />
-                      </Button>
-
-                      <span className="ml-4 text-sm text-muted-foreground">
+                  {/* Pagination & Page Size Controls */}
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-4 border-t border-border">
+                    {/* Page Size Selector */}
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">每页</span>
+                      <Select value={pageSize.toString()} onValueChange={handlePageSizeChange}>
+                        <SelectTrigger className="w-20 h-9">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {PAGE_SIZE_OPTIONS.map((size) => (
+                            <SelectItem key={size} value={size.toString()}>
+                              {size}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <span className="text-sm text-muted-foreground">
                         共 {totalCount} 个产品
                       </span>
                     </div>
-                  )}
+
+                    {/* Page Numbers */}
+                    {totalPages > 1 && (
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handlePageChange(currentPage - 1)}
+                          disabled={currentPage === 1}
+                          className="h-9 w-9"
+                        >
+                          <ChevronLeft className="w-4 h-4" />
+                        </Button>
+
+                        {getPageNumbers().map((page, index) => (
+                          page === 'ellipsis' ? (
+                            <div key={`ellipsis-${index}`} className="w-9 h-9 flex items-center justify-center">
+                              <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
+                            </div>
+                          ) : (
+                            <Button
+                              key={page}
+                              variant={currentPage === page ? 'default' : 'ghost'}
+                              size="icon"
+                              onClick={() => handlePageChange(page)}
+                              className={`h-9 w-9 ${currentPage === page ? 'bg-primary text-primary-foreground' : ''}`}
+                            >
+                              {page}
+                            </Button>
+                          )
+                        ))}
+
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handlePageChange(currentPage + 1)}
+                          disabled={currentPage === totalPages}
+                          className="h-9 w-9"
+                        >
+                          <ChevronRight className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                 </>
               ) : (
                 <p className="text-muted-foreground text-center py-12">
