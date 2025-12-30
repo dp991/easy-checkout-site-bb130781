@@ -153,59 +153,61 @@ export default function Contact() {
 
       <section className="py-8 md:py-12">
         <div className="container-wide">
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-stretch">
             {/* Contact Info */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="lg:col-span-2 space-y-6"
+              className="lg:col-span-2 flex flex-col"
             >
-              <div className="space-y-4">
-                {contactInfo.map((item) => (
-                  <div key={item.title} className="flex gap-4 p-4 rounded-lg bg-card/50 border border-border/50">
-                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <item.icon className="w-5 h-5 text-primary" />
+              <div className="metal-surface rounded-xl p-5 md:p-6 flex-1 flex flex-col justify-between">
+                <div className="space-y-4">
+                  {contactInfo.map((item) => (
+                    <div key={item.title} className="flex gap-4 p-4 rounded-lg bg-muted/50 border border-border/50">
+                      <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <item.icon className="w-5 h-5 text-primary" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-medium text-foreground">{item.title}</h3>
+                        {item.link ? (
+                          <a href={item.link} className="text-muted-foreground hover:text-primary transition-colors">
+                            {item.value}
+                          </a>
+                        ) : (
+                          <p className="text-muted-foreground">{item.value}</p>
+                        )}
+                      </div>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <h3 className="font-medium text-foreground">{item.title}</h3>
-                      {item.link ? (
-                        <a href={item.link} className="text-muted-foreground hover:text-primary transition-colors">
-                          {item.value}
-                        </a>
-                      ) : (
-                        <p className="text-muted-foreground">{item.value}</p>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
 
-              {/* IM Buttons */}
-              <div className="pt-4 border-t border-border space-y-3">
-                <h3 className="font-display font-semibold text-foreground">
-                  {locale === 'zh' ? '即时通讯' : 'Instant Messaging'}
-                </h3>
-                <div className="grid grid-cols-2 gap-3">
-                  <a
-                    href="https://wa.me/8613800138000?text=Hello%2C%20I%20want%20to%20inquire%20about%20your%20POS%20products"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Button className="w-full h-10 bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold text-sm">
-                      <MessageCircle className="w-4 h-4 mr-1.5" />
-                      WhatsApp
-                    </Button>
-                  </a>
-                  <a
-                    href="https://t.me/posstore"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Button className="w-full h-10 bg-[#0088cc] hover:bg-[#0077b3] text-white font-semibold text-sm">
-                      <Send className="w-4 h-4 mr-1.5" />
-                      Telegram
-                    </Button>
-                  </a>
+                {/* IM Buttons */}
+                <div className="pt-4 mt-auto border-t border-border/50 space-y-3">
+                  <h3 className="font-display font-semibold text-foreground">
+                    {locale === 'zh' ? '即时通讯' : 'Instant Messaging'}
+                  </h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    <a
+                      href="https://wa.me/8613800138000?text=Hello%2C%20I%20want%20to%20inquire%20about%20your%20POS%20products"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Button className="w-full h-10 bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold text-sm">
+                        <MessageCircle className="w-4 h-4 mr-1.5" />
+                        WhatsApp
+                      </Button>
+                    </a>
+                    <a
+                      href="https://t.me/posstore"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Button className="w-full h-10 bg-[#0088cc] hover:bg-[#0077b3] text-white font-semibold text-sm">
+                        <Send className="w-4 h-4 mr-1.5" />
+                        Telegram
+                      </Button>
+                    </a>
+                  </div>
                 </div>
               </div>
             </motion.div>
