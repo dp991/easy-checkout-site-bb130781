@@ -86,8 +86,11 @@ export default function Contact() {
       toast.success(t.contact.success);
       // Don't clear form data - let user manually refresh if needed
     } catch (error) {
+      console.error('Contact form submission error:', error);
       if (error instanceof z.ZodError) {
         toast.error(error.errors[0].message);
+      } else if (error instanceof Error) {
+        toast.error(locale === 'zh' ? `提交失败: ${error.message}` : `Submission failed: ${error.message}`);
       } else {
         toast.error(locale === 'zh' ? '提交失败，请重试' : 'Submission failed, please try again');
       }
