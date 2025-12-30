@@ -77,7 +77,7 @@ export default function ProductDetail() {
   };
   const priceRange = formatPrice();
   const images = product.images || [];
-  const specs = product.specs || {};
+  const specs = (product.specifications as Record<string, string>) || {};
 
   const relatedProducts = allProducts
     ?.filter(p => p.category_id === product.category_id && p.id !== product.id)
@@ -180,11 +180,11 @@ export default function ProductDetail() {
               <div className="flex items-center gap-3 mt-4">
                 <span className="text-3xl font-bold text-primary">{priceRange}</span>
                 <span className={`text-sm px-3 py-1 rounded-full ${
-                  product.stock_status === 'in_stock'
+                  product.is_active !== false
                     ? 'bg-green-500/10 text-green-500'
                     : 'bg-destructive/10 text-destructive'
                 }`}>
-                  {product.stock_status === 'in_stock' ? t.products.inStock : t.products.outOfStock}
+                  {product.is_active !== false ? t.products.inStock : t.products.outOfStock}
                 </span>
               </div>
             </div>

@@ -115,11 +115,11 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                 </p>
               </div>
               <span className={`text-xs px-2 py-1 rounded-full ${
-                product.stock_status === 'in_stock' 
+                product.is_active !== false 
                   ? 'bg-green-500/10 text-green-500' 
                   : 'bg-destructive/10 text-destructive'
               }`}>
-                {product.stock_status === 'in_stock' ? t.products.inStock : t.products.outOfStock}
+                {product.is_active !== false ? t.products.inStock : t.products.outOfStock}
               </span>
             </div>
           </div>
