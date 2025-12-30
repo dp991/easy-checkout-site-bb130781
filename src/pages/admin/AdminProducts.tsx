@@ -431,7 +431,7 @@ export default function AdminProducts() {
           </div>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex gap-4">
           {/* Category Tree Sidebar */}
           <Card className="w-48 flex-shrink-0 p-3 bg-card border-border h-fit sticky top-4">
             {categories && (
