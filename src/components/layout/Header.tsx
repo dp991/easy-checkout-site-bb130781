@@ -50,6 +50,7 @@ export default function Header() {
               <Link
                 key={link.href}
                 to={link.href}
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                   isActive(link.href)
                     ? 'text-primary bg-primary/10'
@@ -190,7 +191,7 @@ export default function Header() {
                   <Link
                     key={link.href}
                     to={link.href}
-                    onClick={() => setIsMenuOpen(false)}
+                    onClick={() => { setIsMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                     className={`block px-4 py-3 rounded-lg text-base font-medium transition-colors ${
                       isActive(link.href)
                         ? 'text-primary bg-primary/10'
