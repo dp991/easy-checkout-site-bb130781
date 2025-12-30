@@ -90,9 +90,9 @@ export default function ProductDetail() {
       <title>{name} - {locale === 'zh' ? '收银机商城' : 'POS Store'}</title>
       <meta name="description" content={description?.slice(0, 160) || ''} />
 
-      <div className="container-wide py-8">
+      <div className="container-wide py-4 md:py-8 px-4 md:px-6">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-8">
+        <nav className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground mb-4 md:mb-8 flex-wrap">
           <Link to="/" className="hover:text-foreground transition-colors">
             {t.nav.home}
           </Link>
@@ -101,16 +101,16 @@ export default function ProductDetail() {
             {t.nav.products}
           </Link>
           <span>/</span>
-          <span className="text-foreground">{name}</span>
+          <span className="text-foreground line-clamp-1">{name}</span>
         </nav>
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 lg:gap-12">
           {/* Image Gallery */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="space-y-4"
+            className="space-y-3 md:space-y-4"
           >
             <div className="relative aspect-square rounded-xl overflow-hidden metal-surface">
               <img
@@ -123,26 +123,26 @@ export default function ProductDetail() {
                 <>
                   <button
                     onClick={() => setCurrentImage(prev => prev === 0 ? images.length - 1 : prev - 1)}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors"
+                    className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 w-8 h-8 md:w-10 md:h-10 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors"
                   >
-                    <ChevronLeft className="w-5 h-5" />
+                    <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
                   </button>
                   <button
                     onClick={() => setCurrentImage(prev => prev === images.length - 1 ? 0 : prev + 1)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors"
+                    className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 w-8 h-8 md:w-10 md:h-10 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors"
                   >
-                    <ChevronRight className="w-5 h-5" />
+                    <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
                   </button>
                 </>
               )}
 
               {/* Badges */}
-              <div className="absolute top-4 left-4 flex gap-2">
+              <div className="absolute top-3 left-3 flex gap-2">
                 {product.is_new && (
-                  <Badge className="bg-gradient-gold text-primary-foreground border-0">NEW</Badge>
+                  <Badge className="bg-gradient-gold text-primary-foreground border-0 text-xs">NEW</Badge>
                 )}
                 {product.is_featured && (
-                  <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm">
+                  <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm text-xs">
                     {locale === 'zh' ? '热门' : 'Featured'}
                   </Badge>
                 )}
@@ -151,12 +151,12 @@ export default function ProductDetail() {
 
             {/* Thumbnails */}
             {images.length > 1 && (
-              <div className="flex gap-3">
+              <div className="flex gap-2 md:gap-3 overflow-x-auto pb-2">
                 {images.map((img, idx) => (
                   <button
                     key={idx}
                     onClick={() => setCurrentImage(idx)}
-                    className={`w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${
+                    className={`w-16 h-16 md:w-20 md:h-20 rounded-lg overflow-hidden border-2 transition-colors flex-shrink-0 ${
                       idx === currentImage ? 'border-primary' : 'border-border hover:border-muted-foreground'
                     }`}
                   >
@@ -171,15 +171,15 @@ export default function ProductDetail() {
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="space-y-6"
+            className="space-y-4 md:space-y-6"
           >
             <div>
-              <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground">
+              <h1 className="font-display text-xl sm:text-2xl md:text-4xl font-bold text-foreground">
                 {name}
               </h1>
-              <div className="flex items-center gap-3 mt-4">
-                <span className="text-3xl font-bold text-primary">{priceRange}</span>
-                <span className={`text-sm px-3 py-1 rounded-full ${
+              <div className="flex items-center gap-2 md:gap-3 mt-2 md:mt-4 flex-wrap">
+                <span className="text-xl md:text-3xl font-bold text-primary">{priceRange}</span>
+                <span className={`text-xs md:text-sm px-2 md:px-3 py-0.5 md:py-1 rounded-full ${
                   product.is_active !== false
                     ? 'bg-green-500/10 text-green-500'
                     : 'bg-destructive/10 text-destructive'
@@ -189,19 +189,19 @@ export default function ProductDetail() {
               </div>
             </div>
 
-            <p className="text-muted-foreground leading-relaxed">{description}</p>
+            <p className="text-muted-foreground leading-relaxed text-sm md:text-base">{description}</p>
 
             {/* Specs */}
             {Object.keys(specs).length > 0 && (
               <div>
-                <h3 className="font-display font-semibold text-lg text-foreground mb-4">
+                <h3 className="font-display font-semibold text-base md:text-lg text-foreground mb-3 md:mb-4">
                   {t.products.specifications}
                 </h3>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
                   {Object.entries(specs).map(([key, value]) => (
-                    <div key={key} className="flex justify-between p-3 rounded-lg bg-muted/50">
-                      <span className="text-sm text-muted-foreground">{key}</span>
-                      <span className="text-sm font-medium text-foreground">{String(value)}</span>
+                    <div key={key} className="flex justify-between p-2 md:p-3 rounded-lg bg-muted/50">
+                      <span className="text-xs md:text-sm text-muted-foreground">{key}</span>
+                      <span className="text-xs md:text-sm font-medium text-foreground">{String(value)}</span>
                     </div>
                   ))}
                 </div>
@@ -209,61 +209,63 @@ export default function ProductDetail() {
             )}
 
             {/* Min Order */}
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Package className="w-5 h-5" />
+            <div className="flex items-center gap-2 text-muted-foreground text-sm">
+              <Package className="w-4 h-4 md:w-5 md:h-5" />
               <span>{t.products.minOrder}: {product.min_order} {locale === 'zh' ? '台' : 'pcs'}</span>
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-4">
+            <div className="flex flex-col gap-2 md:gap-3 pt-2 md:pt-4">
               <Button 
                 onClick={() => addToCart(product.id)}
-                className="flex-1 h-12 bg-gradient-gold text-primary-foreground hover:opacity-90 font-semibold"
+                className="w-full h-11 md:h-12 bg-gradient-gold text-primary-foreground hover:opacity-90 font-semibold"
               >
-                <ShoppingCart className="w-5 h-5 mr-2" />
+                <ShoppingCart className="w-4 h-4 md:w-5 md:h-5 mr-2" />
                 {locale === 'zh' ? '加入购物车' : 'Add to Cart'}
               </Button>
-              <a
-                href={`https://wa.me/8613800138000?text=${whatsappMessage}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1"
-              >
-                <Button className="w-full h-12 bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold">
-                  <MessageCircle className="w-5 h-5 mr-2" />
-                  {t.contact.whatsapp}
-                </Button>
-              </a>
-              <a
-                href="https://t.me/posstore"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1"
-              >
-                <Button className="w-full h-12 bg-[#0088cc] hover:bg-[#0077b3] text-white font-semibold">
-                  <Send className="w-5 h-5 mr-2" />
-                  {t.contact.telegram}
-                </Button>
-              </a>
+              <div className="grid grid-cols-2 gap-2 md:gap-3">
+                <a
+                  href={`https://wa.me/8613800138000?text=${whatsappMessage}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button className="w-full h-10 md:h-12 bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold text-sm md:text-base">
+                    <MessageCircle className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
+                    <span className="hidden sm:inline">{t.contact.whatsapp}</span>
+                    <span className="sm:hidden">WhatsApp</span>
+                  </Button>
+                </a>
+                <a
+                  href="https://t.me/posstore"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button className="w-full h-10 md:h-12 bg-[#0088cc] hover:bg-[#0077b3] text-white font-semibold text-sm md:text-base">
+                    <Send className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
+                    <span className="hidden sm:inline">{t.contact.telegram}</span>
+                    <span className="sm:hidden">Telegram</span>
+                  </Button>
+                </a>
+              </div>
             </div>
 
             {/* Trust Badges */}
-            <div className="grid grid-cols-3 gap-4 pt-6 border-t border-border">
+            <div className="grid grid-cols-3 gap-2 md:gap-4 pt-4 md:pt-6 border-t border-border">
               <div className="text-center">
-                <Shield className="w-6 h-6 text-primary mx-auto mb-2" />
-                <p className="text-xs text-muted-foreground">
+                <Shield className="w-5 h-5 md:w-6 md:h-6 text-primary mx-auto mb-1 md:mb-2" />
+                <p className="text-[10px] md:text-xs text-muted-foreground">
                   {locale === 'zh' ? '质量保证' : 'Quality Assured'}
                 </p>
               </div>
               <div className="text-center">
-                <Truck className="w-6 h-6 text-primary mx-auto mb-2" />
-                <p className="text-xs text-muted-foreground">
+                <Truck className="w-5 h-5 md:w-6 md:h-6 text-primary mx-auto mb-1 md:mb-2" />
+                <p className="text-[10px] md:text-xs text-muted-foreground">
                   {locale === 'zh' ? '全球配送' : 'Global Shipping'}
                 </p>
               </div>
               <div className="text-center">
-                <Package className="w-6 h-6 text-primary mx-auto mb-2" />
-                <p className="text-xs text-muted-foreground">
+                <Package className="w-5 h-5 md:w-6 md:h-6 text-primary mx-auto mb-1 md:mb-2" />
+                <p className="text-[10px] md:text-xs text-muted-foreground">
                   {locale === 'zh' ? '安全包装' : 'Secure Packing'}
                 </p>
               </div>
@@ -273,11 +275,11 @@ export default function ProductDetail() {
 
         {/* Related Products */}
         {relatedProducts.length > 0 && (
-          <section className="mt-20">
-            <h2 className="font-display text-2xl font-bold text-foreground mb-8">
+          <section className="mt-10 md:mt-20">
+            <h2 className="font-display text-lg md:text-2xl font-bold text-foreground mb-4 md:mb-8">
               {t.products.relatedProducts}
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
               {relatedProducts.map((p, index) => (
                 <ProductCard key={p.id} product={p} index={index} />
               ))}

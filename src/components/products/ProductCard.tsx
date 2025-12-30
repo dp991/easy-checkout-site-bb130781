@@ -102,19 +102,19 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
           </div>
 
           {/* Content */}
-          <div className="p-4">
-            <h3 className="font-display font-semibold text-foreground text-lg line-clamp-1 group-hover:text-primary transition-colors">
+          <div className="p-2.5 md:p-4">
+            <h3 className="font-display font-semibold text-foreground text-sm md:text-lg line-clamp-1 group-hover:text-primary transition-colors">
               {name}
             </h3>
             
-            <div className="mt-2 flex items-end justify-between">
+            <div className="mt-1.5 md:mt-2 flex items-end justify-between">
               <div>
-                <p className="text-primary font-bold text-xl">{priceRange}</p>
-                <p className="text-muted-foreground text-xs mt-1">
+                <p className="text-primary font-bold text-base md:text-xl">{priceRange}</p>
+                <p className="text-muted-foreground text-[10px] md:text-xs mt-0.5 md:mt-1">
                   {t.products.minOrder}: {product.min_order} {locale === 'zh' ? '台' : 'pcs'}
                 </p>
               </div>
-              <span className={`text-xs px-2 py-1 rounded-full ${
+              <span className={`text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 md:py-1 rounded-full ${
                 product.is_active !== false 
                   ? 'bg-green-500/10 text-green-500' 
                   : 'bg-destructive/10 text-destructive'
