@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Plus, Pencil, Trash2, Search, Upload, X, Check, ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, Upload, X, Check, ChevronLeft, ChevronRight, MoreHorizontal, Copy } from 'lucide-react';
 import { supabase, DbProduct, DbCategory } from '@/lib/supabase';
 import AdminLayout from '@/components/admin/AdminLayout';
 import AdminCategoryTree from '@/components/admin/AdminCategoryTree';
@@ -262,6 +262,45 @@ export default function AdminProducts() {
     onError: () => toast.error('批量删除失败'),
   });
 
+  // Copy product mutation
+  const copyMutation = useMutation({
+    mutationFn: async (product: DbProduct) => {
+      const newSlug = generateSnowflakeId();
+      const { data, error } = await supabase.from('wh_products').insert([{
+        name_zh: `${product.name_zh} (副本)`,
+        name_en: product.name_en ? `${product.name_en} (Copy)` : null,
+        slug: newSlug,
+        category_id: product.category_id,
+        description_zh: product.description_zh,
+        description_en: product.description_en,
+        price_min: product.price_min,
+        price_max: product.price_max,
+        min_order: product.min_order,
+        images: product.images,
+        is_featured: false,
+        is_new: false,
+        specifications: product.specifications,
+        unit: product.unit,
+        sort_order: 0,
+      }]).select().single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (newProduct) => {
+      queryClient.invalidateQueries({ queryKey: ['admin-products-paginated'] });
+      toast.success('产品复制成功');
+      // Open edit dialog for the copied product
+      if (newProduct) {
+        openEditDialog(newProduct as DbProduct);
+      }
+    },
+    onError: () => toast.error('复制失败'),
+  });
+
+  const handleCopyProduct = (product: DbProduct) => {
+    copyMutation.mutate(product);
+  };
+
   const resetForm = () => {
     setFormData({
       name_zh: '',
@@ -503,8 +542,19 @@ export default function AdminProducts() {
                             size="icon"
                             className="h-7 w-7"
                             onClick={() => openEditDialog(product)}
+                            title="编辑"
                           >
                             <Pencil className="w-3 h-3" />
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            size="icon"
+                            className="h-7 w-7"
+                            onClick={() => handleCopyProduct(product)}
+                            disabled={copyMutation.isPending}
+                            title="复制"
+                          >
+                            <Copy className="w-3 h-3" />
                           </Button>
                           <Button
                             variant="secondary"
@@ -515,6 +565,7 @@ export default function AdminProducts() {
                                 deleteMutation.mutate(product.id);
                               }
                             }}
+                            title="删除"
                           >
                             <Trash2 className="w-3 h-3" />
                           </Button>
