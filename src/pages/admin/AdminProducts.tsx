@@ -1,7 +1,7 @@
-import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
-import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
+import { useState, useMemo, useEffect, useRef } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Plus, Pencil, Trash2, Search, Upload, X, Check } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, Upload, X, Check, ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
 import { supabase, DbProduct, DbCategory } from '@/lib/supabase';
 import AdminLayout from '@/components/admin/AdminLayout';
 import AdminCategoryTree from '@/components/admin/AdminCategoryTree';
@@ -33,6 +33,7 @@ export default function AdminProducts() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<DbProduct | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -52,8 +53,6 @@ export default function AdminProducts() {
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const observerRef = useRef<IntersectionObserver | null>(null);
-  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   const { uploadImages, isUploading, uploadProgress } = useImageUpload();
 
@@ -79,75 +78,102 @@ export default function AdminProducts() {
     return ids;
   };
 
-  // Infinite query with cursor-based pagination
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-  } = useInfiniteQuery({
-    queryKey: ['admin-products-infinite', selectedCategoryId, search],
-    queryFn: async ({ pageParam }) => {
+  // Reset page when category or search changes
+  useEffect(() => {
+    setCurrentPage(1);
+    setSelectedIds(new Set());
+  }, [selectedCategoryId, search]);
+
+  // Paginated query
+  const { data: paginatedData, isLoading } = useQuery({
+    queryKey: ['admin-products-paginated', selectedCategoryId, search, currentPage, categories],
+    queryFn: async () => {
+      // Build category filter
+      let categoryIds: string[] | null = null;
+      if (selectedCategoryId && categories) {
+        categoryIds = getDescendantIds(selectedCategoryId, categories);
+      }
+
+      // Get total count first
+      let countQuery = supabase
+        .from('wh_products')
+        .select('*', { count: 'exact', head: true });
+
+      if (categoryIds) {
+        countQuery = countQuery.in('category_id', categoryIds);
+      }
+      if (search) {
+        countQuery = countQuery.or(`name_zh.ilike.%${search}%,name_en.ilike.%${search}%`);
+      }
+
+      const { count, error: countError } = await countQuery;
+      if (countError) throw countError;
+
+      // Get paginated data
+      const offset = (currentPage - 1) * PAGE_SIZE;
       let query = supabase
         .from('wh_products')
         .select('*')
         .order('updated_at', { ascending: false })
-        .limit(PAGE_SIZE);
+        .range(offset, offset + PAGE_SIZE - 1);
 
-      if (pageParam) {
-        query = query.lt('updated_at', pageParam);
-      }
-
-      if (selectedCategoryId && categories) {
-        const categoryIds = getDescendantIds(selectedCategoryId, categories);
+      if (categoryIds) {
         query = query.in('category_id', categoryIds);
       }
-
       if (search) {
         query = query.or(`name_zh.ilike.%${search}%,name_en.ilike.%${search}%`);
       }
 
       const { data, error } = await query;
       if (error) throw error;
-      return data || [];
+
+      return {
+        products: data || [],
+        totalCount: count || 0,
+        totalPages: Math.ceil((count || 0) / PAGE_SIZE),
+      };
     },
-    getNextPageParam: (lastPage) => {
-      if (lastPage.length < PAGE_SIZE) return undefined;
-      return lastPage[lastPage.length - 1]?.updated_at;
-    },
-    initialPageParam: null as string | null,
+    enabled: !!categories,
   });
 
-  const allProducts = useMemo(() => {
-    return data?.pages.flat() || [];
-  }, [data]);
+  const allProducts = paginatedData?.products || [];
+  const totalCount = paginatedData?.totalCount || 0;
+  const totalPages = paginatedData?.totalPages || 1;
 
-  // Intersection Observer for infinite scroll
-  const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
-    const [entry] = entries;
-    if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
-
-  useEffect(() => {
-    observerRef.current = new IntersectionObserver(handleObserver, {
-      root: null,
-      rootMargin: '100px',
-      threshold: 0,
-    });
-
-    if (loadMoreRef.current) {
-      observerRef.current.observe(loadMoreRef.current);
-    }
-
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
+  // Generate page numbers for pagination
+  const getPageNumbers = () => {
+    const pages: (number | 'ellipsis')[] = [];
+    const showPages = 5;
+    
+    if (totalPages <= showPages + 2) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
       }
-    };
-  }, [handleObserver]);
+    } else {
+      pages.push(1);
+      if (currentPage > 3) {
+        pages.push('ellipsis');
+      }
+      const start = Math.max(2, currentPage - 1);
+      const end = Math.min(totalPages - 1, currentPage + 1);
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+      if (currentPage < totalPages - 2) {
+        pages.push('ellipsis');
+      }
+      if (totalPages > 1) {
+        pages.push(totalPages);
+      }
+    }
+    return pages;
+  };
+
+  const handlePageChange = (page: number) => {
+    if (page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+    setSelectedIds(new Set());
+  };
 
   const createMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
@@ -169,7 +195,7 @@ export default function AdminProducts() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-products-infinite'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-products-paginated'] });
       setIsDialogOpen(false);
       resetForm();
       toast.success('产品创建成功');
@@ -198,7 +224,7 @@ export default function AdminProducts() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-products-infinite'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-products-paginated'] });
       setIsDialogOpen(false);
       resetForm();
       toast.success('产品更新成功');
@@ -212,7 +238,7 @@ export default function AdminProducts() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-products-infinite'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-products-paginated'] });
       toast.success('产品删除成功');
     },
     onError: () => toast.error('删除失败'),
@@ -224,7 +250,7 @@ export default function AdminProducts() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-products-infinite'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-products-paginated'] });
       setSelectedIds(new Set());
       toast.success('批量删除成功');
     },
@@ -492,12 +518,52 @@ export default function AdminProducts() {
                     ))}
                   </div>
 
-                  {/* Load more trigger */}
-                  <div ref={loadMoreRef} className="py-4 flex justify-center">
-                    {isFetchingNextPage && (
-                      <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                    )}
-                  </div>
+                  {/* Pagination */}
+                  {totalPages > 1 && (
+                    <div className="flex items-center justify-center gap-1 mt-6 pt-4 border-t border-border">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        className="h-9 w-9"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </Button>
+
+                      {getPageNumbers().map((page, index) => (
+                        page === 'ellipsis' ? (
+                          <div key={`ellipsis-${index}`} className="w-9 h-9 flex items-center justify-center">
+                            <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
+                          </div>
+                        ) : (
+                          <Button
+                            key={page}
+                            variant={currentPage === page ? 'default' : 'ghost'}
+                            size="icon"
+                            onClick={() => handlePageChange(page)}
+                            className={`h-9 w-9 ${currentPage === page ? 'bg-primary text-primary-foreground' : ''}`}
+                          >
+                            {page}
+                          </Button>
+                        )
+                      ))}
+
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        className="h-9 w-9"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </Button>
+
+                      <span className="ml-4 text-sm text-muted-foreground">
+                        共 {totalCount} 个产品
+                      </span>
+                    </div>
+                  )}
                 </>
               ) : (
                 <p className="text-muted-foreground text-center py-12">
