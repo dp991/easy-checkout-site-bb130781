@@ -216,9 +216,9 @@ export default function Contact() {
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="lg:col-span-3"
+              className="lg:col-span-3 flex flex-col"
             >
-              <form onSubmit={handleSubmit} className="metal-surface rounded-xl p-5 md:p-6 space-y-4">
+              <form onSubmit={handleSubmit} className="metal-surface rounded-xl p-5 md:p-6 space-y-4 flex-1 flex flex-col">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <label className="text-sm font-medium text-foreground">{t.contact.name} *</label>
@@ -264,15 +264,14 @@ export default function Contact() {
                   </div>
                 </div>
 
-                <div className="space-y-1.5">
+                <div className="space-y-1.5 flex-1 flex flex-col">
                   <label className="text-sm font-medium text-foreground">{t.contact.message} *</label>
                   <Textarea
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     placeholder={locale === 'zh' ? '请描述您的需求...' : 'Describe your requirements...'}
                     required
-                    rows={4}
-                    className="bg-muted border-border resize-none"
+                    className="bg-muted border-border resize-none flex-1 min-h-[120px]"
                   />
                 </div>
 
