@@ -3,7 +3,9 @@ import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { usePaginatedProducts, useCategories } from '@/hooks/useDatabase';
-import Layout from '@/components/layout/Layout';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
+import FloatingContact from '@/components/layout/FloatingContact';
 import ProductCard from '@/components/products/ProductCard';
 import CategoryTree from '@/components/products/CategoryTree';
 import ProductPagination from '@/components/products/ProductPagination';
@@ -96,7 +98,7 @@ export default function Categories() {
     setSearchParams(newParams);
     
     // Scroll to top of products grid
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.getElementById('products-area')?.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const isLoading = productsLoading || categoriesLoading;
@@ -105,16 +107,19 @@ export default function Categories() {
   const totalPages = paginatedData?.totalPages || 1;
 
   return (
-    <Layout>
+    <div className="min-h-screen flex flex-col bg-background">
       <title>{locale === 'zh' ? '产品分类 - 收银机商城' : 'Categories - POS Store'}</title>
       <meta name="description" content={locale === 'zh' 
         ? '浏览收银机商城产品分类，包括POS终端、收银机、打印机、扫描器等。' 
         : 'Browse POS Store categories including POS terminals, cash registers, printers, scanners and more.'
       } />
+      
+      <Header />
 
-      <div className="relative">
-        {/* Left Sidebar - Category Tree (Fixed Position) */}
-        <aside className="w-72 fixed left-0 top-[80px] bottom-0 border-r border-border bg-card/50 hidden md:block overflow-y-auto z-30">
+      {/* Main Content Area - Fixed Layout */}
+      <div className="flex-1 pt-16 md:pt-20 flex">
+        {/* Left Sidebar - Fixed Position */}
+        <aside className="w-72 fixed left-0 top-16 md:top-20 bottom-0 border-r border-border bg-card hidden md:block overflow-y-auto z-40">
           {categoriesLoading ? (
             <div className="p-4 space-y-2">
               {[...Array(10)].map((_, i) => (
@@ -130,97 +135,104 @@ export default function Categories() {
           )}
         </aside>
 
-        {/* Right Content - Products Grid (with left margin for fixed sidebar) */}
-        <main className="md:ml-72 p-6 lg:p-8 min-h-[calc(100vh-80px)]">
-          <motion.div
-            key={`${selectedCategory}-${currentPage}`}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            {/* Category Header */}
-            <div className="mb-6">
-              <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground">
-                {selectedCategoryName}
-              </h1>
-              <p className="text-muted-foreground mt-1">
-                {locale === 'zh' 
-                  ? `共 ${totalCount} 款产品` 
-                  : `${totalCount} products`}
-              </p>
-            </div>
-
-            {/* Products Grid */}
-            {isLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {[...Array(PAGE_SIZE)].map((_, i) => (
-                  <Skeleton key={i} className="aspect-[4/5] rounded-xl" />
-                ))}
-              </div>
-            ) : products.length > 0 ? (
-              <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {products.map((product, index) => (
-                    <ProductCard key={product.id} product={product} index={index} />
-                  ))}
-                </div>
-
-                {/* Pagination */}
-                {totalPages > 1 && (
-                  <ProductPagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={handlePageChange}
-                    showLoadMore={false}
-                    loadedCount={products.length}
-                    totalCount={totalCount}
-                  />
-                )}
-              </>
-            ) : (
-              <div className="flex flex-col items-center justify-center py-20 text-center">
-                <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-4">
-                  <span className="text-3xl">📦</span>
-                </div>
-                <h3 className="text-lg font-medium text-foreground mb-2">
-                  {locale === 'zh' ? '暂无产品' : 'No products found'}
-                </h3>
-                <p className="text-muted-foreground">
+        {/* Right Content - Scrollable Products Area */}
+        <main id="products-area" className="flex-1 md:ml-72 overflow-y-auto">
+          <div className="p-6 lg:p-8 min-h-full">
+            <motion.div
+              key={`${selectedCategory}-${currentPage}`}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              {/* Category Header */}
+              <div className="mb-6">
+                <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground">
+                  {selectedCategoryName}
+                </h1>
+                <p className="text-muted-foreground mt-1">
                   {locale === 'zh' 
-                    ? '该分类下暂时没有产品，请选择其他分类' 
-                    : 'No products in this category, please select another'}
+                    ? `共 ${totalCount} 款产品` 
+                    : `${totalCount} products`}
                 </p>
               </div>
-            )}
-          </motion.div>
-        </main>
 
-        {/* Mobile Category Selector */}
-        <div className="md:hidden fixed bottom-20 left-4 right-4 z-40">
-          <select
-            value={selectedCategory || ''}
-            onChange={(e) => {
-              const slug = e.target.value;
-              if (slug === '') {
-                handleSelectCategory('', locale === 'zh' ? '全部产品' : 'All Products');
-              } else {
-                const cat = categories?.find(c => c.slug === slug);
-                if (cat) {
-                  handleSelectCategory(cat.slug, locale === 'zh' ? cat.name_zh : (cat.name_en || cat.name_zh));
-                }
-              }
-            }}
-            className="w-full px-4 py-3 rounded-xl bg-card border border-border shadow-lg text-foreground"
-          >
-            <option value="">{locale === 'zh' ? '全部产品' : 'All Products'}</option>
-            {categories?.filter(c => !c.parent_id).map((cat) => (
-              <option key={cat.slug} value={cat.slug}>
-                {locale === 'zh' ? cat.name_zh : (cat.name_en || cat.name_zh)}
-              </option>
-            ))}
-          </select>
-        </div>
+              {/* Products Grid */}
+              {isLoading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {[...Array(PAGE_SIZE)].map((_, i) => (
+                    <Skeleton key={i} className="aspect-[4/5] rounded-xl" />
+                  ))}
+                </div>
+              ) : products.length > 0 ? (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {products.map((product, index) => (
+                      <ProductCard key={product.id} product={product} index={index} />
+                    ))}
+                  </div>
+
+                  {/* Pagination - Always show if more than 1 page */}
+                  {totalPages > 1 && (
+                    <ProductPagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={handlePageChange}
+                      showLoadMore={false}
+                      loadedCount={products.length}
+                      totalCount={totalCount}
+                    />
+                  )}
+                </>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-20 text-center">
+                  <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-4">
+                    <span className="text-3xl">📦</span>
+                  </div>
+                  <h3 className="text-lg font-medium text-foreground mb-2">
+                    {locale === 'zh' ? '暂无产品' : 'No products found'}
+                  </h3>
+                  <p className="text-muted-foreground">
+                    {locale === 'zh' 
+                      ? '该分类下暂时没有产品，请选择其他分类' 
+                      : 'No products in this category, please select another'}
+                  </p>
+                </div>
+              )}
+            </motion.div>
+          </div>
+
+          {/* Footer - Inside the scrollable area */}
+          <Footer />
+        </main>
       </div>
-    </Layout>
+
+      {/* Mobile Category Selector */}
+      <div className="md:hidden fixed bottom-20 left-4 right-4 z-40">
+        <select
+          value={selectedCategory || ''}
+          onChange={(e) => {
+            const slug = e.target.value;
+            if (slug === '') {
+              handleSelectCategory('', locale === 'zh' ? '全部产品' : 'All Products');
+            } else {
+              const cat = categories?.find(c => c.slug === slug);
+              if (cat) {
+                handleSelectCategory(cat.slug, locale === 'zh' ? cat.name_zh : (cat.name_en || cat.name_zh));
+              }
+            }
+          }}
+          className="w-full px-4 py-3 rounded-xl bg-card border border-border shadow-lg text-foreground"
+        >
+          <option value="">{locale === 'zh' ? '全部产品' : 'All Products'}</option>
+          {categories?.filter(c => !c.parent_id).map((cat) => (
+            <option key={cat.slug} value={cat.slug}>
+              {locale === 'zh' ? cat.name_zh : (cat.name_en || cat.name_zh)}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <FloatingContact />
+    </div>
   );
 }
