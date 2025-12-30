@@ -64,7 +64,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen bg-background">
       {/* Mobile Menu Button */}
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -81,9 +81,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar - Always Fixed */}
       <aside className={`
-        fixed lg:static inset-y-0 left-0 z-40
+        fixed inset-y-0 left-0 z-40
         w-64 bg-card border-r border-border
         transform transition-transform duration-200
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
@@ -103,7 +103,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-1">
+          <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
             {navItems.map((item) => (
               <Link
                 key={item.href}
@@ -148,8 +148,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 min-h-screen lg:ml-0">
+      {/* Main Content - Add left margin for fixed sidebar */}
+      <main className="min-h-screen lg:ml-64">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
