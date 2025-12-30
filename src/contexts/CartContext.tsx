@@ -15,6 +15,11 @@ interface CartItem {
     price_max: number | null;
     images: string[] | null;
     slug: string;
+    category_id: string | null;
+    category?: {
+      name_zh: string;
+      name_en: string | null;
+    } | null;
   };
 }
 
@@ -57,7 +62,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
             price_min,
             price_max,
             images,
-            slug
+            slug,
+            category_id,
+            wh_categories (
+              name_zh,
+              name_en
+            )
           )
         `)
         .eq('user_id', user.id);
@@ -68,7 +78,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
         id: item.id,
         product_id: item.product_id,
         quantity: item.quantity,
-        product: item.wh_products,
+        product: item.wh_products ? {
+          ...item.wh_products,
+          category: item.wh_products.wh_categories,
+        } : undefined,
       })) || [];
 
       setItems(cartItems);

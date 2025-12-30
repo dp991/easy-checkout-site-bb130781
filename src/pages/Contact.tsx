@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, MapPin, MessageCircle, Send, Clock, CheckCircle } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -10,16 +11,26 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
+interface CartItemInfo {
+  nameZh: string;
+  nameEn: string;
+  categoryZh: string;
+  categoryEn: string;
+  priceRange: string;
+  quantity: number;
+}
+
 const contactSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(100),
   email: z.string().email('Please enter a valid email'),
   phone: z.string().optional(),
   company: z.string().optional(),
-  message: z.string().min(10, 'Message must be at least 10 characters').max(1000),
+  message: z.string().min(10, 'Message must be at least 10 characters').max(5000),
 });
 
 export default function Contact() {
   const { t, locale } = useLanguage();
+  const location = useLocation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -28,6 +39,33 @@ export default function Contact() {
     company: '',
     message: '',
   });
+
+  // Build cart inquiry message from navigation state
+  useEffect(() => {
+    const cartItems = location.state?.cartItems as CartItemInfo[] | undefined;
+    if (cartItems && cartItems.length > 0) {
+      const header = locale === 'zh' 
+        ? '我想咨询以下购物车商品：\n\n' 
+        : 'I would like to inquire about the following cart items:\n\n';
+
+      const itemsText = cartItems.map((item, index) => {
+        const lines = [
+          `${index + 1}. ${locale === 'zh' ? '商品名称' : 'Product Name'}:`,
+          `   - ${locale === 'zh' ? '中文' : 'Chinese'}: ${item.nameZh}`,
+          `   - ${locale === 'zh' ? '英文' : 'English'}: ${item.nameEn || 'N/A'}`,
+          `   ${locale === 'zh' ? '分类' : 'Category'}: ${item.categoryZh}${item.categoryEn ? ` / ${item.categoryEn}` : ''}`,
+          `   ${locale === 'zh' ? '价格' : 'Price'}: ${item.priceRange}`,
+          `   ${locale === 'zh' ? '数量' : 'Quantity'}: ${item.quantity}`,
+        ];
+        return lines.join('\n');
+      }).join('\n\n');
+
+      setFormData(prev => ({
+        ...prev,
+        message: header + itemsText,
+      }));
+    }
+  }, [location.state, locale]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

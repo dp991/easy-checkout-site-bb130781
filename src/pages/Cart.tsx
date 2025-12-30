@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ShoppingCart, Trash2, Plus, Minus, ArrowLeft, Package } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -12,6 +12,42 @@ export default function Cart() {
   const { locale } = useLanguage();
   const { items, isLoading, removeFromCart, updateQuantity, clearCart } = useCart();
   const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleContactInquiry = () => {
+    // Build cart items info for the message
+    const cartInfo = items.map((item) => {
+      const nameZh = item.product?.name_zh || '';
+      const nameEn = item.product?.name_en || '';
+      const categoryZh = item.product?.category?.name_zh || '';
+      const categoryEn = item.product?.category?.name_en || '';
+      const priceMin = item.product?.price_min;
+      const priceMax = item.product?.price_max;
+      const quantity = item.quantity;
+
+      let priceRange = '';
+      if (priceMin && priceMax && priceMin !== priceMax) {
+        priceRange = `$${priceMin} - $${priceMax}`;
+      } else if (priceMin) {
+        priceRange = `$${priceMin}`;
+      } else if (priceMax) {
+        priceRange = `$${priceMax}`;
+      } else {
+        priceRange = locale === 'zh' ? '询价' : 'Contact for price';
+      }
+
+      return {
+        nameZh,
+        nameEn,
+        categoryZh,
+        categoryEn,
+        priceRange,
+        quantity,
+      };
+    });
+
+    navigate('/contact', { state: { cartItems: cartInfo } });
+  };
 
   if (!user) {
     return (
@@ -170,11 +206,13 @@ export default function Cart() {
                   ? '请联系我们获取详细报价和下单' 
                   : 'Please contact us for detailed pricing and ordering'}
               </p>
-              <Link to="/contact">
-                <Button size="sm" className="w-full bg-gradient-gold text-primary-foreground">
-                  {locale === 'zh' ? '联系询价' : 'Contact for Quote'}
-                </Button>
-              </Link>
+              <Button 
+                size="sm" 
+                className="w-full bg-gradient-gold text-primary-foreground"
+                onClick={handleContactInquiry}
+              >
+                {locale === 'zh' ? '联系询价' : 'Contact for Quote'}
+              </Button>
             </div>
           </div>
         )}
