@@ -30,7 +30,7 @@ export default function AdminDashboard() {
         supabase.from('wh_products').select('id', { count: 'exact', head: true }),
         supabase.from('wh_categories').select('id', { count: 'exact', head: true }),
         supabase.from('wh_inquiries').select('id', { count: 'exact', head: true }),
-        supabase.from('wh_users').select('id', { count: 'exact', head: true }),
+        supabase.from('profiles').select('id', { count: 'exact', head: true }),
         supabase.from('wh_inquiries')
           .select('id', { count: 'exact', head: true })
           .gte('created_at', startOfToday)
