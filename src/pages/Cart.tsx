@@ -159,23 +159,23 @@ export default function Cart() {
                 </div>
 
                 {/* Quantity Controls */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 md:gap-2">
                   <Button
                     variant="outline"
                     size="icon"
-                    className="h-8 w-8"
+                    className="h-7 w-7 md:h-8 md:w-8"
                     onClick={() => updateQuantity(item.product_id, item.quantity - 1)}
                   >
-                    <Minus className="w-4 h-4" />
+                    <Minus className="w-3 h-3 md:w-4 md:h-4" />
                   </Button>
-                  <span className="w-8 text-center font-medium">{item.quantity}</span>
+                  <span className="w-6 md:w-8 text-center font-medium text-sm">{item.quantity}</span>
                   <Button
                     variant="outline"
                     size="icon"
-                    className="h-8 w-8"
+                    className="h-7 w-7 md:h-8 md:w-8"
                     onClick={() => updateQuantity(item.product_id, item.quantity + 1)}
                   >
-                    <Plus className="w-4 h-4" />
+                    <Plus className="w-3 h-3 md:w-4 md:h-4" />
                   </Button>
                 </div>
 

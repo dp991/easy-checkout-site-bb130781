@@ -119,7 +119,7 @@ export default function Categories() {
       {/* Main Content Area - Fixed Layout */}
       <div className="flex-1 pt-16 md:pt-20 flex">
         {/* Left Sidebar - Fixed Position */}
-        <aside className="w-72 fixed left-0 top-16 md:top-20 bottom-0 border-r border-border bg-card hidden md:block overflow-y-auto z-40">
+        <aside className="w-64 lg:w-72 fixed left-0 top-16 md:top-20 bottom-0 border-r border-border bg-card hidden md:block overflow-y-auto z-40">
           {categoriesLoading ? (
             <div className="p-4 space-y-2">
               {[...Array(10)].map((_, i) => (
@@ -136,8 +136,8 @@ export default function Categories() {
         </aside>
 
         {/* Right Content - Scrollable Products Area */}
-        <main id="products-area" className="flex-1 md:ml-72 overflow-y-auto">
-          <div className="p-6 lg:p-8 min-h-full">
+        <main id="products-area" className="flex-1 md:ml-64 lg:ml-72 overflow-y-auto">
+          <div className="p-4 md:p-6 lg:p-8 min-h-full pb-24 md:pb-8">
             <motion.div
               key={`${selectedCategory}-${currentPage}`}
               initial={{ opacity: 0, y: 10 }}
@@ -145,11 +145,11 @@ export default function Categories() {
               transition={{ duration: 0.3 }}
             >
               {/* Category Header */}
-              <div className="mb-6">
-                <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground">
+              <div className="mb-4 md:mb-6">
+                <h1 className="font-display text-xl md:text-2xl lg:text-3xl font-bold text-foreground">
                   {selectedCategoryName}
                 </h1>
-                <p className="text-muted-foreground mt-1">
+                <p className="text-muted-foreground mt-1 text-sm md:text-base">
                   {locale === 'zh' 
                     ? `共 ${totalCount} 款产品` 
                     : `${totalCount} products`}
@@ -158,14 +158,14 @@ export default function Categories() {
 
               {/* Products Grid */}
               {isLoading ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
                   {[...Array(PAGE_SIZE)].map((_, i) => (
                     <Skeleton key={i} className="aspect-[4/5] rounded-xl" />
                   ))}
                 </div>
               ) : products.length > 0 ? (
                 <>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
                     {products.map((product, index) => (
                       <ProductCard key={product.id} product={product} index={index} />
                     ))}
@@ -184,14 +184,14 @@ export default function Categories() {
                   )}
                 </>
               ) : (
-                <div className="flex flex-col items-center justify-center py-20 text-center">
-                  <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-4">
-                    <span className="text-3xl">📦</span>
+                <div className="flex flex-col items-center justify-center py-12 md:py-20 text-center">
+                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-muted flex items-center justify-center mb-3 md:mb-4">
+                    <span className="text-2xl md:text-3xl">📦</span>
                   </div>
-                  <h3 className="text-lg font-medium text-foreground mb-2">
+                  <h3 className="text-base md:text-lg font-medium text-foreground mb-2">
                     {locale === 'zh' ? '暂无产品' : 'No products found'}
                   </h3>
-                  <p className="text-muted-foreground">
+                  <p className="text-sm text-muted-foreground">
                     {locale === 'zh' 
                       ? '该分类下暂时没有产品，请选择其他分类' 
                       : 'No products in this category, please select another'}
@@ -207,7 +207,7 @@ export default function Categories() {
       </div>
 
       {/* Mobile Category Selector */}
-      <div className="md:hidden fixed bottom-20 left-4 right-4 z-40">
+      <div className="md:hidden fixed bottom-4 left-4 right-4 z-40">
         <select
           value={selectedCategory || ''}
           onChange={(e) => {
@@ -221,7 +221,7 @@ export default function Categories() {
               }
             }
           }}
-          className="w-full px-4 py-3 rounded-xl bg-card border border-border shadow-lg text-foreground"
+          className="w-full px-4 py-3 rounded-xl bg-card border border-border shadow-lg text-foreground text-sm"
         >
           <option value="">{locale === 'zh' ? '全部产品' : 'All Products'}</option>
           {categories?.filter(c => !c.parent_id).map((cat) => (
