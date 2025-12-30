@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, MapPin, MessageCircle, Send, Clock, CheckCircle } from 'lucide-react';
+import { Mail, MapPin, MessageCircle, Send, Clock, CheckCircle, LogIn } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { submitInquiry } from '@/hooks/useDatabase';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -30,8 +31,11 @@ const contactSchema = z.object({
 
 export default function Contact() {
   const { t, locale } = useLanguage();
+  const { user, isLoading: authLoading } = useAuth();
   const location = useLocation();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const isLoggedIn = !!user;
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -270,10 +274,27 @@ export default function Contact() {
                   />
                 </div>
 
+                {/* Login prompt for non-logged in users */}
+                {!isLoggedIn && !authLoading && (
+                  <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400">
+                    <LogIn className="w-4 h-4 flex-shrink-0" />
+                    <span className="text-sm">
+                      {locale === 'zh' 
+                        ? '请先登录后再发送询盘' 
+                        : 'Please login before sending an inquiry'}
+                    </span>
+                    <Link to="/auth" className="ml-auto">
+                      <Button size="sm" variant="outline" className="h-7 text-xs border-amber-500/50 hover:bg-amber-500/10">
+                        {locale === 'zh' ? '去登录' : 'Login'}
+                      </Button>
+                    </Link>
+                  </div>
+                )}
+
                 <Button
                   type="submit"
-                  disabled={isSubmitting}
-                  className="w-full h-10 bg-gradient-gold text-primary-foreground hover:opacity-90 font-semibold"
+                  disabled={isSubmitting || !isLoggedIn || authLoading}
+                  className="w-full h-10 bg-gradient-gold text-primary-foreground hover:opacity-90 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? (
                     <span className="flex items-center gap-2">
