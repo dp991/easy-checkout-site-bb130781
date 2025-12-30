@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Lock, User, ArrowLeft, Loader2 } from 'lucide-react';
+import { Mail, Lock, User, ArrowLeft, Loader2, CheckCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
@@ -15,15 +15,26 @@ export default function Auth() {
   const [password, setPassword] = useState('');
   const [nickname, setNickname] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showEmailSent, setShowEmailSent] = useState(false);
   const { user, signIn, signUp } = useAuth();
   const { locale } = useLanguage();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     if (user) {
       navigate('/');
     }
   }, [user, navigate]);
+
+  // Handle email confirmation callback
+  useEffect(() => {
+    const confirmed = searchParams.get('confirmed');
+    if (confirmed === 'true') {
+      toast.success(locale === 'zh' ? '邮箱验证成功！请登录' : 'Email verified! Please sign in');
+      setIsLogin(true);
+    }
+  }, [searchParams, locale]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +44,16 @@ export default function Auth() {
       if (isLogin) {
         const { error } = await signIn(email, password);
         if (error) {
-          toast.error(locale === 'zh' ? '登录失败：' + error.message : 'Login failed: ' + error.message);
+          // Handle email not confirmed error
+          if (error.message.includes('Email not confirmed')) {
+            toast.error(locale === 'zh' 
+              ? '邮箱尚未验证，请检查您的邮箱并点击验证链接' 
+              : 'Email not confirmed. Please check your email and click the verification link');
+          } else if (error.message.includes('Invalid login')) {
+            toast.error(locale === 'zh' ? '邮箱或密码错误' : 'Invalid email or password');
+          } else {
+            toast.error(locale === 'zh' ? '登录失败：' + error.message : 'Login failed: ' + error.message);
+          }
         } else {
           toast.success(locale === 'zh' ? '登录成功！' : 'Login successful!');
           navigate('/');
@@ -47,8 +67,8 @@ export default function Auth() {
             toast.error(locale === 'zh' ? '注册失败：' + error.message : 'Registration failed: ' + error.message);
           }
         } else {
-          toast.success(locale === 'zh' ? '注册成功！' : 'Registration successful!');
-          navigate('/');
+          // Show email sent confirmation
+          setShowEmailSent(true);
         }
       }
     } catch (error) {
@@ -57,6 +77,56 @@ export default function Auth() {
       setIsLoading(false);
     }
   };
+
+  // Email sent confirmation screen
+  if (showEmailSent) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-md"
+        >
+          <div className="bg-card border border-border rounded-2xl p-8 shadow-elevated text-center">
+            <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto mb-6">
+              <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
+            </div>
+            
+            <h1 className="text-2xl font-display font-bold text-foreground mb-3">
+              {locale === 'zh' ? '验证邮件已发送' : 'Verification Email Sent'}
+            </h1>
+            
+            <p className="text-muted-foreground mb-6">
+              {locale === 'zh' 
+                ? `我们已向 ${email} 发送了一封验证邮件，请点击邮件中的链接完成注册。`
+                : `We've sent a verification email to ${email}. Please click the link in the email to complete your registration.`
+              }
+            </p>
+
+            <div className="bg-muted/50 rounded-lg p-4 mb-6">
+              <p className="text-sm text-muted-foreground">
+                {locale === 'zh' 
+                  ? '没有收到邮件？请检查垃圾邮件文件夹，或稍后重试。'
+                  : "Didn't receive the email? Check your spam folder, or try again later."
+                }
+              </p>
+            </div>
+
+            <Button
+              onClick={() => {
+                setShowEmailSent(false);
+                setIsLogin(true);
+              }}
+              variant="outline"
+              className="w-full"
+            >
+              {locale === 'zh' ? '返回登录' : 'Back to Login'}
+            </Button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -93,7 +163,7 @@ export default function Auth() {
           <p className="text-muted-foreground mb-6">
             {isLogin
               ? (locale === 'zh' ? '登录以访问您的账户' : 'Sign in to access your account')
-              : (locale === 'zh' ? '注册以开始购物' : 'Register to start shopping')
+              : (locale === 'zh' ? '注册后需验证邮箱' : 'Email verification required after signup')
             }
           </p>
 
@@ -141,7 +211,7 @@ export default function Auth() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder={locale === 'zh' ? '输入密码' : 'Enter password'}
+                  placeholder={locale === 'zh' ? '输入密码（至少6位）' : 'Enter password (min 6 chars)'}
                   className="pl-10"
                   required
                   minLength={6}
