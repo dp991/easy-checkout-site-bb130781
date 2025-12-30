@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Package, FolderTree, Users, MessageSquare, TrendingUp } from 'lucide-react';
+import { Package, FolderTree, Users, MessageSquare, TrendingUp, Eye, UserCheck, Activity } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Card } from '@/components/ui/card';
@@ -43,6 +43,34 @@ export default function AdminDashboard() {
         inquiries: inquiries.count || 0,
         users: users.count || 0,
         todayInquiries: todayInquiries.count || 0,
+      };
+    },
+  });
+
+  // Fetch traffic stats (page views, unique visitors, sessions) for today
+  const { data: trafficStats } = useQuery({
+    queryKey: ['admin-traffic-stats'],
+    queryFn: async () => {
+      const today = new Date();
+      const startOfToday = startOfDay(today).toISOString();
+      const endOfToday = endOfDay(today).toISOString();
+
+      const { data: pageViews, error } = await supabase
+        .from('wh_page_views')
+        .select('id, visitor_id, session_id')
+        .gte('created_at', startOfToday)
+        .lte('created_at', endOfToday);
+
+      if (error) throw error;
+
+      const views = pageViews || [];
+      const uniqueVisitors = new Set(views.map(v => v.visitor_id)).size;
+      const uniqueSessions = new Set(views.map(v => v.session_id)).size;
+
+      return {
+        pageViews: views.length,
+        uniqueVisitors,
+        sessions: uniqueSessions,
       };
     },
   });
@@ -121,6 +149,34 @@ export default function AdminDashboard() {
   // Calculate total inquiries for current period
   const totalPeriodInquiries = chartData?.reduce((sum, item) => sum + item.count, 0) || 0;
 
+  // Traffic stats cards (new)
+  const trafficCards = [
+    { 
+      label: '今日浏览量', 
+      value: trafficStats?.pageViews || 0, 
+      icon: Eye, 
+      color: 'text-cyan-500',
+      bgColor: 'bg-cyan-500/10',
+      description: '页面被加载的次数',
+    },
+    { 
+      label: '今日访客数', 
+      value: trafficStats?.uniqueVisitors || 0, 
+      icon: UserCheck, 
+      color: 'text-emerald-500',
+      bgColor: 'bg-emerald-500/10',
+      description: '去重后的访客数量',
+    },
+    { 
+      label: '今日访问次数', 
+      value: trafficStats?.sessions || 0, 
+      icon: Activity, 
+      color: 'text-violet-500',
+      bgColor: 'bg-violet-500/10',
+      description: '独立会话数',
+    },
+  ];
+
   const statCards = [
     { 
       label: '产品总数', 
@@ -181,28 +237,59 @@ export default function AdminDashboard() {
           <p className="text-muted-foreground mt-1">欢迎回来，这是您的网站概览</p>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          {statCards.map((stat, index) => (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <Card className="p-5 bg-card border-border hover:border-primary/30 transition-colors">
-                <div className="flex items-center gap-4">
-                  <div className={`w-11 h-11 rounded-xl ${stat.bgColor} flex items-center justify-center`}>
-                    <stat.icon className={`w-5 h-5 ${stat.color}`} />
+        {/* Traffic Stats Grid (New) */}
+        <div>
+          <h2 className="text-lg font-semibold text-foreground mb-4">流量指标</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {trafficCards.map((stat, index) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <Card className="p-5 bg-card border-border hover:border-primary/30 transition-colors">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 rounded-xl ${stat.bgColor} flex items-center justify-center`}>
+                      <stat.icon className={`w-6 h-6 ${stat.color}`} />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                      <p className="text-sm font-medium text-foreground">{stat.label}</p>
+                      <p className="text-xs text-muted-foreground">{stat.description}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                    <p className="text-xs text-muted-foreground">{stat.label}</p>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        {/* Business Stats Grid */}
+        <div>
+          <h2 className="text-lg font-semibold text-foreground mb-4">业务指标</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            {statCards.map((stat, index) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 + 0.3 }}
+              >
+                <Card className="p-5 bg-card border-border hover:border-primary/30 transition-colors">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-11 h-11 rounded-xl ${stat.bgColor} flex items-center justify-center`}>
+                      <stat.icon className={`w-5 h-5 ${stat.color}`} />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                      <p className="text-xs text-muted-foreground">{stat.label}</p>
+                    </div>
                   </div>
-                </div>
-              </Card>
-            </motion.div>
-          ))}
+                </Card>
+              </motion.div>
+            ))}
+          </div>
         </div>
 
         {/* Inquiry Chart - Redesigned */}
