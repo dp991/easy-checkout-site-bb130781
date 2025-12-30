@@ -17,11 +17,18 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   const navigate = useNavigate();
 
   const name = locale === 'zh' ? product.name_zh : product.name_en;
-  const priceMin = product.price_min ?? 0;
-  const priceMax = product.price_max ?? 0;
-  const priceRange = priceMin === priceMax
-    ? `$${priceMin}`
-    : `$${priceMin} - $${priceMax}`;
+  const priceMin = product.price_min;
+  const priceMax = product.price_max;
+  
+  const formatPrice = () => {
+    if (priceMin && priceMax && priceMin !== priceMax) {
+      return `$${priceMin} - $${priceMax}`;
+    }
+    if (priceMin) return `$${priceMin}`;
+    if (priceMax) return `$${priceMax}`;
+    return locale === 'zh' ? '询价' : 'Contact';
+  };
+  const priceRange = formatPrice();
 
   const handleClick = () => {
     navigate(`/products/${product.slug}`);

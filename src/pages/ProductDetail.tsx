@@ -64,9 +64,18 @@ export default function ProductDetail() {
 
   const name = locale === 'zh' ? product.name_zh : product.name_en;
   const description = locale === 'zh' ? product.description_zh : product.description_en;
-  const priceMin = product.price_min ?? 0;
-  const priceMax = product.price_max ?? 0;
-  const priceRange = priceMin === priceMax ? `$${priceMin}` : `$${priceMin} - $${priceMax}`;
+  const priceMin = product.price_min;
+  const priceMax = product.price_max;
+  
+  const formatPrice = () => {
+    if (priceMin && priceMax && priceMin !== priceMax) {
+      return `$${priceMin} - $${priceMax}`;
+    }
+    if (priceMin) return `$${priceMin}`;
+    if (priceMax) return `$${priceMax}`;
+    return locale === 'zh' ? '询价' : 'Contact';
+  };
+  const priceRange = formatPrice();
   const images = product.images || [];
   const specs = product.specs || {};
 
