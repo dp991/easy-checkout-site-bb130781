@@ -41,7 +41,7 @@ export default function Index() {
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="relative min-h-[85vh] flex items-center overflow-hidden">
+      <section className="relative min-h-[70vh] flex items-center overflow-hidden">
         {/* Background Image - Right Side */}
         <div className="absolute inset-0">
           <div className="absolute inset-y-0 right-0 w-full lg:w-3/5">
@@ -116,7 +116,7 @@ export default function Index() {
       </section>
 
       {/* Features Section */}
-      <section className="py-16 border-b border-border">
+      <section className="py-10 border-b border-border">
         <div className="container-wide">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {features.map((feature, index) => (
@@ -140,9 +140,9 @@ export default function Index() {
       </section>
 
       {/* Categories Section */}
-      <section className="py-20">
+      <section className="py-12">
         <div className="container-wide">
-          <div className="flex items-end justify-between mb-10">
+          <div className="flex items-end justify-between mb-6">
             <div>
               <motion.span
                 initial={{ opacity: 0 }}
@@ -187,9 +187,9 @@ export default function Index() {
       </section>
 
       {/* Featured Products Section */}
-      <section className="py-20 bg-card/50">
+      <section className="py-12 bg-card/50">
         <div className="container-wide">
-          <div className="flex items-end justify-between mb-10">
+          <div className="flex items-end justify-between mb-6">
             <div>
               <motion.span
                 initial={{ opacity: 0 }}
@@ -234,7 +234,7 @@ export default function Index() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20">
+      <section className="py-12">
         <div className="container-wide">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
