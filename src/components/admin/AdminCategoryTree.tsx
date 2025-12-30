@@ -2,6 +2,12 @@ import { useState } from 'react';
 import { ChevronRight, ChevronDown, Folder, FolderOpen } from 'lucide-react';
 import { DbCategory } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface AdminCategoryTreeProps {
   categories: DbCategory[];
@@ -26,38 +32,45 @@ function TreeNode({ category, categories, level, selectedId, onSelect }: TreeNod
 
   return (
     <div>
-      <div
-        className={cn(
-          "flex items-center gap-2 py-2 px-3 rounded-lg cursor-pointer transition-colors",
-          isSelected ? "bg-primary/10 text-primary" : "hover:bg-muted"
-        )}
-        style={{ paddingLeft: `${12 + level * 16}px` }}
-        onClick={() => onSelect(category)}
-      >
-        {hasChildren ? (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsOpen(!isOpen);
-            }}
-            className="p-0.5 hover:bg-muted rounded"
-          >
-            {isOpen ? (
-              <ChevronDown className="w-4 h-4 text-muted-foreground" />
-            ) : (
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+      <Tooltip delayDuration={300}>
+        <TooltipTrigger asChild>
+          <div
+            className={cn(
+              "flex items-center gap-2 py-2 px-3 rounded-lg cursor-pointer transition-colors",
+              isSelected ? "bg-primary/10 text-primary" : "hover:bg-muted"
             )}
-          </button>
-        ) : (
-          <span className="w-5" />
-        )}
-        {isOpen && hasChildren ? (
-          <FolderOpen className="w-4 h-4 text-primary" />
-        ) : (
-          <Folder className="w-4 h-4 text-muted-foreground" />
-        )}
-        <span className="text-sm truncate">{category.name_zh}</span>
-      </div>
+            style={{ paddingLeft: `${12 + level * 16}px` }}
+            onClick={() => onSelect(category)}
+          >
+            {hasChildren ? (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsOpen(!isOpen);
+                }}
+                className="p-0.5 hover:bg-muted rounded"
+              >
+                {isOpen ? (
+                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                ) : (
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                )}
+              </button>
+            ) : (
+              <span className="w-5" />
+            )}
+            {isOpen && hasChildren ? (
+              <FolderOpen className="w-4 h-4 text-primary" />
+            ) : (
+              <Folder className="w-4 h-4 text-muted-foreground" />
+            )}
+            <span className="text-sm truncate">{category.name_zh}</span>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent side="right" className="max-w-xs">
+          <p>{category.name_zh}</p>
+        </TooltipContent>
+      </Tooltip>
       
       {hasChildren && isOpen && (
         <div>
@@ -85,28 +98,30 @@ export default function AdminCategoryTree({ categories, selectedId, onSelect }: 
     .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
 
   return (
-    <div className="space-y-1">
-      <div
-        className={cn(
-          "flex items-center gap-2 py-2 px-3 rounded-lg cursor-pointer transition-colors",
-          selectedId === null ? "bg-primary/10 text-primary" : "hover:bg-muted"
-        )}
-        onClick={() => onSelect(null)}
-      >
-        <Folder className="w-4 h-4" />
-        <span className="text-sm font-medium">全部分类</span>
+    <TooltipProvider>
+      <div className="space-y-1">
+        <div
+          className={cn(
+            "flex items-center gap-2 py-2 px-3 rounded-lg cursor-pointer transition-colors",
+            selectedId === null ? "bg-primary/10 text-primary" : "hover:bg-muted"
+          )}
+          onClick={() => onSelect(null)}
+        >
+          <Folder className="w-4 h-4" />
+          <span className="text-sm font-medium">全部分类</span>
+        </div>
+        
+        {rootCategories.map(category => (
+          <TreeNode
+            key={category.id}
+            category={category}
+            categories={categories}
+            level={0}
+            selectedId={selectedId}
+            onSelect={onSelect}
+          />
+        ))}
       </div>
-      
-      {rootCategories.map(category => (
-        <TreeNode
-          key={category.id}
-          category={category}
-          categories={categories}
-          level={0}
-          selectedId={selectedId}
-          onSelect={onSelect}
-        />
-      ))}
-    </div>
+    </TooltipProvider>
   );
 }
