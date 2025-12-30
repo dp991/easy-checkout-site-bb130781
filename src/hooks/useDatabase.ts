@@ -104,6 +104,53 @@ export function useProductsByCategory(categoryId: string) {
   });
 }
 
+// Paginated products query
+interface PaginatedProductsParams {
+  categoryIds?: string[] | null;
+  page: number;
+  pageSize: number;
+}
+
+interface PaginatedProductsResult {
+  products: DbProduct[];
+  totalCount: number;
+  totalPages: number;
+}
+
+export function usePaginatedProducts({ categoryIds, page, pageSize }: PaginatedProductsParams) {
+  return useQuery({
+    queryKey: ['products', 'paginated', categoryIds, page, pageSize],
+    queryFn: async (): Promise<PaginatedProductsResult> => {
+      const from = (page - 1) * pageSize;
+      const to = from + pageSize - 1;
+
+      let query = supabase
+        .from('wh_products')
+        .select('*', { count: 'exact' });
+
+      // Filter by category IDs if provided
+      if (categoryIds && categoryIds.length > 0) {
+        query = query.in('category_id', categoryIds);
+      }
+
+      const { data, error, count } = await query
+        .order('sort_order', { ascending: true })
+        .range(from, to);
+
+      if (error) throw error;
+
+      const totalCount = count || 0;
+      const totalPages = Math.ceil(totalCount / pageSize);
+
+      return {
+        products: data || [],
+        totalCount,
+        totalPages,
+      };
+    },
+  });
+}
+
 // Submit inquiry
 export async function submitInquiry(inquiry: {
   product_id?: string | null;
