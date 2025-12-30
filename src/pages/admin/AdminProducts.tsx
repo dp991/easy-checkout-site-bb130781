@@ -404,38 +404,36 @@ export default function AdminProducts() {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
+      <div className="space-y-4">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="font-display text-3xl font-bold text-foreground">产品管理</h1>
-            <p className="text-muted-foreground mt-1">管理您的所有产品</p>
-          </div>
+          <h1 className="font-display text-2xl font-bold text-foreground">产品管理</h1>
           <div className="flex gap-2">
             {selectedIds.size > 0 && (
               <Button
                 variant="destructive"
+                size="sm"
                 onClick={handleBulkDelete}
                 disabled={bulkDeleteMutation.isPending}
               >
-                <Trash2 className="w-4 h-4 mr-2" />
-                删除选中 ({selectedIds.size})
+                <Trash2 className="w-4 h-4 mr-1.5" />
+                删除 ({selectedIds.size})
               </Button>
             )}
             <Button
+              size="sm"
               onClick={() => { resetForm(); setIsDialogOpen(true); }}
               className="bg-gradient-gold text-primary-foreground hover:opacity-90"
             >
-              <Plus className="w-4 h-4 mr-2" />
+              <Plus className="w-4 h-4 mr-1.5" />
               添加产品
             </Button>
           </div>
         </div>
 
-        <div className="flex gap-6">
+        <div className="flex gap-3">
           {/* Category Tree Sidebar */}
-          <Card className="w-64 flex-shrink-0 p-4 bg-card border-border h-fit sticky top-4">
-            <h3 className="font-medium text-foreground mb-3">分类目录</h3>
+          <Card className="w-48 flex-shrink-0 p-3 bg-card border-border h-fit sticky top-4">
             {categories && (
               <AdminCategoryTree
                 categories={categories}
@@ -446,35 +444,35 @@ export default function AdminProducts() {
           </Card>
 
           {/* Main Content */}
-          <div className="flex-1 space-y-4">
+          <div className="flex-1 space-y-3">
             {/* Search & Select All */}
-            <div className="flex items-center gap-4">
-              <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+            <div className="flex items-center gap-3">
+              <div className="relative flex-1 max-w-sm">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="搜索产品..."
-                  className="pl-10 bg-card border-border"
+                  className="pl-9 h-9 bg-card border-border text-sm"
                 />
               </div>
               {allProducts.length > 0 && (
-                <Button variant="outline" size="sm" onClick={toggleSelectAll}>
-                  <Check className="w-4 h-4 mr-2" />
+                <Button variant="outline" size="sm" className="h-9" onClick={toggleSelectAll}>
+                  <Check className="w-4 h-4 mr-1.5" />
                   {selectedIds.size === allProducts.length ? '取消全选' : '全选'}
                 </Button>
               )}
             </div>
 
             {/* Products Grid */}
-            <Card className="p-6 bg-card border-border">
+            <Card className="p-4 bg-card border-border">
               {isLoading ? (
-                <div className="flex items-center justify-center py-12">
-                  <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                <div className="flex items-center justify-center py-8">
+                  <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                 </div>
               ) : allProducts.length > 0 ? (
                 <>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
                     {allProducts.map((product, index) => (
                       <motion.div
                         key={product.id}
