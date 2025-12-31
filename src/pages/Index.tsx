@@ -9,7 +9,6 @@ import CategoryCard from '@/components/products/CategoryCard';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import HeroSection from '@/components/home/HeroSection';
-import BentoFeatures from '@/components/home/BentoFeatures';
 import StickyBottomBar from '@/components/home/StickyBottomBar';
 
 export default function Index() {
@@ -21,9 +20,6 @@ export default function Index() {
     <Layout>
       {/* Hero Section */}
       <HeroSection />
-
-      {/* Bento Features Section */}
-      <BentoFeatures />
 
       {/* Categories Section */}
       <section className="py-10 md:py-16 border-t border-border/50">
