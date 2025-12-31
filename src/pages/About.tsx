@@ -46,7 +46,7 @@ export default function About() {
       } />
 
       {/* Hero */}
-      <section className="py-16 md:py-24 bg-card/50 border-b border-border">
+      <section className="py-8 md:py-12 bg-card/50 border-b border-border">
         <div className="container-wide">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -69,7 +69,7 @@ export default function About() {
       </section>
 
       {/* Stats */}
-      <section className="py-16 border-b border-border">
+      <section className="py-10 md:py-12 border-b border-border">
         <div className="container-wide">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
@@ -92,7 +92,7 @@ export default function About() {
       </section>
 
       {/* Values */}
-      <section className="py-20">
+      <section className="py-10 md:py-12">
         <div className="container-wide">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -132,7 +132,7 @@ export default function About() {
       </section>
 
       {/* Certifications */}
-      <section className="py-20 bg-card/50">
+      <section className="py-10 md:py-12 bg-card/50">
         <div className="container-wide">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -170,7 +170,7 @@ export default function About() {
       </section>
 
       {/* Global Reach */}
-      <section className="py-20">
+      <section className="py-10 md:py-12">
         <div className="container-wide">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <motion.div
