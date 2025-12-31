@@ -310,7 +310,7 @@ export default function ProductDetail() {
                           <div key={idx} className={`flex border-b border-border last:border-b-0 md:odd:border-r ${idx % 4 < 2 ? 'bg-muted/30' : 'bg-transparent'}`}>
                             <div className="w-2/5 p-3 text-sm text-primary border-r border-border">{item.service_name}</div>
                             <div className="w-3/5 p-3 text-sm text-foreground">
-                              {item.moq ? `${locale === 'zh' ? '最低起订量: ' : 'Min. Order: '}${item.moq}` : '-'}
+                              {item.moq || '-'}
                             </div>
                           </div>
                         ))}
