@@ -141,10 +141,10 @@ export default function Index() {
               </p>
               
               <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-                <div className="relative group">
+                <div className="relative group w-full sm:w-48">
                   <div className="absolute -inset-1 bg-gradient-gold rounded-lg blur-lg opacity-40 group-hover:opacity-70 transition-opacity" />
-                  <Link to="/contact" onClick={() => window.scrollTo({ top: 0, behavior: 'instant' })}>
-                    <Button className="relative bg-gradient-gold text-primary-foreground hover:opacity-90 font-semibold h-12 px-8">
+                  <Link to="/contact" onClick={() => window.scrollTo({ top: 0, behavior: 'instant' })} className="block">
+                    <Button className="relative w-full bg-gradient-gold text-primary-foreground hover:opacity-90 font-semibold h-12">
                       {t.nav.inquiry}
                       <ArrowRight className="ml-2 w-4 h-4" />
                     </Button>
@@ -154,9 +154,10 @@ export default function Index() {
                   href="https://wa.me/8613800138000"
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="w-full sm:w-48"
                 >
                   <Button 
-                    className="h-12 px-8 bg-[#25D366] text-white hover:bg-[#20bd5a] hover:scale-105 hover:shadow-[0_0_30px_-5px_rgba(37,211,102,0.6)] transition-all duration-300"
+                    className="w-full h-12 bg-[#25D366] text-white hover:bg-[#20bd5a] hover:scale-105 hover:shadow-[0_0_30px_-5px_rgba(37,211,102,0.6)] transition-all duration-300"
                   >
                     {t.contact.whatsapp}
                   </Button>
