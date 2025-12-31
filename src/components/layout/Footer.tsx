@@ -14,8 +14,8 @@ export default function Footer() {
 
   return (
     <footer className="bg-card border-t border-border">
-      <div className="container-wide py-6 md:py-8 lg:py-10 px-4 md:px-6">
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-12">
+      <div className="container-wide py-5 md:py-6 lg:py-8 px-4 md:px-6">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6 lg:gap-10">
           {/* Company Info */}
           <div className="col-span-2 md:col-span-1 lg:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-3 md:mb-4">
@@ -123,8 +123,8 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-6 md:mt-8 pt-4 md:pt-6 border-t border-border">
-          <div className="flex items-center justify-center text-sm pb-1">
+        <div className="mt-5 md:mt-6 pt-4 border-t border-border">
+          <div className="flex items-center justify-center text-sm">
             <p className="text-muted-foreground">
               {t.footer.copyright}
             </p>
