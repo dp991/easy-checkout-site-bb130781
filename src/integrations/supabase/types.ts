@@ -244,9 +244,12 @@ export type Database = {
       }
       wh_products: {
         Row: {
+          attributes: Json | null
           category_id: string | null
           created_at: string
           description_en: string | null
+          description_html_en: string | null
+          description_html_zh: string | null
           description_zh: string | null
           id: string
           images: string[] | null
@@ -262,13 +265,17 @@ export type Database = {
           slug: string
           sort_order: number | null
           specifications: Json | null
+          supplier: Json | null
           unit: string | null
           updated_at: string
         }
         Insert: {
+          attributes?: Json | null
           category_id?: string | null
           created_at?: string
           description_en?: string | null
+          description_html_en?: string | null
+          description_html_zh?: string | null
           description_zh?: string | null
           id?: string
           images?: string[] | null
@@ -284,13 +291,17 @@ export type Database = {
           slug: string
           sort_order?: number | null
           specifications?: Json | null
+          supplier?: Json | null
           unit?: string | null
           updated_at?: string
         }
         Update: {
+          attributes?: Json | null
           category_id?: string | null
           created_at?: string
           description_en?: string | null
+          description_html_en?: string | null
+          description_html_zh?: string | null
           description_zh?: string | null
           id?: string
           images?: string[] | null
@@ -306,6 +317,7 @@ export type Database = {
           slug?: string
           sort_order?: number | null
           specifications?: Json | null
+          supplier?: Json | null
           unit?: string | null
           updated_at?: string
         }

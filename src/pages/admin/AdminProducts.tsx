@@ -5,11 +5,15 @@ import { Plus, Pencil, Trash2, Search, Upload, X, Check, ChevronLeft, ChevronRig
 import { supabase, DbProduct, DbCategory } from '@/lib/supabase';
 import AdminLayout from '@/components/admin/AdminLayout';
 import AdminCategoryTree from '@/components/admin/AdminCategoryTree';
+import AttributesEditor, { ProductAttribute } from '@/components/admin/AttributesEditor';
+import SupplierEditor, { SupplierInfo } from '@/components/admin/SupplierEditor';
+import RichTextEditor from '@/components/admin/RichTextEditor';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Dialog,
   DialogContent,
@@ -29,6 +33,16 @@ import { generateSnowflakeId } from '@/lib/snowflake';
 
 const PAGE_SIZE_OPTIONS = [12, 20, 40, 60];
 
+const DEFAULT_SUPPLIER: SupplierInfo = {
+  name: '',
+  location: '',
+  type: '',
+  years: 0,
+  verified: false,
+  logo_url: '',
+  certifications: [],
+};
+
 export default function AdminProducts() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
@@ -45,12 +59,16 @@ export default function AdminProducts() {
     category_id: '',
     description_zh: '',
     description_en: '',
+    description_html_zh: '',
+    description_html_en: '',
     price_min: '',
     price_max: '',
     min_order: '1',
     images: [] as string[],
     is_featured: false,
     is_new: false,
+    attributes: [] as ProductAttribute[],
+    supplier: DEFAULT_SUPPLIER,
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -189,12 +207,16 @@ export default function AdminProducts() {
         category_id: data.category_id || null,
         description_zh: data.description_zh,
         description_en: data.description_en,
+        description_html_zh: data.description_html_zh || null,
+        description_html_en: data.description_html_en || null,
         price_min: parseFloat(data.price_min) || null,
         price_max: parseFloat(data.price_max) || null,
         min_order: parseInt(data.min_order) || 1,
         images: data.images,
         is_featured: data.is_featured,
         is_new: data.is_new,
+        attributes: data.attributes,
+        supplier: data.supplier,
         specifications: {},
       }]);
       if (error) throw error;
@@ -218,12 +240,16 @@ export default function AdminProducts() {
           category_id: data.category_id || null,
           description_zh: data.description_zh,
           description_en: data.description_en,
+          description_html_zh: data.description_html_zh || null,
+          description_html_en: data.description_html_en || null,
           price_min: data.price_min ? parseFloat(data.price_min) : null,
           price_max: data.price_max ? parseFloat(data.price_max) : null,
           min_order: parseInt(data.min_order) || 1,
           images: data.images,
           is_featured: data.is_featured,
           is_new: data.is_new,
+          attributes: data.attributes,
+          supplier: data.supplier,
         })
         .eq('id', data.id);
       if (error) throw error;
@@ -309,31 +335,40 @@ export default function AdminProducts() {
       category_id: '',
       description_zh: '',
       description_en: '',
+      description_html_zh: '',
+      description_html_en: '',
       price_min: '',
       price_max: '',
       min_order: '1',
       images: [],
       is_featured: false,
       is_new: false,
+      attributes: [],
+      supplier: DEFAULT_SUPPLIER,
     });
     setEditingProduct(null);
   };
 
   const openEditDialog = (product: DbProduct) => {
     setEditingProduct(product);
+    const productAny = product as any;
     setFormData({
       name_zh: product.name_zh,
-      name_en: product.name_en,
+      name_en: product.name_en || '',
       slug: product.slug,
       category_id: product.category_id || '',
       description_zh: product.description_zh || '',
       description_en: product.description_en || '',
+      description_html_zh: productAny.description_html_zh || '',
+      description_html_en: productAny.description_html_en || '',
       price_min: String(product.price_min || ''),
       price_max: String(product.price_max || ''),
       min_order: String(product.min_order || 1),
       images: product.images || [],
       is_featured: product.is_featured || false,
       is_new: product.is_new || false,
+      attributes: (productAny.attributes as ProductAttribute[]) || [],
+      supplier: productAny.supplier || DEFAULT_SUPPLIER,
     });
     setIsDialogOpen(true);
   };
@@ -649,170 +684,222 @@ export default function AdminProducts() {
 
         {/* Dialog */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
                 {editingProduct ? '编辑产品' : '添加产品'}
               </DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">中文名称 *</label>
-                  <Input
-                    value={formData.name_zh}
-                    onChange={(e) => setFormData({ ...formData, name_zh: e.target.value })}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">英文名称 *</label>
-                  <Input
-                    value={formData.name_en}
-                    onChange={(e) => setFormData({ ...formData, name_en: e.target.value })}
-                    required
-                  />
-                </div>
-              </div>
+              <Tabs defaultValue="basic" className="w-full">
+                <TabsList className="grid w-full grid-cols-4">
+                  <TabsTrigger value="basic">基本信息</TabsTrigger>
+                  <TabsTrigger value="attributes">商品属性</TabsTrigger>
+                  <TabsTrigger value="description">详细描述</TabsTrigger>
+                  <TabsTrigger value="supplier">供应商</TabsTrigger>
+                </TabsList>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">URL Slug</label>
-                  <Input
-                    value={formData.slug}
-                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                    placeholder="留空将自动生成"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">分类</label>
-                  <Select
-                    value={formData.category_id}
-                    onValueChange={(value) => setFormData({ ...formData, category_id: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="选择分类" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories?.map((cat) => (
-                        <SelectItem key={cat.id} value={cat.id}>
-                          {cat.parent_id ? '└ ' : ''}{cat.name_zh}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">中文描述</label>
-                <Textarea
-                  value={formData.description_zh}
-                  onChange={(e) => setFormData({ ...formData, description_zh: e.target.value })}
-                  rows={3}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">英文描述</label>
-                <Textarea
-                  value={formData.description_en}
-                  onChange={(e) => setFormData({ ...formData, description_en: e.target.value })}
-                  rows={3}
-                />
-              </div>
-
-              <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">最低价格</label>
-                  <Input
-                    type="number"
-                    value={formData.price_min}
-                    onChange={(e) => setFormData({ ...formData, price_min: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">最高价格</label>
-                  <Input
-                    type="number"
-                    value={formData.price_max}
-                    onChange={(e) => setFormData({ ...formData, price_max: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">最小起订量</label>
-                  <Input
-                    type="number"
-                    value={formData.min_order}
-                    onChange={(e) => setFormData({ ...formData, min_order: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              {/* Image Upload */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">产品图片</label>
-                <div className="border-2 border-dashed border-border rounded-lg p-4">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={isUploading}
-                    className="w-full"
-                  >
-                    <Upload className="w-4 h-4 mr-2" />
-                    {isUploading ? `上传中 ${uploadProgress}%` : '选择图片上传（支持多选）'}
-                  </Button>
-
-                  {formData.images.length > 0 && (
-                    <div className="mt-4 grid grid-cols-4 gap-2">
-                      {formData.images.map((url, index) => (
-                        <div key={index} className="relative group aspect-square">
-                          <img
-                            src={url}
-                            alt={`图片 ${index + 1}`}
-                            className="w-full h-full object-cover rounded-lg"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeImage(index)}
-                            className="absolute top-1 right-1 w-5 h-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </div>
-                      ))}
+                {/* Basic Info Tab */}
+                <TabsContent value="basic" className="space-y-4 mt-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">中文名称 *</label>
+                      <Input
+                        value={formData.name_zh}
+                        onChange={(e) => setFormData({ ...formData, name_zh: e.target.value })}
+                        required
+                      />
                     </div>
-                  )}
-                </div>
-              </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">英文名称</label>
+                      <Input
+                        value={formData.name_en}
+                        onChange={(e) => setFormData({ ...formData, name_en: e.target.value })}
+                      />
+                    </div>
+                  </div>
 
-              <div className="flex items-center gap-6">
-                <label className="flex items-center gap-2">
-                  <Checkbox
-                    checked={formData.is_featured}
-                    onCheckedChange={(checked) => setFormData({ ...formData, is_featured: !!checked })}
-                  />
-                  <span className="text-sm">设为热门</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <Checkbox
-                    checked={formData.is_new}
-                    onCheckedChange={(checked) => setFormData({ ...formData, is_new: !!checked })}
-                  />
-                  <span className="text-sm">设为新品</span>
-                </label>
-              </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">URL Slug</label>
+                      <Input
+                        value={formData.slug}
+                        onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                        placeholder="留空将自动生成"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">分类</label>
+                      <Select
+                        value={formData.category_id}
+                        onValueChange={(value) => setFormData({ ...formData, category_id: value })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="选择分类" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categories?.map((cat) => (
+                            <SelectItem key={cat.id} value={cat.id}>
+                              {cat.parent_id ? '└ ' : ''}{cat.name_zh}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
 
-              <div className="flex justify-end gap-3 pt-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">简短描述 (中文)</label>
+                    <Textarea
+                      value={formData.description_zh}
+                      onChange={(e) => setFormData({ ...formData, description_zh: e.target.value })}
+                      rows={2}
+                      placeholder="用于列表展示的简短描述"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">简短描述 (英文)</label>
+                    <Textarea
+                      value={formData.description_en}
+                      onChange={(e) => setFormData({ ...formData, description_en: e.target.value })}
+                      rows={2}
+                      placeholder="Short description for listing"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">最低价格</label>
+                      <Input
+                        type="number"
+                        value={formData.price_min}
+                        onChange={(e) => setFormData({ ...formData, price_min: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">最高价格</label>
+                      <Input
+                        type="number"
+                        value={formData.price_max}
+                        onChange={(e) => setFormData({ ...formData, price_max: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">最小起订量</label>
+                      <Input
+                        type="number"
+                        value={formData.min_order}
+                        onChange={(e) => setFormData({ ...formData, min_order: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Image Upload */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">产品图片</label>
+                    <div className="border-2 border-dashed border-border rounded-lg p-4">
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleFileChange}
+                        className="hidden"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isUploading}
+                        className="w-full"
+                      >
+                        <Upload className="w-4 h-4 mr-2" />
+                        {isUploading ? `上传中 ${uploadProgress}%` : '选择图片上传（支持多选）'}
+                      </Button>
+
+                      {formData.images.length > 0 && (
+                        <div className="mt-4 grid grid-cols-5 gap-2">
+                          {formData.images.map((url, index) => (
+                            <div key={index} className="relative group aspect-square">
+                              <img
+                                src={url}
+                                alt={`图片 ${index + 1}`}
+                                className="w-full h-full object-cover rounded-lg"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => removeImage(index)}
+                                className="absolute top-1 right-1 w-5 h-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-6">
+                    <label className="flex items-center gap-2">
+                      <Checkbox
+                        checked={formData.is_featured}
+                        onCheckedChange={(checked) => setFormData({ ...formData, is_featured: !!checked })}
+                      />
+                      <span className="text-sm">设为热门</span>
+                    </label>
+                    <label className="flex items-center gap-2">
+                      <Checkbox
+                        checked={formData.is_new}
+                        onCheckedChange={(checked) => setFormData({ ...formData, is_new: !!checked })}
+                      />
+                      <span className="text-sm">设为新品</span>
+                    </label>
+                  </div>
+                </TabsContent>
+
+                {/* Attributes Tab */}
+                <TabsContent value="attributes" className="space-y-4 mt-4">
+                  <div className="text-sm text-muted-foreground mb-2">
+                    添加产品属性（如品牌、型号、产地等）。勾选星标的属性将在商品首屏显示。
+                  </div>
+                  <AttributesEditor
+                    attributes={formData.attributes}
+                    onChange={(attrs) => setFormData({ ...formData, attributes: attrs })}
+                  />
+                </TabsContent>
+
+                {/* Description Tab */}
+                <TabsContent value="description" className="space-y-4 mt-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">详细描述 (中文)</label>
+                    <RichTextEditor
+                      value={formData.description_html_zh}
+                      onChange={(html) => setFormData({ ...formData, description_html_zh: html })}
+                      placeholder="输入详细的产品描述..."
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">详细描述 (英文)</label>
+                    <RichTextEditor
+                      value={formData.description_html_en}
+                      onChange={(html) => setFormData({ ...formData, description_html_en: html })}
+                      placeholder="Enter detailed product description..."
+                    />
+                  </div>
+                </TabsContent>
+
+                {/* Supplier Tab */}
+                <TabsContent value="supplier" className="space-y-4 mt-4">
+                  <SupplierEditor
+                    supplier={formData.supplier}
+                    onChange={(sup) => setFormData({ ...formData, supplier: sup })}
+                  />
+                </TabsContent>
+              </Tabs>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-border">
                 <Button
                   type="button"
                   variant="outline"
