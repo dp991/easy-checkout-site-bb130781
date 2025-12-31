@@ -137,7 +137,7 @@ export default function Categories() {
 
         {/* Right Content - Scrollable Products Area */}
         <main id="products-area" className="flex-1 md:ml-64 lg:ml-72 overflow-y-auto">
-          <div className="p-4 md:p-6 lg:p-8 min-h-full pb-24 md:pb-8">
+          <div className="p-4 md:p-5 lg:p-6 min-h-full pb-20 md:pb-6">
             <motion.div
               key={`${selectedCategory}-${currentPage}`}
               initial={{ opacity: 0, y: 10 }}
@@ -145,7 +145,7 @@ export default function Categories() {
               transition={{ duration: 0.3 }}
             >
               {/* Category Header */}
-              <div className="mb-4 md:mb-6">
+              <div className="mb-3 md:mb-4">
                 <h1 className="font-display text-xl md:text-2xl lg:text-3xl font-bold text-foreground">
                   {selectedCategoryName}
                 </h1>
@@ -184,7 +184,7 @@ export default function Categories() {
                   )}
                 </>
               ) : (
-                <div className="flex flex-col items-center justify-center py-12 md:py-20 text-center">
+                <div className="flex flex-col items-center justify-center py-10 md:py-16 text-center">
                   <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-muted flex items-center justify-center mb-3 md:mb-4">
                     <span className="text-2xl md:text-3xl">📦</span>
                   </div>
