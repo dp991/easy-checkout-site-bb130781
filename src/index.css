@@ -218,6 +218,15 @@
   }
 }
 
+/* Hide scrollbar for horizontal scroll areas */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 @layer utilities {
   .container-wide {
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
