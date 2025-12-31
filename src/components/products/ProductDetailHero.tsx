@@ -368,8 +368,8 @@ export default function ProductDetailHero({
         </div>
       </div>
 
-      {/* Spacer for mobile sticky bar - reduced */}
-      <div className="h-16 lg:hidden" />
+      {/* Spacer for mobile sticky bar */}
+      <div className="h-14 lg:hidden" />
     </>
   );
 }
