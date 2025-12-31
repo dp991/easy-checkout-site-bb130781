@@ -147,32 +147,6 @@ export default function HeroSection() {
               </div>
             </motion.div>
 
-            {/* Floating specs badges */}
-            <motion.div
-              layoutId="spec-speed"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.6, type: 'spring', stiffness: 100 }}
-              className="absolute top-1/4 -left-4 md:left-0 hidden md:block"
-            >
-              <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-xl px-4 py-3 shadow-lg">
-                <p className="text-xs text-muted-foreground">{locale === 'zh' ? '处理速度' : 'Speed'}</p>
-                <p className="text-lg font-bold text-foreground">0.3s</p>
-              </div>
-            </motion.div>
-
-            <motion.div
-              layoutId="spec-battery"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.8, type: 'spring', stiffness: 100 }}
-              className="absolute bottom-1/4 -right-4 md:right-0 hidden md:block"
-            >
-              <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-xl px-4 py-3 shadow-lg">
-                <p className="text-xs text-muted-foreground">{locale === 'zh' ? '续航时间' : 'Battery'}</p>
-                <p className="text-lg font-bold text-foreground">8h+</p>
-              </div>
-            </motion.div>
           </motion.div>
         </div>
       </div>
