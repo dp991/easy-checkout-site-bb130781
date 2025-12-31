@@ -91,10 +91,9 @@ export default function HeroSection() {
               <Link to="/about" className="group">
                 <Button 
                   size="lg" 
-                  variant="ghost" 
-                  className="h-12 md:h-14 px-6 text-muted-foreground hover:text-foreground"
+                  className="h-12 md:h-14 px-6 bg-cyan-500 text-white border-0 hover:bg-cyan-400 hover:scale-105 hover:shadow-[0_0_30px_-5px_rgba(6,182,212,0.6)] transition-all duration-300"
                 >
-                  <div className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center mr-3 group-hover:bg-muted transition-colors">
+                  <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mr-3">
                     <Play className="w-4 h-4 ml-0.5" />
                   </div>
                   {locale === 'zh' ? '了解更多' : 'Learn More'}

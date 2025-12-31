@@ -156,8 +156,7 @@ export default function Index() {
                   rel="noopener noreferrer"
                 >
                   <Button 
-                    variant="outline" 
-                    className="h-12 px-8 border-border/50 bg-card/50 backdrop-blur-sm hover:bg-card hover:text-foreground"
+                    className="h-12 px-8 bg-[#25D366] text-white hover:bg-[#20bd5a] hover:scale-105 hover:shadow-[0_0_30px_-5px_rgba(37,211,102,0.6)] transition-all duration-300"
                   >
                     {t.contact.whatsapp}
                   </Button>
