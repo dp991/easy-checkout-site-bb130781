@@ -17,14 +17,25 @@ export default function HeroSection() {
       {/* Subtle grid pattern */}
       <div className="absolute inset-0 industrial-grid opacity-30" />
       
-      {/* Glowing orbs */}
-      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[150px] opacity-30" />
-      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-primary/10 rounded-full blur-[120px] opacity-20" />
+      {/* Glowing orbs - use will-change for GPU acceleration */}
+      <motion.div 
+        className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[150px] opacity-30 will-change-transform"
+        animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.4, 0.3] }}
+        transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <motion.div 
+        className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-primary/10 rounded-full blur-[120px] opacity-20 will-change-transform"
+        animate={{ scale: [1, 1.15, 1], opacity: [0.2, 0.3, 0.2] }}
+        transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+      />
 
       <div className="container-wide relative z-10 py-12 md:py-20 px-4 md:px-6">
         <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
           {/* Left Content */}
-          <div className="text-center lg:text-left order-2 lg:order-1">
+          <motion.div 
+            layoutId="hero-content"
+            className="text-center lg:text-left order-2 lg:order-1"
+          >
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -65,7 +76,7 @@ export default function HeroSection() {
             >
               <div className="relative group">
                 {/* Glow effect behind button */}
-                <div className="absolute -inset-1 bg-gradient-gold rounded-lg blur-lg opacity-40 group-hover:opacity-70 transition-opacity" />
+                <div className="absolute -inset-1 bg-gradient-gold rounded-lg blur-lg opacity-40 group-hover:opacity-70 transition-opacity duration-300" />
                 <Link to="/categories">
                   <Button 
                     size="lg" 
@@ -93,10 +104,11 @@ export default function HeroSection() {
 
             {/* Trust Badges */}
             <TrustBadges />
-          </div>
+          </motion.div>
 
           {/* Right - Floating Product Image */}
           <motion.div
+            layoutId="hero-image"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.2 }}
@@ -111,15 +123,19 @@ export default function HeroSection() {
             <motion.div
               animate={{ y: [0, -15, 0] }}
               transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-              className="relative z-10"
+              className="relative z-10 will-change-transform"
             >
               <div className="relative aspect-square max-w-md mx-auto lg:max-w-lg">
                 {/* Glass card container */}
                 <div className="absolute inset-4 md:inset-8 rounded-3xl bg-card/30 backdrop-blur-xl border border-border/30 overflow-hidden">
+                  {/* Hero image with Vite's asset handling - imported at top */}
                   <img
                     src={heroImage}
                     alt="POS Terminal"
                     className="w-full h-full object-cover"
+                    // Hero image should not be lazy loaded as it's above the fold
+                    fetchPriority="high"
+                    decoding="async"
                   />
                   {/* Shine overlay */}
                   <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent" />
@@ -133,9 +149,10 @@ export default function HeroSection() {
 
             {/* Floating specs badges */}
             <motion.div
+              layoutId="spec-speed"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.6 }}
+              transition={{ delay: 0.6, type: 'spring', stiffness: 100 }}
               className="absolute top-1/4 -left-4 md:left-0 hidden md:block"
             >
               <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-xl px-4 py-3 shadow-lg">
@@ -145,9 +162,10 @@ export default function HeroSection() {
             </motion.div>
 
             <motion.div
+              layoutId="spec-battery"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.8 }}
+              transition={{ delay: 0.8, type: 'spring', stiffness: 100 }}
               className="absolute bottom-1/4 -right-4 md:right-0 hidden md:block"
             >
               <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-xl px-4 py-3 shadow-lg">

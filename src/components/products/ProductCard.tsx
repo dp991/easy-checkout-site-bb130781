@@ -37,9 +37,12 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
 
   return (
     <motion.div
+      layoutId={`product-card-${product.id}`}
       initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.1, duration: 0.4 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-50px' }}
+      transition={{ delay: index * 0.05, duration: 0.4 }}
+      whileHover={{ y: -4 }}
       className="group"
     >
       <div onClick={handleClick} className="cursor-pointer">
@@ -49,6 +52,8 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             <img
               src={product.images?.[0] || 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800'}
               alt={name}
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
             
@@ -69,8 +74,8 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             {/* Quick Actions */}
             <div className="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
               <motion.div
-                initial={{ scale: 0 }}
                 whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
                 className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center"
               >
                 <Eye className="w-5 h-5" />
@@ -81,19 +86,19 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                   e.stopPropagation();
                   addToCart(product.id);
                 }}
-                initial={{ scale: 0 }}
                 whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
                 className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center"
               >
                 <ShoppingCart className="w-5 h-5" />
               </motion.button>
               <motion.a
-                href={`https://wa.me/8613800138000?text=I'm interested in ${encodeURIComponent(name)}`}
+                href={`https://wa.me/8613800138000?text=I'm interested in ${encodeURIComponent(name || '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                initial={{ scale: 0 }}
                 whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
                 className="w-12 h-12 rounded-full bg-[#25D366] text-white flex items-center justify-center"
               >
                 <MessageCircle className="w-5 h-5" />

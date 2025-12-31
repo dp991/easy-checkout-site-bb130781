@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -23,9 +23,12 @@ export default function CategoryCard({ category, index = 0 }: CategoryCardProps)
 
   return (
     <motion.div
+      layoutId={`category-card-${category.id}`}
       initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-50px' }}
       transition={{ delay: index * 0.05, duration: 0.4 }}
+      whileHover={{ y: -4 }}
     >
       <a
         href={`/categories?category=${category.slug}`}
@@ -37,6 +40,8 @@ export default function CategoryCard({ category, index = 0 }: CategoryCardProps)
           <img
             src={category.image_url || 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600'}
             alt={name}
+            loading="lazy"
+            decoding="async"
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
@@ -51,9 +56,13 @@ export default function CategoryCard({ category, index = 0 }: CategoryCardProps)
             <p className="text-muted-foreground text-sm">
               {locale === 'zh' ? '查看产品' : 'View Products'}
             </p>
-            <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary transition-colors">
+            <motion.div 
+              className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary transition-colors"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+            >
               <ArrowRight className="w-4 h-4 lg:w-5 lg:h-5 text-primary group-hover:text-primary-foreground transition-colors" />
-            </div>
+            </motion.div>
           </div>
         </div>
 
