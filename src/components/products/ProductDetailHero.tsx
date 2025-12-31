@@ -327,18 +327,18 @@ export default function ProductDetailHero({
         </motion.div>
       </div>
 
-      {/* Mobile Trust Signals */}
-      <div className="lg:hidden flex items-center justify-center gap-4 py-2 border-t border-border/50 text-xs text-muted-foreground">
+      {/* Mobile Trust Signals - Compact */}
+      <div className="lg:hidden flex items-center justify-center gap-4 py-1.5 mb-0 text-xs text-muted-foreground">
         <div className="flex items-center gap-1">
-          <Shield className="w-3.5 h-3.5 text-primary" />
+          <Shield className="w-3 h-3 text-primary" />
           <span>{locale === 'zh' ? '质量保证' : 'Quality'}</span>
         </div>
         <div className="flex items-center gap-1">
-          <Truck className="w-3.5 h-3.5 text-primary" />
+          <Truck className="w-3 h-3 text-primary" />
           <span>{locale === 'zh' ? '全球配送' : 'Shipping'}</span>
         </div>
         <div className="flex items-center gap-1">
-          <Package className="w-3.5 h-3.5 text-primary" />
+          <Package className="w-3 h-3 text-primary" />
           <span>{locale === 'zh' ? '安全包装' : 'Packing'}</span>
         </div>
       </div>
