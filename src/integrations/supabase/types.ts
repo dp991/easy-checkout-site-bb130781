@@ -247,6 +247,7 @@ export type Database = {
           attributes: Json | null
           category_id: string | null
           created_at: string
+          customizations: Json | null
           description_en: string | null
           description_html_en: string | null
           description_html_zh: string | null
@@ -256,9 +257,11 @@ export type Database = {
           is_active: boolean | null
           is_featured: boolean | null
           is_new: boolean | null
+          lead_times: Json | null
           min_order: number | null
           name_en: string | null
           name_zh: string
+          packaging_info: Json | null
           price: number | null
           price_max: number | null
           price_min: number | null
@@ -273,6 +276,7 @@ export type Database = {
           attributes?: Json | null
           category_id?: string | null
           created_at?: string
+          customizations?: Json | null
           description_en?: string | null
           description_html_en?: string | null
           description_html_zh?: string | null
@@ -282,9 +286,11 @@ export type Database = {
           is_active?: boolean | null
           is_featured?: boolean | null
           is_new?: boolean | null
+          lead_times?: Json | null
           min_order?: number | null
           name_en?: string | null
           name_zh: string
+          packaging_info?: Json | null
           price?: number | null
           price_max?: number | null
           price_min?: number | null
@@ -299,6 +305,7 @@ export type Database = {
           attributes?: Json | null
           category_id?: string | null
           created_at?: string
+          customizations?: Json | null
           description_en?: string | null
           description_html_en?: string | null
           description_html_zh?: string | null
@@ -308,9 +315,11 @@ export type Database = {
           is_active?: boolean | null
           is_featured?: boolean | null
           is_new?: boolean | null
+          lead_times?: Json | null
           min_order?: number | null
           name_en?: string | null
           name_zh?: string
+          packaging_info?: Json | null
           price?: number | null
           price_max?: number | null
           price_min?: number | null
