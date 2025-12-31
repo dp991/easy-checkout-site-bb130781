@@ -6,6 +6,9 @@ import { supabase, DbProduct, DbCategory } from '@/lib/supabase';
 import AdminLayout from '@/components/admin/AdminLayout';
 import AdminCategoryTree from '@/components/admin/AdminCategoryTree';
 import AttributesEditor, { ProductAttribute } from '@/components/admin/AttributesEditor';
+import PackagingEditor, { PackagingItem } from '@/components/admin/PackagingEditor';
+import LeadTimeEditor, { LeadTimeItem } from '@/components/admin/LeadTimeEditor';
+import CustomizationEditor, { CustomizationItem } from '@/components/admin/CustomizationEditor';
 import RichTextEditor from '@/components/admin/RichTextEditor';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -58,6 +61,9 @@ export default function AdminProducts() {
     is_featured: false,
     is_new: false,
     attributes: [] as ProductAttribute[],
+    packaging_info: [] as PackagingItem[],
+    lead_times: [] as LeadTimeItem[],
+    customizations: [] as CustomizationItem[],
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -205,6 +211,9 @@ export default function AdminProducts() {
         is_featured: data.is_featured,
         is_new: data.is_new,
         attributes: data.attributes,
+        packaging_info: data.packaging_info,
+        lead_times: data.lead_times,
+        customizations: data.customizations,
         specifications: {},
       }]);
       if (error) throw error;
@@ -237,6 +246,9 @@ export default function AdminProducts() {
           is_featured: data.is_featured,
           is_new: data.is_new,
           attributes: data.attributes,
+          packaging_info: data.packaging_info,
+          lead_times: data.lead_times,
+          customizations: data.customizations,
         })
         .eq('id', data.id);
       if (error) throw error;
@@ -331,6 +343,9 @@ export default function AdminProducts() {
       is_featured: false,
       is_new: false,
       attributes: [],
+      packaging_info: [],
+      lead_times: [],
+      customizations: [],
     });
     setEditingProduct(null);
   };
@@ -354,6 +369,9 @@ export default function AdminProducts() {
       is_featured: product.is_featured || false,
       is_new: product.is_new || false,
       attributes: (productAny.attributes as ProductAttribute[]) || [],
+      packaging_info: (productAny.packaging_info as PackagingItem[]) || [],
+      lead_times: (productAny.lead_times as LeadTimeItem[]) || [],
+      customizations: (productAny.customizations as CustomizationItem[]) || [],
     });
     setIsDialogOpen(true);
   };
@@ -844,14 +862,37 @@ export default function AdminProducts() {
                 </TabsContent>
 
                 {/* Attributes Tab */}
-                <TabsContent value="attributes" className="space-y-4 mt-4">
-                  <div className="text-sm text-muted-foreground mb-2">
-                    添加产品属性（如品牌、型号、产地等）。勾选星标的属性将在商品首屏显示。
+                <TabsContent value="attributes" className="space-y-6 mt-4">
+                  <div>
+                    <div className="text-sm text-muted-foreground mb-2">
+                      添加产品核心属性（如品牌、型号、产地等）。勾选星标的属性将在商品首屏显示。
+                    </div>
+                    <AttributesEditor
+                      attributes={formData.attributes}
+                      onChange={(attrs) => setFormData({ ...formData, attributes: attrs })}
+                    />
                   </div>
-                  <AttributesEditor
-                    attributes={formData.attributes}
-                    onChange={(attrs) => setFormData({ ...formData, attributes: attrs })}
-                  />
+                  
+                  <div className="border-t border-border pt-4">
+                    <PackagingEditor
+                      items={formData.packaging_info}
+                      onChange={(items) => setFormData({ ...formData, packaging_info: items })}
+                    />
+                  </div>
+                  
+                  <div className="border-t border-border pt-4">
+                    <LeadTimeEditor
+                      items={formData.lead_times}
+                      onChange={(items) => setFormData({ ...formData, lead_times: items })}
+                    />
+                  </div>
+                  
+                  <div className="border-t border-border pt-4">
+                    <CustomizationEditor
+                      items={formData.customizations}
+                      onChange={(items) => setFormData({ ...formData, customizations: items })}
+                    />
+                  </div>
                 </TabsContent>
 
                 {/* Description Tab */}

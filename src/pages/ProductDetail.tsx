@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MessageCircle, Send, ChevronLeft, ChevronRight, Package, Truck, Shield, ShoppingCart, Building2, MapPin, Calendar, CheckCircle } from 'lucide-react';
+import { MessageCircle, Send, ChevronLeft, ChevronRight, Package, Truck, Shield, ShoppingCart, Settings, Clock } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCart } from '@/contexts/CartContext';
 import { useProductBySlug, useProducts } from '@/hooks/useDatabase';
@@ -20,14 +20,19 @@ interface ProductAttribute {
   group?: string;
 }
 
-interface SupplierInfo {
-  name?: string;
-  location?: string;
-  type?: string;
-  years?: number;
-  verified?: boolean;
-  logo_url?: string;
-  certifications?: string[];
+interface PackagingItem {
+  key: string;
+  value: string;
+}
+
+interface LeadTimeItem {
+  quantity_range: string;
+  lead_days: string;
+}
+
+interface CustomizationItem {
+  service_name: string;
+  moq: string;
 }
 
 export default function ProductDetail() {
@@ -89,8 +94,12 @@ export default function ProductDetail() {
   const priceRange = formatPrice();
   const images = product.images || [];
   const attributes: ProductAttribute[] = productAny.attributes || [];
-  const supplier: SupplierInfo = productAny.supplier || {};
+  const packagingInfo: PackagingItem[] = productAny.packaging_info || [];
+  const leadTimes: LeadTimeItem[] = productAny.lead_times || [];
+  const customizations: CustomizationItem[] = productAny.customizations || [];
   const keyAttributes = attributes.filter(a => a.is_key_attribute);
+  
+  const hasSpecs = attributes.length > 0 || packagingInfo.length > 0 || leadTimes.length > 0 || customizations.length > 0;
 
   const relatedProducts = allProducts
     ?.filter(p => p.category_id === product.category_id && p.id !== product.id)
@@ -188,35 +197,10 @@ export default function ProductDetail() {
             </div>
           </motion.div>
 
-          {/* Right: Supplier Card (Desktop) */}
+          {/* Right: Trust Badges (Desktop) */}
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="hidden lg:block lg:col-span-1">
-            {supplier.name && (
-              <Card className="p-4 bg-card border-border sticky top-24">
-                <div className="flex items-center gap-3 mb-4">
-                  {supplier.logo_url ? (
-                    <img src={supplier.logo_url} alt={supplier.name} className="w-12 h-12 rounded-lg object-contain bg-white" />
-                  ) : (
-                    <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center"><Building2 className="w-6 h-6 text-muted-foreground" /></div>
-                  )}
-                  <div>
-                    <h3 className="font-semibold text-foreground text-sm">{supplier.name}</h3>
-                    {supplier.verified && <Badge className="mt-1 bg-primary/10 text-primary text-xs"><CheckCircle className="w-3 h-3 mr-1" />Verified</Badge>}
-                  </div>
-                </div>
-                <div className="space-y-2 text-xs text-muted-foreground">
-                  {supplier.location && <div className="flex items-center gap-2"><MapPin className="w-3.5 h-3.5" />{supplier.location}</div>}
-                  {supplier.type && <div className="flex items-center gap-2"><Building2 className="w-3.5 h-3.5" />{supplier.type}</div>}
-                  {supplier.years && <div className="flex items-center gap-2"><Calendar className="w-3.5 h-3.5" />{supplier.years} {locale === 'zh' ? '年经验' : 'Years'}</div>}
-                </div>
-                {supplier.certifications && supplier.certifications.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-1">
-                    {supplier.certifications.map((cert, idx) => <Badge key={idx} variant="outline" className="text-xs">{cert}</Badge>)}
-                  </div>
-                )}
-              </Card>
-            )}
             {/* Trust Badges */}
-            <div className="grid grid-cols-3 gap-2 mt-4">
+            <div className="grid grid-cols-3 gap-2">
               <div className="text-center p-3 rounded-lg bg-muted/30">
                 <Shield className="w-5 h-5 text-primary mx-auto mb-1" />
                 <p className="text-[10px] text-muted-foreground">{locale === 'zh' ? '质量保证' : 'Quality'}</p>
@@ -238,7 +222,7 @@ export default function ProductDetail() {
           <Tabs defaultValue="description" className="w-full">
             <TabsList className="w-full justify-start border-b border-border rounded-none bg-transparent h-auto p-0">
               <TabsTrigger value="description" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary">{locale === 'zh' ? '产品详情' : 'Description'}</TabsTrigger>
-              {attributes.length > 0 && <TabsTrigger value="specs" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary">{locale === 'zh' ? '规格参数' : 'Specifications'}</TabsTrigger>}
+              {hasSpecs && <TabsTrigger value="specs" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary">{locale === 'zh' ? '规格参数' : 'Specifications'}</TabsTrigger>}
             </TabsList>
             <TabsContent value="description" className="mt-6">
               {descriptionHtml ? (
@@ -247,37 +231,97 @@ export default function ProductDetail() {
                 <p className="text-muted-foreground">{description || (locale === 'zh' ? '暂无详细描述' : 'No description available')}</p>
               )}
             </TabsContent>
-            {attributes.length > 0 && (
-              <TabsContent value="specs" className="mt-6">
-                <div className="rounded-lg border border-border overflow-hidden">
-                  {attributes.map((attr, idx) => (
-                    <div key={idx} className={`flex ${idx % 2 === 0 ? 'bg-muted/30' : 'bg-transparent'}`}>
-                      <div className="w-1/3 p-3 text-sm text-muted-foreground border-r border-border">{attr.key}</div>
-                      <div className="w-2/3 p-3 text-sm text-foreground">{attr.value}</div>
+            {hasSpecs && (
+              <TabsContent value="specs" className="mt-6 space-y-8">
+                {/* Key Attributes Section */}
+                {attributes.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-bold text-foreground mb-4">{locale === 'zh' ? '重要属性' : 'Key Attributes'}</h3>
+                    <div className="rounded-lg border border-border overflow-hidden">
+                      <div className="grid grid-cols-1 md:grid-cols-2">
+                        {attributes.map((attr, idx) => (
+                          <div key={idx} className={`flex border-b border-border last:border-b-0 md:odd:border-r ${idx % 4 < 2 ? 'bg-muted/30' : 'bg-transparent'}`}>
+                            <div className="w-2/5 p-3 text-sm text-primary border-r border-border">{attr.key}</div>
+                            <div className="w-3/5 p-3 text-sm text-foreground">{attr.value}</div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                )}
+
+                {/* Packaging & Delivery Section */}
+                {packagingInfo.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-bold text-foreground mb-4">{locale === 'zh' ? '包装和发货信息' : 'Packaging & Delivery'}</h3>
+                    <div className="rounded-lg border border-border overflow-hidden">
+                      <div className="grid grid-cols-1 md:grid-cols-2">
+                        {packagingInfo.map((item, idx) => (
+                          <div key={idx} className={`flex border-b border-border last:border-b-0 md:odd:border-r ${idx % 4 < 2 ? 'bg-muted/30' : 'bg-transparent'}`}>
+                            <div className="w-2/5 p-3 text-sm text-primary border-r border-border">{item.key}</div>
+                            <div className="w-3/5 p-3 text-sm text-foreground">{item.value}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Lead Time Section */}
+                {leadTimes.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+                      <Clock className="w-5 h-5 text-primary" />
+                      {locale === 'zh' ? '交货时间' : 'Lead Time'}
+                    </h3>
+                    <div className="rounded-lg border border-border overflow-x-auto">
+                      <table className="w-full min-w-max">
+                        <thead>
+                          <tr className="bg-muted/30">
+                            <td className="p-3 text-sm text-muted-foreground border-r border-border font-medium">{locale === 'zh' ? '数量 (pieces)' : 'Quantity (pieces)'}</td>
+                            {leadTimes.map((item, idx) => (
+                              <td key={idx} className="p-3 text-sm text-foreground text-center border-r border-border last:border-r-0">{item.quantity_range}</td>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td className="p-3 text-sm text-muted-foreground border-r border-border font-medium">{locale === 'zh' ? '预计时间 (天)' : 'Est. Time (days)'}</td>
+                            {leadTimes.map((item, idx) => (
+                              <td key={idx} className="p-3 text-sm text-foreground text-center border-r border-border last:border-r-0">{item.lead_days}</td>
+                            ))}
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                {/* Customization Section */}
+                {customizations.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+                      <Settings className="w-5 h-5 text-primary" />
+                      {locale === 'zh' ? '定制选项' : 'Customization'}
+                    </h3>
+                    <div className="space-y-2">
+                      {customizations.map((item, idx) => (
+                        <div key={idx} className="flex items-center gap-2">
+                          <span className="text-foreground font-medium">{item.service_name}</span>
+                          {item.moq && (
+                            <span className="text-sm text-muted-foreground">
+                              ({locale === 'zh' ? '最低起订量: ' : 'Min. Order: '}{item.moq})
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </TabsContent>
             )}
           </Tabs>
         </div>
-
-        {/* Mobile Supplier Card */}
-        {supplier.name && (
-          <Card className="lg:hidden mt-8 p-4 bg-card border-border">
-            <div className="flex items-center gap-3">
-              {supplier.logo_url ? <img src={supplier.logo_url} alt={supplier.name} className="w-12 h-12 rounded-lg object-contain bg-white" /> : <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center"><Building2 className="w-6 h-6 text-muted-foreground" /></div>}
-              <div className="flex-1">
-                <h3 className="font-semibold text-foreground text-sm">{supplier.name}</h3>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-                  {supplier.location && <span>{supplier.location}</span>}
-                  {supplier.years && <span>• {supplier.years} YRS</span>}
-                </div>
-              </div>
-              {supplier.verified && <Badge className="bg-primary/10 text-primary text-xs"><CheckCircle className="w-3 h-3" /></Badge>}
-            </div>
-          </Card>
-        )}
 
         {/* Related Products */}
         {relatedProducts.length > 0 && (
