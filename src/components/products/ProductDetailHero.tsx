@@ -327,18 +327,18 @@ export default function ProductDetailHero({
         </motion.div>
       </div>
 
-      {/* Mobile Trust Signals - Compact */}
-      <div className="lg:hidden flex items-center justify-center gap-4 py-1.5 mb-0 text-xs text-muted-foreground">
-        <div className="flex items-center gap-1">
-          <Shield className="w-3 h-3 text-primary" />
+      {/* Mobile Trust Signals - Readable */}
+      <div className="lg:hidden flex items-center justify-center gap-5 py-3 text-sm text-foreground/80">
+        <div className="flex items-center gap-1.5">
+          <Shield className="w-4 h-4 text-primary" />
           <span>{locale === 'zh' ? '质量保证' : 'Quality'}</span>
         </div>
-        <div className="flex items-center gap-1">
-          <Truck className="w-3 h-3 text-primary" />
+        <div className="flex items-center gap-1.5">
+          <Truck className="w-4 h-4 text-primary" />
           <span>{locale === 'zh' ? '全球配送' : 'Shipping'}</span>
         </div>
-        <div className="flex items-center gap-1">
-          <Package className="w-3 h-3 text-primary" />
+        <div className="flex items-center gap-1.5">
+          <Package className="w-4 h-4 text-primary" />
           <span>{locale === 'zh' ? '安全包装' : 'Packing'}</span>
         </div>
       </div>
@@ -368,8 +368,6 @@ export default function ProductDetailHero({
         </div>
       </div>
 
-      {/* Spacer for mobile sticky bar - reduced */}
-      <div className="h-16 lg:hidden" />
     </>
   );
 }
