@@ -171,7 +171,7 @@ export default function Contact() {
       } />
 
       {/* Hero */}
-      <section className="py-8 md:py-12 bg-card/50 border-b border-border">
+      <section className="py-6 md:py-8 bg-card/50 border-b border-border">
         <div className="container-wide">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -191,9 +191,9 @@ export default function Contact() {
         </div>
       </section>
 
-      <section className="py-8 md:py-12">
+      <section className="py-6 md:py-10">
         <div className="container-wide">
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-stretch">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-stretch">
             {/* Contact Info */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
