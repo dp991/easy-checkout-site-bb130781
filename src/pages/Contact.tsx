@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Mail, MapPin, MessageCircle, Send, Clock, CheckCircle, LogIn } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Mail, MapPin, MessageCircle, Send, Clock, CheckCircle, LogIn, AlertCircle } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { submitInquiry } from '@/hooks/useDatabase';
@@ -9,8 +12,15 @@ import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { toast } from 'sonner';
-import { z } from 'zod';
 
 interface CartItemInfo {
   nameZh: string;
@@ -21,13 +31,45 @@ interface CartItemInfo {
   quantity: number;
 }
 
-const contactSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters').max(100),
-  email: z.string().email('Please enter a valid email'),
+const createContactSchema = (locale: 'zh' | 'en') => z.object({
+  name: z.string()
+    .min(2, locale === 'zh' ? '姓名至少2个字符' : 'Name must be at least 2 characters')
+    .max(100, locale === 'zh' ? '姓名不能超过100个字符' : 'Name must be less than 100 characters'),
+  email: z.string()
+    .email(locale === 'zh' ? '请输入有效的邮箱地址' : 'Please enter a valid email'),
   phone: z.string().optional(),
   company: z.string().optional(),
-  message: z.string().min(10, 'Message must be at least 10 characters').max(5000),
+  message: z.string()
+    .min(10, locale === 'zh' ? '消息至少10个字符' : 'Message must be at least 10 characters')
+    .max(5000, locale === 'zh' ? '消息不能超过5000个字符' : 'Message must be less than 5000 characters'),
 });
+
+type ContactFormValues = z.infer<ReturnType<typeof createContactSchema>>;
+
+// Animated error message component
+function AnimatedFormMessage({ children }: { children?: React.ReactNode }) {
+  return (
+    <AnimatePresence mode="wait">
+      {children && (
+        <motion.div
+          initial={{ opacity: 0, y: -4, height: 0 }}
+          animate={{ opacity: 1, y: 0, height: 'auto' }}
+          exit={{ opacity: 0, y: -4, height: 0 }}
+          transition={{ duration: 0.2, ease: 'easeOut' }}
+          className="overflow-hidden"
+        >
+          <div className="flex items-center gap-1.5 text-destructive text-xs mt-1.5">
+            <AlertCircle className="w-3 h-3 flex-shrink-0" />
+            <span>{children}</span>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+// Styled input classes
+const inputClassName = "h-12 bg-muted/50 border-border/50 rounded-lg text-foreground placeholder:text-muted-foreground/60 focus:ring-2 focus:ring-white/20 focus:ring-offset-0 focus:border-primary/50 transition-all";
 
 export default function Contact() {
   const { t, locale } = useLanguage();
@@ -36,12 +78,19 @@ export default function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const isLoggedIn = !!user;
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    company: '',
-    message: '',
+  
+  const contactSchema = createContactSchema(locale);
+  
+  const form = useForm<ContactFormValues>({
+    resolver: zodResolver(contactSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+      phone: '',
+      company: '',
+      message: '',
+    },
+    mode: 'onBlur',
   });
 
   // Build cart inquiry message from navigation state
@@ -64,36 +113,27 @@ export default function Contact() {
         return lines.join('\n');
       }).join('\n\n');
 
-      setFormData(prev => ({
-        ...prev,
-        message: header + itemsText,
-      }));
+      form.setValue('message', header + itemsText);
     }
-  }, [location.state, locale]);
+  }, [location.state, locale, form]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const onSubmit = async (data: ContactFormValues) => {
     try {
-      contactSchema.parse(formData);
       setIsSubmitting(true);
       
       await submitInquiry({
-        customer_name: formData.name,
-        customer_email: formData.email,
-        customer_phone: formData.phone || undefined,
-        customer_company: formData.company || undefined,
-        message: formData.message,
+        customer_name: data.name,
+        customer_email: data.email,
+        customer_phone: data.phone || undefined,
+        customer_company: data.company || undefined,
+        message: data.message,
         source: 'web',
       });
       
       toast.success(t.contact.success);
-      // Don't clear form data - let user manually refresh if needed
     } catch (error) {
       console.error('Contact form submission error:', error);
-      if (error instanceof z.ZodError) {
-        toast.error(error.errors[0].message);
-      } else if (error instanceof Error) {
+      if (error instanceof Error) {
         toast.error(locale === 'zh' ? `提交失败: ${error.message}` : `Submission failed: ${error.message}`);
       } else {
         toast.error(locale === 'zh' ? '提交失败，请重试' : 'Submission failed, please try again');
@@ -218,102 +258,173 @@ export default function Contact() {
               animate={{ opacity: 1, x: 0 }}
               className="lg:col-span-3 flex flex-col"
             >
-              <form onSubmit={handleSubmit} className="metal-surface rounded-xl p-5 md:p-6 space-y-4 flex-1 flex flex-col">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-foreground">{t.contact.name} *</label>
-                    <Input
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      placeholder={locale === 'zh' ? '请输入您的姓名' : 'Enter your name'}
-                      required
-                      className="h-10 bg-muted border-border"
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="metal-surface rounded-xl p-5 md:p-6 space-y-5 flex-1 flex flex-col">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <FormField
+                      control={form.control}
+                      name="name"
+                      render={({ field, fieldState }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium text-foreground">
+                            {t.contact.name} <span className="text-destructive">*</span>
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              placeholder={locale === 'zh' ? '请输入您的姓名' : 'Enter your name'}
+                              className={inputClassName}
+                            />
+                          </FormControl>
+                          <AnimatedFormMessage>
+                            {fieldState.error?.message}
+                          </AnimatedFormMessage>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field, fieldState }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium text-foreground">
+                            {t.contact.email} <span className="text-destructive">*</span>
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              type="email"
+                              placeholder={locale === 'zh' ? '请输入邮箱' : 'Enter your email'}
+                              className={inputClassName}
+                            />
+                          </FormControl>
+                          <AnimatedFormMessage>
+                            {fieldState.error?.message}
+                          </AnimatedFormMessage>
+                        </FormItem>
+                      )}
                     />
                   </div>
-                  <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-foreground">{t.contact.email} *</label>
-                    <Input
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      placeholder={locale === 'zh' ? '请输入邮箱' : 'Enter your email'}
-                      required
-                      className="h-10 bg-muted border-border"
-                    />
-                  </div>
-                </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-foreground">{t.contact.phone}</label>
-                    <Input
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      placeholder={locale === 'zh' ? '请输入电话' : 'Enter phone number'}
-                      className="h-10 bg-muted border-border"
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <FormField
+                      control={form.control}
+                      name="phone"
+                      render={({ field, fieldState }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium text-foreground">
+                            {t.contact.phone}
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              placeholder={locale === 'zh' ? '请输入电话' : 'Enter phone number'}
+                              className={inputClassName}
+                            />
+                          </FormControl>
+                          <AnimatedFormMessage>
+                            {fieldState.error?.message}
+                          </AnimatedFormMessage>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="company"
+                      render={({ field, fieldState }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium text-foreground">
+                            {t.contact.company}
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              placeholder={locale === 'zh' ? '请输入公司名称' : 'Enter company name'}
+                              className={inputClassName}
+                            />
+                          </FormControl>
+                          <AnimatedFormMessage>
+                            {fieldState.error?.message}
+                          </AnimatedFormMessage>
+                        </FormItem>
+                      )}
                     />
                   </div>
-                  <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-foreground">{t.contact.company}</label>
-                    <Input
-                      value={formData.company}
-                      onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                      placeholder={locale === 'zh' ? '请输入公司名称' : 'Enter company name'}
-                      className="h-10 bg-muted border-border"
-                    />
-                  </div>
-                </div>
 
-                <div className="space-y-1.5 flex-1 flex flex-col">
-                  <label className="text-sm font-medium text-foreground">{t.contact.message} *</label>
-                  <Textarea
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    placeholder={locale === 'zh' ? '请描述您的需求...' : 'Describe your requirements...'}
-                    required
-                    className="bg-muted border-border resize-none flex-1 min-h-[120px]"
+                  <FormField
+                    control={form.control}
+                    name="message"
+                    render={({ field, fieldState }) => (
+                      <FormItem className="flex-1 flex flex-col">
+                        <FormLabel className="text-sm font-medium text-foreground">
+                          {t.contact.message} <span className="text-destructive">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                            placeholder={locale === 'zh' ? '请描述您的需求...' : 'Describe your requirements...'}
+                            className="bg-muted/50 border-border/50 rounded-lg resize-none flex-1 min-h-[120px] text-foreground placeholder:text-muted-foreground/60 focus:ring-2 focus:ring-white/20 focus:ring-offset-0 focus:border-primary/50 transition-all"
+                          />
+                        </FormControl>
+                        <AnimatedFormMessage>
+                          {fieldState.error?.message}
+                        </AnimatedFormMessage>
+                      </FormItem>
+                    )}
                   />
-                </div>
 
-                {/* Login prompt for non-logged in users */}
-                {!isLoggedIn && !authLoading && (
-                  <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400">
-                    <LogIn className="w-4 h-4 flex-shrink-0" />
-                    <span className="text-sm">
-                      {locale === 'zh' 
-                        ? '请先登录后再发送询盘' 
-                        : 'Please login before sending an inquiry'}
-                    </span>
-                    <Link to="/auth" className="ml-auto">
-                      <Button size="sm" variant="outline" className="h-7 text-xs border-amber-500/50 hover:bg-amber-500/10">
-                        {locale === 'zh' ? '去登录' : 'Login'}
-                      </Button>
-                    </Link>
+                  {/* Login prompt for non-logged in users */}
+                  <AnimatePresence>
+                    {!isLoggedIn && !authLoading && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400">
+                          <LogIn className="w-4 h-4 flex-shrink-0" />
+                          <span className="text-sm">
+                            {locale === 'zh' 
+                              ? '请先登录后再发送询盘' 
+                              : 'Please login before sending an inquiry'}
+                          </span>
+                          <Link to="/auth" className="ml-auto">
+                            <Button size="sm" variant="outline" className="h-8 text-xs border-amber-500/50 hover:bg-amber-500/10">
+                              {locale === 'zh' ? '去登录' : 'Login'}
+                            </Button>
+                          </Link>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  <div className="relative group pt-2">
+                    <div className="absolute -inset-1 bg-gradient-gold rounded-lg blur-lg opacity-0 group-hover:opacity-30 transition-opacity" />
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting || !isLoggedIn || authLoading}
+                      className="relative w-full h-12 bg-gradient-gold text-primary-foreground hover:opacity-90 font-semibold disabled:opacity-50 disabled:cursor-not-allowed text-base"
+                    >
+                      {isSubmitting ? (
+                        <span className="flex items-center gap-2">
+                          <motion.span
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                            className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full"
+                          />
+                          {locale === 'zh' ? '发送中...' : 'Sending...'}
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-2">
+                          <CheckCircle className="w-5 h-5" />
+                          {t.contact.send}
+                        </span>
+                      )}
+                    </Button>
                   </div>
-                )}
-
-                <Button
-                  type="submit"
-                  disabled={isSubmitting || !isLoggedIn || authLoading}
-                  className="w-full h-10 bg-gradient-gold text-primary-foreground hover:opacity-90 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isSubmitting ? (
-                    <span className="flex items-center gap-2">
-                      <motion.span
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                        className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full"
-                      />
-                      {locale === 'zh' ? '发送中...' : 'Sending...'}
-                    </span>
-                  ) : (
-                    <span className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4" />
-                      {t.contact.send}
-                    </span>
-                  )}
-                </Button>
-              </form>
+                </form>
+              </Form>
             </motion.div>
           </div>
         </div>
