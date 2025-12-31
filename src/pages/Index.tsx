@@ -130,17 +130,8 @@ export default function Index() {
             <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-primary/10 rounded-full blur-[100px] opacity-20" />
 
             <div className="relative z-10 max-w-2xl mx-auto text-center">
-              <motion.span
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                viewport={{ once: true }}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs md:text-sm font-medium backdrop-blur-sm"
-              >
-                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                {locale === 'zh' ? '开始您的业务' : 'Start Your Business'}
-              </motion.span>
 
-              <h2 className="font-display text-2xl sm:text-3xl md:text-5xl font-bold text-foreground mt-6 tracking-tighter">
+              <h2 className="font-display text-2xl sm:text-3xl md:text-5xl font-bold text-foreground tracking-tighter">
                 {locale === 'zh' ? '准备好开始了吗？' : 'Ready to get started?'}
               </h2>
               <p className="mt-4 text-muted-foreground text-sm md:text-lg max-w-lg mx-auto">
@@ -166,7 +157,7 @@ export default function Index() {
                 >
                   <Button 
                     variant="outline" 
-                    className="h-12 px-8 border-border/50 bg-card/50 backdrop-blur-sm hover:bg-card/80"
+                    className="h-12 px-8 border-border/50 bg-card/50 backdrop-blur-sm hover:bg-card hover:text-foreground"
                   >
                     {t.contact.whatsapp}
                   </Button>

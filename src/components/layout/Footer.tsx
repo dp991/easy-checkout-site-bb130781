@@ -123,8 +123,8 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 pt-8 border-t border-border">
-          <div className="flex items-center justify-center text-sm">
+        <div className="mt-8 md:mt-12 pt-6 md:pt-8 border-t border-border">
+          <div className="flex items-center justify-center text-sm pb-2">
             <p className="text-muted-foreground">
               {t.footer.copyright}
             </p>
