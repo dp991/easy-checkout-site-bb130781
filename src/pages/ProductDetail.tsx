@@ -219,10 +219,10 @@ export default function ProductDetail() {
 
         {/* Tabs Section */}
         <div className="mt-8 md:mt-12">
-          <Tabs defaultValue="description" className="w-full">
+          <Tabs defaultValue={hasSpecs ? "specs" : "description"} className="w-full">
             <TabsList className="w-full justify-start border-b border-border rounded-none bg-transparent h-auto p-0">
-              <TabsTrigger value="description" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary">{locale === 'zh' ? '产品详情' : 'Description'}</TabsTrigger>
               {hasSpecs && <TabsTrigger value="specs" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary">{locale === 'zh' ? '规格参数' : 'Specifications'}</TabsTrigger>}
+              <TabsTrigger value="description" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary">{locale === 'zh' ? '产品详情' : 'Description'}</TabsTrigger>
             </TabsList>
             <TabsContent value="description" className="mt-6">
               {descriptionHtml ? (
