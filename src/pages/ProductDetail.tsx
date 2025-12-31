@@ -1,17 +1,12 @@
-import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { MessageCircle, Send, ChevronLeft, ChevronRight, Package, Truck, Shield, ShoppingCart, Settings, Clock } from 'lucide-react';
+import { Settings, Clock } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useCart } from '@/contexts/CartContext';
 import { useProductBySlug, useProducts } from '@/hooks/useDatabase';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/products/ProductCard';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import ProductDetailHero from '@/components/products/ProductDetailHero';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card } from '@/components/ui/card';
 
 interface ProductAttribute {
   key: string;
@@ -38,8 +33,6 @@ interface CustomizationItem {
 export default function ProductDetail() {
   const { slug } = useParams<{ slug: string }>();
   const { t, locale } = useLanguage();
-  const { addToCart } = useCart();
-  const [currentImage, setCurrentImage] = useState(0);
 
   const { data: product, isLoading } = useProductBySlug(slug || '');
   const { data: allProducts } = useProducts();
@@ -105,16 +98,14 @@ export default function ProductDetail() {
     ?.filter(p => p.category_id === product.category_id && p.id !== product.id)
     .slice(0, 3) || [];
 
-  const whatsappMessage = encodeURIComponent(`Hello, I'm interested in ${name}. Please provide more details and pricing.`);
-
   return (
     <Layout>
       <title>{name} - {locale === 'zh' ? '收银机商城' : 'POS Store'}</title>
       <meta name="description" content={description?.slice(0, 160) || ''} />
 
       <div className="container-wide py-4 md:py-8 px-4 md:px-6">
-        {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground mb-4 md:mb-8 flex-wrap">
+        {/* Mobile Breadcrumb */}
+        <nav className="flex lg:hidden items-center gap-2 text-xs text-muted-foreground mb-4 flex-wrap">
           <Link to="/" className="hover:text-foreground transition-colors">{t.nav.home}</Link>
           <span>/</span>
           <Link to="/products" className="hover:text-foreground transition-colors">{t.nav.products}</Link>
@@ -122,100 +113,15 @@ export default function ProductDetail() {
           <span className="text-foreground line-clamp-1">{name}</span>
         </nav>
 
-        {/* Main Content - 2 Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-          {/* Left: Image Gallery */}
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="lg:col-span-1 space-y-3">
-            <div className="relative aspect-square rounded-xl overflow-hidden metal-surface">
-              <img src={images[currentImage] || 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800'} alt={name} className="w-full h-full object-cover" />
-              {images.length > 1 && (
-                <>
-                  <button onClick={() => setCurrentImage(prev => prev === 0 ? images.length - 1 : prev - 1)} className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background"><ChevronLeft className="w-4 h-4" /></button>
-                  <button onClick={() => setCurrentImage(prev => prev === images.length - 1 ? 0 : prev + 1)} className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background"><ChevronRight className="w-4 h-4" /></button>
-                </>
-              )}
-              <div className="absolute top-3 left-3 flex gap-2">
-                {product.is_new && <Badge className="bg-gradient-gold text-primary-foreground border-0 text-xs">NEW</Badge>}
-                {product.is_featured && <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm text-xs">{locale === 'zh' ? '热门' : 'Featured'}</Badge>}
-              </div>
-            </div>
-            {images.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto pb-2">
-                {images.map((img, idx) => (
-                  <button key={idx} onClick={() => setCurrentImage(idx)} className={`w-16 h-16 rounded-lg overflow-hidden border-2 flex-shrink-0 ${idx === currentImage ? 'border-primary' : 'border-border hover:border-muted-foreground'}`}>
-                    <img src={img} alt="" className="w-full h-full object-cover" />
-                  </button>
-                ))}
-              </div>
-            )}
-          </motion.div>
-
-          {/* Center: Product Info */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="lg:col-span-1 space-y-4">
-            <div>
-              <h1 className="font-display text-xl md:text-2xl font-bold text-foreground">{name}</h1>
-              <div className="flex items-center gap-2 mt-2 flex-wrap">
-                <span className="text-xl md:text-2xl font-bold text-primary">{priceRange}</span>
-                <span className={`text-xs px-2 py-0.5 rounded-full ${product.is_active !== false ? 'bg-green-500/10 text-green-500' : 'bg-destructive/10 text-destructive'}`}>
-                  {product.is_active !== false ? t.products.inStock : t.products.outOfStock}
-                </span>
-              </div>
-            </div>
-
-            <p className="text-muted-foreground text-sm">{description}</p>
-
-            {/* Key Attributes */}
-            {keyAttributes.length > 0 && (
-              <div className="space-y-2">
-                {keyAttributes.slice(0, 5).map((attr, idx) => (
-                  <div key={idx} className="flex justify-between text-sm py-1.5 border-b border-border/50">
-                    <span className="text-muted-foreground">{attr.key}</span>
-                    <span className="font-medium text-foreground">{attr.value}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <div className="flex items-center gap-2 text-muted-foreground text-sm">
-              <Package className="w-4 h-4" />
-              <span>{t.products.minOrder}: {product.min_order} {locale === 'zh' ? '台' : 'pcs'}</span>
-            </div>
-
-            {/* CTA Buttons */}
-            <div className="flex flex-col gap-2 pt-2">
-              <Button onClick={() => addToCart(product.id)} className="w-full h-11 bg-gradient-gold text-primary-foreground hover:opacity-90 font-semibold">
-                <ShoppingCart className="w-4 h-4 mr-2" />{locale === 'zh' ? '加入购物车' : 'Add to Cart'}
-              </Button>
-              <div className="grid grid-cols-2 gap-2">
-                <a href={`https://wa.me/8613800138000?text=${whatsappMessage}`} target="_blank" rel="noopener noreferrer">
-                  <Button className="w-full h-10 bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold text-sm"><MessageCircle className="w-4 h-4 mr-1" />WhatsApp</Button>
-                </a>
-                <a href="https://t.me/posstore" target="_blank" rel="noopener noreferrer">
-                  <Button className="w-full h-10 bg-[#0088cc] hover:bg-[#0077b3] text-white font-semibold text-sm"><Send className="w-4 h-4 mr-1" />Telegram</Button>
-                </a>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Right: Trust Badges (Desktop) */}
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="hidden lg:block lg:col-span-1">
-            {/* Trust Badges */}
-            <div className="grid grid-cols-3 gap-2">
-              <div className="text-center p-3 rounded-lg bg-muted/30">
-                <Shield className="w-5 h-5 text-primary mx-auto mb-1" />
-                <p className="text-[10px] text-muted-foreground">{locale === 'zh' ? '质量保证' : 'Quality'}</p>
-              </div>
-              <div className="text-center p-3 rounded-lg bg-muted/30">
-                <Truck className="w-5 h-5 text-primary mx-auto mb-1" />
-                <p className="text-[10px] text-muted-foreground">{locale === 'zh' ? '全球配送' : 'Shipping'}</p>
-              </div>
-              <div className="text-center p-3 rounded-lg bg-muted/30">
-                <Package className="w-5 h-5 text-primary mx-auto mb-1" />
-                <p className="text-[10px] text-muted-foreground">{locale === 'zh' ? '安全包装' : 'Packing'}</p>
-              </div>
-            </div>
-          </motion.div>
-        </div>
+        {/* Hero Section */}
+        <ProductDetailHero
+          product={product}
+          name={name || ''}
+          description={description}
+          priceRange={priceRange}
+          images={images}
+          keyAttributes={keyAttributes}
+        />
 
         {/* Tabs Section */}
         <div className="mt-8 md:mt-12">
