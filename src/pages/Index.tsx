@@ -22,15 +22,15 @@ export default function Index() {
       <HeroSection />
 
       {/* Categories Section */}
-      <section className="py-16 md:py-24 border-t border-border">
-        <div className="container-wide">
-          <div className="flex items-end justify-between mb-10 md:mb-12">
+      <section className="py-10 md:py-16 border-t border-border/50">
+        <div className="container-wide px-4 md:px-6">
+          <div className="flex items-end justify-between mb-6 md:mb-10">
             <div>
               <motion.span
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
-                className="text-nav text-muted-foreground"
+                className="text-primary text-xs md:text-sm font-medium uppercase tracking-wider"
               >
                 {locale === 'zh' ? '产品系列' : 'Product Lines'}
               </motion.span>
@@ -38,28 +38,28 @@ export default function Index() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="text-3xl sm:text-4xl md:text-5xl font-medium text-foreground mt-2 tracking-tight"
+                className="font-display text-2xl sm:text-3xl md:text-5xl font-bold text-foreground mt-2 tracking-tighter"
               >
                 {t.categories.title}
               </motion.h2>
             </div>
             <Link
               to="/categories"
-              className="flex items-center gap-2 text-muted-foreground hover:text-foreground link-underline transition-colors text-sm"
+              className="flex items-center gap-2 text-primary hover:text-primary/80 font-medium transition-colors text-sm group"
             >
               {t.common.seeAll}
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
 
           {categoriesLoading ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
               {[...Array(8)].map((_, i) => (
-                <Skeleton key={i} className="aspect-[4/3]" />
+                <Skeleton key={i} className="aspect-[4/3] rounded-xl" />
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
               {categories?.filter(c => !c.parent_id).slice(0, 8).map((category, index) => (
                 <CategoryCard key={category.id} category={category} index={index} />
               ))}
@@ -69,15 +69,15 @@ export default function Index() {
       </section>
 
       {/* Featured Products Section */}
-      <section className="py-16 md:py-24">
-        <div className="container-wide">
-          <div className="flex items-end justify-between mb-10 md:mb-12">
+      <section className="py-10 md:py-16 bg-gradient-to-b from-card/30 to-transparent">
+        <div className="container-wide px-4 md:px-6">
+          <div className="flex items-end justify-between mb-6 md:mb-10">
             <div>
               <motion.span
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
-                className="text-nav text-muted-foreground"
+                className="text-primary text-xs md:text-sm font-medium uppercase tracking-wider"
               >
                 {locale === 'zh' ? '精选推荐' : 'Best Sellers'}
               </motion.span>
@@ -85,28 +85,28 @@ export default function Index() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="text-3xl sm:text-4xl md:text-5xl font-medium text-foreground mt-2 tracking-tight"
+                className="font-display text-2xl sm:text-3xl md:text-5xl font-bold text-foreground mt-2 tracking-tighter"
               >
                 {t.products.featured}
               </motion.h2>
             </div>
             <Link
               to="/categories"
-              className="flex items-center gap-2 text-muted-foreground hover:text-foreground link-underline transition-colors text-sm"
+              className="flex items-center gap-2 text-primary hover:text-primary/80 font-medium transition-colors text-sm group"
             >
               {t.common.seeAll}
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
 
           {productsLoading ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
               {[...Array(8)].map((_, i) => (
-                <Skeleton key={i} className="aspect-[4/3]" />
+                <Skeleton key={i} className="aspect-[4/3] rounded-xl" />
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
               {products?.slice(0, 8).map((product, index) => (
                 <ProductCard key={product.id} product={product} index={index} />
               ))}
@@ -116,43 +116,62 @@ export default function Index() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 md:py-24 border-t border-border">
-        <div className="container-wide">
+      <section className="py-10 md:py-16">
+        <div className="container-wide px-4 md:px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="max-w-2xl mx-auto text-center"
+            className="relative overflow-hidden rounded-2xl md:rounded-3xl bg-card/50 backdrop-blur-xl border border-border/50 p-6 md:p-10 lg:p-16"
           >
-            <span className="text-nav text-muted-foreground">
-              {locale === 'zh' ? '开始您的业务' : 'Start Your Business'}
-            </span>
+            {/* Background effects */}
+            <div className="absolute inset-0 industrial-grid opacity-20" />
+            <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/20 rounded-full blur-[120px] opacity-30" />
+            <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-primary/10 rounded-full blur-[100px] opacity-20" />
 
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-medium text-foreground mt-4 tracking-tight">
-              {locale === 'zh' ? '准备好开始了吗？' : 'Ready to get started?'}
-            </h2>
-            <p className="mt-4 text-muted-foreground text-base md:text-lg max-w-lg mx-auto">
-              {locale === 'zh' 
-                ? '联系我们的销售团队，获取专属报价和定制解决方案。'
-                : 'Contact our sales team for exclusive quotes and customized solutions.'}
-            </p>
-            
-            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link to="/contact" onClick={() => window.scrollTo({ top: 0, behavior: 'instant' })}>
-                <Button size="lg">
-                  {t.nav.inquiry}
-                  <ArrowRight className="ml-2 w-4 h-4" />
-                </Button>
-              </Link>
-              <a
-                href="https://wa.me/8613800138000"
-                target="_blank"
-                rel="noopener noreferrer"
+            <div className="relative z-10 max-w-2xl mx-auto text-center">
+              <motion.span
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs md:text-sm font-medium backdrop-blur-sm"
               >
-                <Button variant="outline" size="lg">
-                  {t.contact.whatsapp}
-                </Button>
-              </a>
+                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                {locale === 'zh' ? '开始您的业务' : 'Start Your Business'}
+              </motion.span>
+
+              <h2 className="font-display text-2xl sm:text-3xl md:text-5xl font-bold text-foreground mt-6 tracking-tighter">
+                {locale === 'zh' ? '准备好开始了吗？' : 'Ready to get started?'}
+              </h2>
+              <p className="mt-4 text-muted-foreground text-sm md:text-lg max-w-lg mx-auto">
+                {locale === 'zh' 
+                  ? '联系我们的销售团队，获取专属报价和定制解决方案。'
+                  : 'Contact our sales team for exclusive quotes and customized solutions.'}
+              </p>
+              
+              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+                <div className="relative group">
+                  <div className="absolute -inset-1 bg-gradient-gold rounded-lg blur-lg opacity-40 group-hover:opacity-70 transition-opacity" />
+                  <Link to="/contact" onClick={() => window.scrollTo({ top: 0, behavior: 'instant' })}>
+                    <Button className="relative bg-gradient-gold text-primary-foreground hover:opacity-90 font-semibold h-12 px-8">
+                      {t.nav.inquiry}
+                      <ArrowRight className="ml-2 w-4 h-4" />
+                    </Button>
+                  </Link>
+                </div>
+                <a
+                  href="https://wa.me/8613800138000"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button 
+                    variant="outline" 
+                    className="h-12 px-8 border-border/50 bg-card/50 backdrop-blur-sm hover:bg-card/80"
+                  >
+                    {t.contact.whatsapp}
+                  </Button>
+                </a>
+              </div>
             </div>
           </motion.div>
         </div>

@@ -13,53 +13,53 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="bg-background border-t border-border">
-      <div className="container-wide py-12 md:py-16 lg:py-20">
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
+    <footer className="bg-card border-t border-border">
+      <div className="container-wide py-8 md:py-12 lg:py-16 px-4 md:px-6">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-12">
           {/* Company Info */}
           <div className="col-span-2 md:col-span-1 lg:col-span-1">
-            <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-primary flex items-center justify-center">
-                <span className="font-medium text-lg text-primary-foreground">P</span>
+            <Link to="/" className="flex items-center gap-2 mb-3 md:mb-4">
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-gradient-gold flex items-center justify-center">
+                <span className="font-display font-bold text-lg md:text-xl text-primary-foreground">P</span>
               </div>
-              <span className="font-medium text-lg text-foreground tracking-tight">
+              <span className="font-display font-bold text-lg md:text-xl text-foreground">
                 POS Store
               </span>
             </Link>
-            <p className="text-muted-foreground text-sm leading-relaxed mb-6">
+            <p className="text-muted-foreground text-xs md:text-sm leading-relaxed mb-4 md:mb-6">
               {t.footer.about}
             </p>
-            <div className="flex gap-3">
+            <div className="flex gap-2 md:gap-3">
               <a
                 href="https://wa.me/8613800138000"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 border border-border text-muted-foreground flex items-center justify-center hover:border-foreground hover:text-foreground transition-colors"
+                className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-[#25D366]/10 text-[#25D366] flex items-center justify-center hover:bg-[#25D366]/20 transition-colors"
               >
-                <MessageCircle className="w-4 h-4" />
+                <MessageCircle className="w-4 h-4 md:w-5 md:h-5" />
               </a>
               <a
                 href="https://t.me/posstore"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 border border-border text-muted-foreground flex items-center justify-center hover:border-foreground hover:text-foreground transition-colors"
+                className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-[#0088cc]/10 text-[#0088cc] flex items-center justify-center hover:bg-[#0088cc]/20 transition-colors"
               >
-                <Send className="w-4 h-4" />
+                <Send className="w-4 h-4 md:w-5 md:h-5" />
               </a>
             </div>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-nav text-foreground mb-4">
+            <h3 className="font-display font-semibold text-base md:text-lg text-foreground mb-3 md:mb-4">
               {t.footer.quickLinks}
             </h3>
-            <ul className="space-y-3">
+            <ul className="space-y-2 md:space-y-3">
               {quickLinks.map((link) => (
                 <li key={link.href}>
                   <Link
                     to={link.href}
-                    className="text-muted-foreground hover:text-foreground text-sm link-underline transition-colors"
+                    className="text-muted-foreground hover:text-primary text-xs md:text-sm transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -70,12 +70,12 @@ export default function Footer() {
 
           {/* Contact Info */}
           <div>
-            <h3 className="text-nav text-foreground mb-4">
+            <h3 className="font-display font-semibold text-lg text-foreground mb-4">
               {t.footer.contactInfo}
             </h3>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
-                <Mail className="w-4 h-4 text-muted-foreground mt-0.5" />
+                <Mail className="w-5 h-5 text-primary mt-0.5" />
                 <div>
                   <p className="text-sm text-foreground">sales@posstore.com</p>
                   <p className="text-xs text-muted-foreground">
@@ -84,7 +84,7 @@ export default function Footer() {
                 </div>
               </li>
               <li className="flex items-start gap-3">
-                <MapPin className="w-4 h-4 text-muted-foreground mt-0.5" />
+                <MapPin className="w-5 h-5 text-primary mt-0.5" />
                 <div>
                   <p className="text-sm text-foreground">
                     {locale === 'zh' 
@@ -98,7 +98,7 @@ export default function Footer() {
 
           {/* Newsletter */}
           <div>
-            <h3 className="text-nav text-foreground mb-4">
+            <h3 className="font-display font-semibold text-lg text-foreground mb-4">
               {locale === 'zh' ? '订阅最新资讯' : 'Stay Updated'}
             </h3>
             <p className="text-muted-foreground text-sm mb-4">
@@ -110,11 +110,11 @@ export default function Footer() {
               <input
                 type="email"
                 placeholder={locale === 'zh' ? '输入邮箱' : 'Enter email'}
-                className="flex-1 px-4 py-2 bg-background border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors"
+                className="flex-1 px-4 py-2 bg-muted border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
               <button
                 type="submit"
-                className="px-4 py-2 bg-primary text-primary-foreground text-sm font-medium uppercase tracking-wider hover:opacity-80 transition-opacity"
+                className="px-4 py-2 bg-gradient-gold text-primary-foreground rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
               >
                 {locale === 'zh' ? '订阅' : 'Subscribe'}
               </button>
@@ -123,7 +123,7 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-16 pt-8 border-t border-border">
+        <div className="mt-12 pt-8 border-t border-border">
           <div className="flex items-center justify-center text-sm">
             <p className="text-muted-foreground">
               {t.footer.copyright}

@@ -31,30 +31,30 @@ export default function Header() {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
       <div className="container-wide">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 bg-primary flex items-center justify-center">
-              <span className="font-medium text-lg text-primary-foreground">P</span>
+            <div className="w-10 h-10 rounded-lg bg-gradient-gold flex items-center justify-center">
+              <span className="font-display font-bold text-xl text-primary-foreground">P</span>
             </div>
-            <span className="font-medium text-lg text-foreground tracking-tight">
+            <span className="font-display font-bold text-xl text-foreground group-hover:text-primary transition-colors">
               POS Store
             </span>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden md:flex items-center gap-1">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 to={link.href}
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                className={`text-nav link-underline transition-colors duration-200 ${
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                   isActive(link.href)
-                    ? 'text-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
+                    ? 'text-primary bg-primary/10'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                 }`}
               >
                 {link.label}
@@ -63,12 +63,12 @@ export default function Header() {
           </nav>
 
           {/* Right Section */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             {/* Cart Button */}
-            <Link to="/cart" className="relative p-2 hover:opacity-70 transition-opacity">
-              <ShoppingCart className="w-5 h-5 text-foreground" />
+            <Link to="/cart" className="relative p-2 rounded-lg hover:bg-muted transition-colors">
+              <ShoppingCart className="w-5 h-5 text-muted-foreground" />
               {itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-xs font-medium flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-xs font-bold rounded-full flex items-center justify-center">
                   {itemCount > 99 ? '99+' : itemCount}
                 </span>
               )}
@@ -78,15 +78,15 @@ export default function Header() {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-1.5 text-nav text-muted-foreground hover:text-foreground transition-colors">
+                  <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
                     <User className="w-4 h-4" />
-                    <span className="hidden sm:inline max-w-[100px] truncate normal-case">
+                    <span className="hidden sm:inline max-w-[100px] truncate">
                       {user.email?.split('@')[0]}
                     </span>
                     <ChevronDown className="w-3 h-3" />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48 rounded-sm">
+                <DropdownMenuContent align="end" className="w-48">
                   {isAdmin && (
                     <DropdownMenuItem asChild>
                       <Link to="/admin" className="cursor-pointer">
@@ -118,7 +118,7 @@ export default function Header() {
             <div className="relative">
               <button
                 onClick={() => setIsLangOpen(!isLangOpen)}
-                className="flex items-center gap-1.5 text-nav text-muted-foreground hover:text-foreground transition-colors"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
               >
                 <Globe className="w-4 h-4" />
                 <span className="hidden sm:inline">{locale === 'en' ? 'EN' : '中文'}</span>
@@ -136,20 +136,20 @@ export default function Header() {
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      className="absolute right-0 top-full mt-2 py-2 w-32 bg-background border border-border shadow-sm z-20"
+                      className="absolute right-0 top-full mt-2 py-2 w-32 bg-card border border-border rounded-lg shadow-lg z-20"
                     >
                       <button
                         onClick={() => { setLocale('en'); setIsLangOpen(false); }}
-                        className={`w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors ${
-                          locale === 'en' ? 'text-foreground' : 'text-muted-foreground'
+                        className={`w-full px-4 py-2 text-left text-sm hover:bg-muted transition-colors ${
+                          locale === 'en' ? 'text-primary' : 'text-foreground'
                         }`}
                       >
                         English
                       </button>
                       <button
                         onClick={() => { setLocale('zh'); setIsLangOpen(false); }}
-                        className={`w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors ${
-                          locale === 'zh' ? 'text-foreground' : 'text-muted-foreground'
+                        className={`w-full px-4 py-2 text-left text-sm hover:bg-muted transition-colors ${
+                          locale === 'zh' ? 'text-primary' : 'text-foreground'
                         }`}
                       >
                         中文
@@ -162,7 +162,7 @@ export default function Header() {
 
             {/* CTA Button */}
             <Link to="/contact" className="hidden sm:block">
-              <Button>
+              <Button className="bg-gradient-gold text-primary-foreground hover:opacity-90 font-semibold">
                 {t.nav.inquiry}
               </Button>
             </Link>
@@ -170,7 +170,7 @@ export default function Header() {
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 text-foreground hover:opacity-70 transition-opacity"
+              className="md:hidden p-2 rounded-lg text-foreground hover:bg-muted transition-colors"
             >
               {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -192,10 +192,10 @@ export default function Header() {
                     key={link.href}
                     to={link.href}
                     onClick={() => { setIsMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                    className={`block px-4 py-3 text-nav transition-colors ${
+                    className={`block px-4 py-3 rounded-lg text-base font-medium transition-colors ${
                       isActive(link.href)
-                        ? 'text-foreground'
-                        : 'text-muted-foreground hover:text-foreground'
+                        ? 'text-primary bg-primary/10'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                     }`}
                   >
                     {link.label}
@@ -203,7 +203,7 @@ export default function Header() {
                 ))}
                 <div className="px-4 pt-4">
                   <Link to="/contact" onClick={() => setIsMenuOpen(false)}>
-                    <Button className="w-full">
+                    <Button className="w-full bg-gradient-gold text-primary-foreground hover:opacity-90 font-semibold">
                       {t.nav.inquiry}
                     </Button>
                   </Link>
