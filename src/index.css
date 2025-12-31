@@ -102,11 +102,23 @@
 
   html {
     scroll-behavior: smooth;
+    /* 修复锚点跳转时被 Header 遮挡 */
+    scroll-padding-top: 85px;
+    /* 强制背景色防止回弹露白 */
+    background-color: hsl(222 47% 5%);
   }
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'DM Sans', system-ui, sans-serif;
+    /* 强制背景色防止回弹露白 */
+    background-color: hsl(222 47% 5%);
+  }
+
+  /* 确保主内容层级低于 Header */
+  main {
+    position: relative;
+    z-index: 1;
   }
 
   h1, h2, h3, h4, h5, h6 {
