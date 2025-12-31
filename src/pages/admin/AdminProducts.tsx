@@ -6,7 +6,6 @@ import { supabase, DbProduct, DbCategory } from '@/lib/supabase';
 import AdminLayout from '@/components/admin/AdminLayout';
 import AdminCategoryTree from '@/components/admin/AdminCategoryTree';
 import AttributesEditor, { ProductAttribute } from '@/components/admin/AttributesEditor';
-import SupplierEditor, { SupplierInfo } from '@/components/admin/SupplierEditor';
 import RichTextEditor from '@/components/admin/RichTextEditor';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,15 +32,6 @@ import { generateSnowflakeId } from '@/lib/snowflake';
 
 const PAGE_SIZE_OPTIONS = [12, 20, 40, 60];
 
-const DEFAULT_SUPPLIER: SupplierInfo = {
-  name: '',
-  location: '',
-  type: '',
-  years: 0,
-  verified: false,
-  logo_url: '',
-  certifications: [],
-};
 
 export default function AdminProducts() {
   const queryClient = useQueryClient();
@@ -68,7 +58,6 @@ export default function AdminProducts() {
     is_featured: false,
     is_new: false,
     attributes: [] as ProductAttribute[],
-    supplier: DEFAULT_SUPPLIER,
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -216,7 +205,6 @@ export default function AdminProducts() {
         is_featured: data.is_featured,
         is_new: data.is_new,
         attributes: data.attributes,
-        supplier: data.supplier,
         specifications: {},
       }]);
       if (error) throw error;
@@ -249,7 +237,6 @@ export default function AdminProducts() {
           is_featured: data.is_featured,
           is_new: data.is_new,
           attributes: data.attributes,
-          supplier: data.supplier,
         })
         .eq('id', data.id);
       if (error) throw error;
@@ -344,7 +331,6 @@ export default function AdminProducts() {
       is_featured: false,
       is_new: false,
       attributes: [],
-      supplier: DEFAULT_SUPPLIER,
     });
     setEditingProduct(null);
   };
@@ -368,7 +354,6 @@ export default function AdminProducts() {
       is_featured: product.is_featured || false,
       is_new: product.is_new || false,
       attributes: (productAny.attributes as ProductAttribute[]) || [],
-      supplier: productAny.supplier || DEFAULT_SUPPLIER,
     });
     setIsDialogOpen(true);
   };
@@ -692,11 +677,10 @@ export default function AdminProducts() {
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4 mt-4">
               <Tabs defaultValue="basic" className="w-full">
-                <TabsList className="grid w-full grid-cols-4">
+                <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="basic">基本信息</TabsTrigger>
                   <TabsTrigger value="attributes">商品属性</TabsTrigger>
                   <TabsTrigger value="description">详细描述</TabsTrigger>
-                  <TabsTrigger value="supplier">供应商</TabsTrigger>
                 </TabsList>
 
                 {/* Basic Info Tab */}
@@ -890,13 +874,6 @@ export default function AdminProducts() {
                   </div>
                 </TabsContent>
 
-                {/* Supplier Tab */}
-                <TabsContent value="supplier" className="space-y-4 mt-4">
-                  <SupplierEditor
-                    supplier={formData.supplier}
-                    onChange={(sup) => setFormData({ ...formData, supplier: sup })}
-                  />
-                </TabsContent>
               </Tabs>
 
               <div className="flex justify-end gap-3 pt-4 border-t border-border">
