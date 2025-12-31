@@ -10,7 +10,7 @@ export default function HeroSection() {
   const { t, locale } = useLanguage();
 
   return (
-    <section className="relative min-h-[90vh] md:min-h-screen flex items-center overflow-hidden">
+    <section className="relative min-h-[70vh] md:min-h-[80vh] flex items-center overflow-hidden">
       {/* Dark gradient background */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-background/95" />
       
@@ -29,7 +29,7 @@ export default function HeroSection() {
         transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
       />
 
-      <div className="container-wide relative z-10 py-12 md:py-20 px-4 md:px-6">
+      <div className="container-wide relative z-10 py-8 md:py-12 px-4 md:px-6">
         <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
           {/* Left Content */}
           <motion.div 

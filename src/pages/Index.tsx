@@ -22,7 +22,7 @@ export default function Index() {
       <HeroSection />
 
       {/* Categories Section */}
-      <section className="py-10 md:py-16 border-t border-border/50">
+      <section className="py-8 md:py-12 border-t border-border/50">
         <div className="container-wide px-4 md:px-6">
           <div className="flex items-end justify-between mb-6 md:mb-10">
             <div>
@@ -69,7 +69,7 @@ export default function Index() {
       </section>
 
       {/* Featured Products Section */}
-      <section className="py-10 md:py-16 bg-gradient-to-b from-card/30 to-transparent">
+      <section className="py-8 md:py-12 bg-gradient-to-b from-card/30 to-transparent">
         <div className="container-wide px-4 md:px-6">
           <div className="flex items-end justify-between mb-6 md:mb-10">
             <div>
@@ -116,7 +116,7 @@ export default function Index() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-10 md:py-16">
+      <section className="py-8 md:py-12">
         <div className="container-wide px-4 md:px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
