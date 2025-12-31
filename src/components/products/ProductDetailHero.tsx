@@ -327,8 +327,8 @@ export default function ProductDetailHero({
         </motion.div>
       </div>
 
-      {/* Mobile Trust Signals - Above Sticky Bar */}
-      <div className="lg:hidden flex items-center justify-center gap-4 py-3 mt-4 border-t border-border/50 text-xs text-muted-foreground">
+      {/* Mobile Trust Signals */}
+      <div className="lg:hidden flex items-center justify-center gap-4 py-2 border-t border-border/50 text-xs text-muted-foreground">
         <div className="flex items-center gap-1">
           <Shield className="w-3.5 h-3.5 text-primary" />
           <span>{locale === 'zh' ? '质量保证' : 'Quality'}</span>
@@ -368,8 +368,8 @@ export default function ProductDetailHero({
         </div>
       </div>
 
-      {/* Spacer for mobile sticky bar */}
-      <div className="h-20 lg:hidden" />
+      {/* Spacer for mobile sticky bar - reduced */}
+      <div className="h-16 lg:hidden" />
     </>
   );
 }
