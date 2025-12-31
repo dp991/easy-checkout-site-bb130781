@@ -278,7 +278,7 @@ export default function ProductDetail() {
                       <table className="w-full min-w-max">
                         <thead>
                           <tr className="bg-muted/30">
-                            <td className="p-3 text-sm text-muted-foreground border-r border-border font-medium">{locale === 'zh' ? '数量 (pieces)' : 'Quantity (pieces)'}</td>
+                            <td className="p-3 text-sm text-primary border-r border-border font-medium">{locale === 'zh' ? '数量 (pieces)' : 'Quantity (pieces)'}</td>
                             {leadTimes.map((item, idx) => (
                               <td key={idx} className="p-3 text-sm text-foreground text-center border-r border-border last:border-r-0">{item.quantity_range}</td>
                             ))}
@@ -286,7 +286,7 @@ export default function ProductDetail() {
                         </thead>
                         <tbody>
                           <tr>
-                            <td className="p-3 text-sm text-muted-foreground border-r border-border font-medium">{locale === 'zh' ? '预计时间 (天)' : 'Est. Time (days)'}</td>
+                            <td className="p-3 text-sm text-primary border-r border-border font-medium">{locale === 'zh' ? '预计时间 (天)' : 'Est. Time (days)'}</td>
                             {leadTimes.map((item, idx) => (
                               <td key={idx} className="p-3 text-sm text-foreground text-center border-r border-border last:border-r-0">{item.lead_days}</td>
                             ))}
@@ -307,7 +307,7 @@ export default function ProductDetail() {
                     <div className="space-y-2">
                       {customizations.map((item, idx) => (
                         <div key={idx} className="flex items-center gap-2">
-                          <span className="text-foreground font-medium">{item.service_name}</span>
+                          <span className="text-primary font-medium">{item.service_name}</span>
                           {item.moq && (
                             <span className="text-sm text-muted-foreground">
                               ({locale === 'zh' ? '最低起订量: ' : 'Min. Order: '}{item.moq})
