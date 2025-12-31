@@ -304,17 +304,17 @@ export default function ProductDetail() {
                       <Settings className="w-5 h-5 text-primary" />
                       {locale === 'zh' ? '定制选项' : 'Customization'}
                     </h3>
-                    <div className="space-y-2">
-                      {customizations.map((item, idx) => (
-                        <div key={idx} className="flex items-center gap-2">
-                          <span className="text-primary font-medium">{item.service_name}</span>
-                          {item.moq && (
-                            <span className="text-sm text-muted-foreground">
-                              ({locale === 'zh' ? '最低起订量: ' : 'Min. Order: '}{item.moq})
-                            </span>
-                          )}
-                        </div>
-                      ))}
+                    <div className="rounded-lg border border-border overflow-hidden">
+                      <div className="grid grid-cols-1 md:grid-cols-2">
+                        {customizations.map((item, idx) => (
+                          <div key={idx} className={`flex border-b border-border last:border-b-0 md:odd:border-r ${idx % 4 < 2 ? 'bg-muted/30' : 'bg-transparent'}`}>
+                            <div className="w-2/5 p-3 text-sm text-primary border-r border-border">{item.service_name}</div>
+                            <div className="w-3/5 p-3 text-sm text-foreground">
+                              {item.moq ? `${locale === 'zh' ? '最低起订量: ' : 'Min. Order: '}${item.moq}` : '-'}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}
