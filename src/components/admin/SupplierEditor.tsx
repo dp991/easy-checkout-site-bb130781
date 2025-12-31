@@ -47,8 +47,19 @@ export default function SupplierEditor({ supplier, onChange }: SupplierEditorPro
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [newCert, setNewCert] = useState('');
 
+  // Ensure supplier has all required fields with defaults
+  const safeSupplier: SupplierInfo = {
+    name: supplier?.name ?? '',
+    location: supplier?.location ?? '',
+    type: supplier?.type ?? '',
+    years: supplier?.years ?? 0,
+    verified: supplier?.verified ?? false,
+    logo_url: supplier?.logo_url ?? '',
+    certifications: Array.isArray(supplier?.certifications) ? supplier.certifications : [],
+  };
+
   const updateField = <K extends keyof SupplierInfo>(field: K, value: SupplierInfo[K]) => {
-    onChange({ ...supplier, [field]: value });
+    onChange({ ...safeSupplier, [field]: value });
   };
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -66,14 +77,14 @@ export default function SupplierEditor({ supplier, onChange }: SupplierEditorPro
   };
 
   const addCertification = (cert: string) => {
-    if (cert && !supplier.certifications.includes(cert)) {
-      updateField('certifications', [...supplier.certifications, cert]);
+    if (cert && !safeSupplier.certifications.includes(cert)) {
+      updateField('certifications', [...safeSupplier.certifications, cert]);
     }
     setNewCert('');
   };
 
   const removeCertification = (cert: string) => {
-    updateField('certifications', supplier.certifications.filter(c => c !== cert));
+    updateField('certifications', safeSupplier.certifications.filter(c => c !== cert));
   };
 
   return (
@@ -88,7 +99,7 @@ export default function SupplierEditor({ supplier, onChange }: SupplierEditorPro
         <div className="space-y-1.5">
           <label className="text-xs text-muted-foreground">公司名称</label>
           <Input
-            value={supplier.name}
+            value={safeSupplier.name}
             onChange={(e) => updateField('name', e.target.value)}
             placeholder="Hangzhou XingWei Technology Co., Ltd."
           />
@@ -100,7 +111,7 @@ export default function SupplierEditor({ supplier, onChange }: SupplierEditorPro
             <MapPin className="w-3 h-3" /> 所在地
           </label>
           <Input
-            value={supplier.location}
+            value={safeSupplier.location}
             onChange={(e) => updateField('location', e.target.value)}
             placeholder="Hangzhou, Zhejiang, China"
           />
@@ -109,7 +120,7 @@ export default function SupplierEditor({ supplier, onChange }: SupplierEditorPro
         {/* Business Type */}
         <div className="space-y-1.5">
           <label className="text-xs text-muted-foreground">业务类型</label>
-          <Select value={supplier.type} onValueChange={(v) => updateField('type', v)}>
+          <Select value={safeSupplier.type} onValueChange={(v) => updateField('type', v)}>
             <SelectTrigger>
               <SelectValue placeholder="选择类型" />
             </SelectTrigger>
@@ -128,7 +139,7 @@ export default function SupplierEditor({ supplier, onChange }: SupplierEditorPro
           </label>
           <Input
             type="number"
-            value={supplier.years || ''}
+            value={safeSupplier.years || ''}
             onChange={(e) => updateField('years', parseInt(e.target.value) || 0)}
             placeholder="20"
             min={0}
@@ -139,7 +150,7 @@ export default function SupplierEditor({ supplier, onChange }: SupplierEditorPro
       {/* Verified Checkbox */}
       <div className="flex items-center gap-2">
         <Checkbox
-          checked={supplier.verified}
+          checked={safeSupplier.verified}
           onCheckedChange={(checked) => updateField('verified', !!checked)}
         />
         <label className="text-sm flex items-center gap-1">
@@ -152,9 +163,9 @@ export default function SupplierEditor({ supplier, onChange }: SupplierEditorPro
       <div className="space-y-1.5">
         <label className="text-xs text-muted-foreground">公司 Logo</label>
         <div className="flex items-center gap-3">
-          {supplier.logo_url ? (
+          {safeSupplier.logo_url ? (
             <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-border">
-              <img src={supplier.logo_url} alt="Logo" className="w-full h-full object-contain bg-white" />
+              <img src={safeSupplier.logo_url} alt="Logo" className="w-full h-full object-contain bg-white" />
               <button
                 type="button"
                 onClick={() => updateField('logo_url', '')}
@@ -189,7 +200,7 @@ export default function SupplierEditor({ supplier, onChange }: SupplierEditorPro
       <div className="space-y-2">
         <label className="text-xs text-muted-foreground">认证资质</label>
         <div className="flex flex-wrap gap-1.5">
-          {supplier.certifications.map((cert) => (
+          {safeSupplier.certifications.map((cert) => (
             <Badge key={cert} variant="secondary" className="gap-1">
               {cert}
               <button
@@ -208,7 +219,7 @@ export default function SupplierEditor({ supplier, onChange }: SupplierEditorPro
               <SelectValue placeholder="添加认证" />
             </SelectTrigger>
             <SelectContent>
-              {CERTIFICATIONS.filter(c => !supplier.certifications.includes(c)).map((cert) => (
+              {CERTIFICATIONS.filter(c => !safeSupplier.certifications.includes(c)).map((cert) => (
                 <SelectItem key={cert} value={cert}>{cert}</SelectItem>
               ))}
             </SelectContent>
