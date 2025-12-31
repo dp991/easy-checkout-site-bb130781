@@ -22,9 +22,9 @@ export default function Index() {
       <HeroSection />
 
       {/* Categories Section */}
-      <section className="py-6 md:py-10 border-t border-border/50">
+      <section className="py-8 md:py-12 border-t border-border/50">
         <div className="container-wide px-4 md:px-6">
-          <div className="flex items-end justify-between mb-5 md:mb-8">
+          <div className="flex items-end justify-between mb-6 md:mb-10">
             <div>
               <motion.span
                 initial={{ opacity: 0 }}
@@ -69,9 +69,9 @@ export default function Index() {
       </section>
 
       {/* Featured Products Section */}
-      <section className="py-6 md:py-10 bg-gradient-to-b from-card/30 to-transparent">
+      <section className="py-8 md:py-12 bg-gradient-to-b from-card/30 to-transparent">
         <div className="container-wide px-4 md:px-6">
-          <div className="flex items-end justify-between mb-5 md:mb-8">
+          <div className="flex items-end justify-between mb-6 md:mb-10">
             <div>
               <motion.span
                 initial={{ opacity: 0 }}
@@ -116,13 +116,13 @@ export default function Index() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-6 md:py-10">
+      <section className="py-8 md:py-12">
         <div className="container-wide px-4 md:px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="relative overflow-hidden rounded-2xl md:rounded-3xl bg-card/50 backdrop-blur-xl border border-border/50 p-5 md:p-8 lg:p-12"
+            className="relative overflow-hidden rounded-2xl md:rounded-3xl bg-card/50 backdrop-blur-xl border border-border/50 p-6 md:p-10 lg:p-16"
           >
             {/* Background effects */}
             <div className="absolute inset-0 industrial-grid opacity-20" />
