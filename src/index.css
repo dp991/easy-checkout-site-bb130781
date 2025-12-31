@@ -2,92 +2,96 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Warehouse Metal Theme - Industrial Design System */
+/* Deep Cosmos Theme - Futuristic Design System */
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Outfit:wght@100..900&display=swap');
 
 @layer base {
   :root {
-    /* Dark Industrial Theme */
-    --background: 0 0% 4%;
-    --foreground: 0 0% 95%;
+    /* Deep Cosmos Dark Theme */
+    --background: 222 47% 5%;
+    --foreground: 210 40% 98%;
 
-    --card: 0 0% 7%;
-    --card-foreground: 0 0% 95%;
+    --card: 222 47% 7%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 0 0% 7%;
-    --popover-foreground: 0 0% 95%;
+    --popover: 222 47% 7%;
+    --popover-foreground: 210 40% 98%;
 
-    /* Gold/Amber Accent */
-    --primary: 43 96% 56%;
-    --primary-foreground: 0 0% 4%;
+    /* Electric Violet Primary */
+    --primary: 252 87% 65%;
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 95%;
+    --secondary: 217 33% 12%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 217 33% 15%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 43 96% 56%;
-    --accent-foreground: 0 0% 4%;
+    /* Cyan Accent */
+    --accent: 199 89% 48%;
+    --accent-foreground: 222 47% 5%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 95%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 0 0% 18%;
-    --input: 0 0% 15%;
-    --ring: 43 96% 56%;
+    --border: 217 33% 17%;
+    --input: 217 33% 15%;
+    --ring: 252 87% 70%;
 
     --radius: 0.5rem;
 
-    /* Custom Colors */
-    --gold: 43 96% 56%;
-    --gold-dark: 43 90% 45%;
-    --metal: 220 10% 20%;
-    --metal-light: 220 8% 30%;
-    --surface: 0 0% 7%;
-    --surface-elevated: 0 0% 10%;
+    /* Custom Cosmos Colors */
+    --violet: 252 87% 65%;
+    --violet-glow: 252 87% 75%;
+    --cyan: 199 89% 48%;
+    --cyan-glow: 199 89% 60%;
+    --midnight: 222 47% 5%;
+    --slate-deep: 217 33% 12%;
+    --surface: 222 47% 7%;
+    --surface-elevated: 222 47% 10%;
 
     /* Gradients */
-    --gradient-gold: linear-gradient(135deg, hsl(43 96% 56%) 0%, hsl(35 95% 50%) 100%);
-    --gradient-metal: linear-gradient(180deg, hsl(0 0% 10%) 0%, hsl(0 0% 4%) 100%);
-    --gradient-shine: linear-gradient(90deg, transparent 0%, hsl(0 0% 100% / 0.1) 50%, transparent 100%);
+    --gradient-cosmos: linear-gradient(135deg, hsl(252 87% 65%) 0%, hsl(280 87% 60%) 50%, hsl(330 87% 65%) 100%);
+    --gradient-cyber: linear-gradient(135deg, hsl(199 89% 48%) 0%, hsl(252 87% 65%) 100%);
+    --gradient-glow: linear-gradient(180deg, hsl(222 47% 10%) 0%, hsl(222 47% 5%) 100%);
 
     /* Shadows */
-    --shadow-gold: 0 0 40px hsl(43 96% 56% / 0.3);
+    --shadow-violet: 0 0 40px hsl(252 87% 65% / 0.3);
+    --shadow-cyan: 0 0 40px hsl(199 89% 48% / 0.3);
     --shadow-card: 0 4px 24px hsl(0 0% 0% / 0.4);
     --shadow-elevated: 0 8px 40px hsl(0 0% 0% / 0.5);
 
     /* Sidebar */
-    --sidebar-background: 0 0% 7%;
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 43 96% 56%;
-    --sidebar-primary-foreground: 0 0% 4%;
-    --sidebar-accent: 0 0% 12%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 0 0% 18%;
-    --sidebar-ring: 43 96% 56%;
+    --sidebar-background: 222 47% 7%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 252 87% 65%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 217 33% 12%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217 33% 17%;
+    --sidebar-ring: 252 87% 70%;
   }
 
   .dark {
-    --background: 0 0% 4%;
-    --foreground: 0 0% 95%;
-    --card: 0 0% 7%;
-    --card-foreground: 0 0% 95%;
-    --popover: 0 0% 7%;
-    --popover-foreground: 0 0% 95%;
-    --primary: 43 96% 56%;
-    --primary-foreground: 0 0% 4%;
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 95%;
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 60%;
-    --accent: 43 96% 56%;
-    --accent-foreground: 0 0% 4%;
+    --background: 222 47% 5%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 7%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 7%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 252 87% 65%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 217 33% 12%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 33% 15%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 199 89% 48%;
+    --accent-foreground: 222 47% 5%;
     --destructive: 0 62% 30%;
-    --destructive-foreground: 0 0% 95%;
-    --border: 0 0% 18%;
-    --input: 0 0% 15%;
-    --ring: 43 96% 56%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 33% 17%;
+    --input: 217 33% 15%;
+    --ring: 252 87% 70%;
   }
 }
 
@@ -112,22 +116,56 @@
 }
 
 @layer components {
-  .text-gradient-gold {
+  /* Cosmos Gradient Text */
+  .text-gradient-cosmos {
     @apply bg-clip-text text-transparent;
-    background-image: var(--gradient-gold);
+    background-image: linear-gradient(135deg, hsl(252 87% 65%) 0%, hsl(280 87% 60%) 50%, hsl(330 87% 65%) 100%);
   }
 
+  .text-gradient-cyber {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, hsl(199 89% 48%) 0%, hsl(252 87% 65%) 100%);
+  }
+
+  /* Legacy gradient class for compatibility */
+  .text-gradient-gold {
+    @apply text-gradient-cosmos;
+  }
+
+  .bg-gradient-cosmos {
+    background-image: var(--gradient-cosmos);
+  }
+
+  .bg-gradient-cyber {
+    background-image: var(--gradient-cyber);
+  }
+
+  /* Legacy class for compatibility */
   .bg-gradient-gold {
-    background-image: var(--gradient-gold);
+    @apply bg-gradient-cosmos;
   }
 
+  .glow-violet {
+    box-shadow: var(--shadow-violet);
+  }
+
+  .glow-cyan {
+    box-shadow: var(--shadow-cyan);
+  }
+
+  /* Legacy class for compatibility */
   .glow-gold {
-    box-shadow: var(--shadow-gold);
+    @apply glow-violet;
+  }
+
+  /* Glass Morphism */
+  .glass-panel {
+    @apply bg-card/80 backdrop-blur-md border border-border/50;
   }
 
   .metal-surface {
     @apply bg-card border border-border;
-    background-image: linear-gradient(180deg, hsl(0 0% 10%) 0%, hsl(0 0% 7%) 100%);
+    background-image: linear-gradient(180deg, hsl(222 47% 10%) 0%, hsl(222 47% 7%) 100%);
   }
 
   .shine-effect {
@@ -142,7 +180,7 @@
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.15), transparent);
     transition: left 0.5s ease;
   }
 
@@ -152,9 +190,19 @@
 
   .industrial-grid {
     background-image: 
-      linear-gradient(hsl(0 0% 15% / 0.3) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(0 0% 15% / 0.3) 1px, transparent 1px);
+      linear-gradient(hsl(217 33% 17% / 0.3) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(217 33% 17% / 0.3) 1px, transparent 1px);
     background-size: 40px 40px;
+  }
+
+  /* Cosmos Grid Pattern */
+  .cosmos-grid {
+    background-image: 
+      radial-gradient(circle at 25% 25%, hsl(252 87% 65% / 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 75% 75%, hsl(199 89% 48% / 0.03) 0%, transparent 50%),
+      linear-gradient(hsl(217 33% 17% / 0.2) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(217 33% 17% / 0.2) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
   }
 }
 

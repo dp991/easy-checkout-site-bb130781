@@ -61,17 +61,28 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        gold: {
-          DEFAULT: "hsl(var(--gold))",
-          dark: "hsl(var(--gold-dark))",
+        // Cosmos Theme Colors
+        violet: {
+          DEFAULT: "hsl(var(--violet))",
+          glow: "hsl(var(--violet-glow))",
         },
-        metal: {
-          DEFAULT: "hsl(var(--metal))",
-          light: "hsl(var(--metal-light))",
+        cyan: {
+          DEFAULT: "hsl(var(--cyan))",
+          glow: "hsl(var(--cyan-glow))",
         },
+        midnight: "hsl(var(--midnight))",
         surface: {
           DEFAULT: "hsl(var(--surface))",
           elevated: "hsl(var(--surface-elevated))",
+        },
+        // Legacy gold colors mapped to violet for compatibility
+        gold: {
+          DEFAULT: "hsl(var(--violet))",
+          dark: "hsl(var(--violet-glow))",
+        },
+        metal: {
+          DEFAULT: "hsl(var(--slate-deep))",
+          light: "hsl(var(--muted))",
         },
       },
       borderRadius: {
@@ -93,12 +104,20 @@ export default {
           "50%": { transform: "translateY(-10px)" },
         },
         "pulse-glow": {
-          "0%, 100%": { boxShadow: "0 0 20px hsl(43 96% 56% / 0.3)" },
-          "50%": { boxShadow: "0 0 40px hsl(43 96% 56% / 0.5)" },
+          "0%, 100%": { boxShadow: "0 0 20px hsl(252 87% 65% / 0.3)" },
+          "50%": { boxShadow: "0 0 40px hsl(252 87% 65% / 0.5)" },
         },
         "shimmer": {
           "0%": { backgroundPosition: "-200% 0" },
           "100%": { backgroundPosition: "200% 0" },
+        },
+        "glow-pulse": {
+          "0%, 100%": { 
+            boxShadow: "0 0 20px hsl(252 87% 65% / 0.2), 0 0 40px hsl(199 89% 48% / 0.1)" 
+          },
+          "50%": { 
+            boxShadow: "0 0 30px hsl(252 87% 65% / 0.4), 0 0 60px hsl(199 89% 48% / 0.2)" 
+          },
         },
       },
       animation: {
@@ -107,11 +126,21 @@ export default {
         "float": "float 3s ease-in-out infinite",
         "pulse-glow": "pulse-glow 2s ease-in-out infinite",
         "shimmer": "shimmer 2s linear infinite",
+        "glow-pulse": "glow-pulse 3s ease-in-out infinite",
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "gradient-gold": "linear-gradient(135deg, hsl(43 96% 56%) 0%, hsl(35 95% 50%) 100%)",
-        "gradient-metal": "linear-gradient(180deg, hsl(0 0% 10%) 0%, hsl(0 0% 4%) 100%)",
+        "gradient-cosmos": "linear-gradient(135deg, hsl(252 87% 65%) 0%, hsl(280 87% 60%) 50%, hsl(330 87% 65%) 100%)",
+        "gradient-cyber": "linear-gradient(135deg, hsl(199 89% 48%) 0%, hsl(252 87% 65%) 100%)",
+        "gradient-glow": "linear-gradient(180deg, hsl(222 47% 10%) 0%, hsl(222 47% 5%) 100%)",
+        // Legacy gradients for compatibility
+        "gradient-gold": "linear-gradient(135deg, hsl(252 87% 65%) 0%, hsl(280 87% 60%) 50%, hsl(330 87% 65%) 100%)",
+        "gradient-metal": "linear-gradient(180deg, hsl(222 47% 10%) 0%, hsl(222 47% 5%) 100%)",
+      },
+      boxShadow: {
+        "violet-glow": "0 0 40px hsl(252 87% 65% / 0.3)",
+        "cyan-glow": "0 0 40px hsl(199 89% 48% / 0.3)",
+        "cosmos": "0 10px 40px hsl(252 87% 65% / 0.2)",
       },
     },
   },
