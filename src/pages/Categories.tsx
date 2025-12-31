@@ -5,7 +5,6 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { usePaginatedProducts, useCategories } from '@/hooks/useDatabase';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import FloatingContact from '@/components/layout/FloatingContact';
 import ProductCard from '@/components/products/ProductCard';
 import CategoryTree from '@/components/products/CategoryTree';
 import ProductPagination from '@/components/products/ProductPagination';
@@ -232,7 +231,6 @@ export default function Categories() {
         </select>
       </div>
 
-      <FloatingContact />
     </div>
   );
 }
