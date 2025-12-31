@@ -92,10 +92,10 @@ export default function HeroSection() {
                 <Button 
                   size="lg" 
                   variant="ghost" 
-                  className="h-12 md:h-14 px-6 bg-secondary/60 text-foreground hover:bg-secondary/80 hover:shadow-[0_0_20px_hsl(var(--ring)/0.5)] transition-all duration-300"
+                  className="h-12 md:h-14 px-6 text-muted-foreground hover:text-foreground"
                 >
-                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center mr-3 group-hover:bg-primary/30 transition-colors">
-                    <Play className="w-4 h-4 ml-0.5 text-primary" />
+                  <div className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center mr-3 group-hover:bg-muted transition-colors">
+                    <Play className="w-4 h-4 ml-0.5" />
                   </div>
                   {locale === 'zh' ? '了解更多' : 'Learn More'}
                 </Button>
