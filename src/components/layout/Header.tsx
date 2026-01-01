@@ -33,13 +33,13 @@ export default function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-[hsl(222,47%,5%)]/95 backdrop-blur-xl border-b border-white/10">
       <div className="container-wide">
-        <div className="flex items-center justify-between h-16 md:h-20">
+        <div className="flex items-center justify-between h-14 sm:h-16 md:h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 rounded-lg bg-gradient-gold flex items-center justify-center">
-              <span className="font-display font-bold text-xl text-primary-foreground">P</span>
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-gold flex items-center justify-center">
+              <span className="font-display font-bold text-lg sm:text-xl text-primary-foreground">P</span>
             </div>
-            <span className="font-display font-bold text-xl text-foreground group-hover:text-primary transition-colors">
+            <span className="font-display font-bold text-lg sm:text-xl text-foreground group-hover:text-primary transition-colors">
               POS Store
             </span>
           </Link>
@@ -63,7 +63,7 @@ export default function Header() {
           </nav>
 
           {/* Right Section */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             {/* Cart Button */}
             <Link to="/cart" className="relative p-2 rounded-lg hover:bg-muted transition-colors">
               <ShoppingCart className="w-5 h-5 text-muted-foreground" />
@@ -160,12 +160,7 @@ export default function Header() {
               </AnimatePresence>
             </div>
 
-            {/* CTA Button */}
-            <Link to="/contact" className="hidden sm:block">
-              <Button className="bg-gradient-gold text-primary-foreground hover:opacity-90 font-semibold">
-                {t.nav.inquiry}
-              </Button>
-            </Link>
+
 
             {/* Mobile Menu Toggle */}
             <button
@@ -201,13 +196,7 @@ export default function Header() {
                     {link.label}
                   </Link>
                 ))}
-                <div className="px-4 pt-4">
-                  <Link to="/contact" onClick={() => setIsMenuOpen(false)}>
-                    <Button className="w-full bg-gradient-gold text-primary-foreground hover:opacity-90 font-semibold">
-                      {t.nav.inquiry}
-                    </Button>
-                  </Link>
-                </div>
+
               </div>
             </motion.nav>
           )}
