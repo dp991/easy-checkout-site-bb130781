@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Eye, MessageCircle, ShoppingCart } from 'lucide-react';
+import { Eye, ShoppingCart } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCart } from '@/contexts/CartContext';
 import { DbProduct } from '@/lib/supabase';
@@ -33,6 +33,12 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   const handleClick = () => {
     navigate(`/products/${product.slug}`);
     window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addToCart(product.id);
   };
 
   return (
@@ -71,38 +77,25 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
               )}
             </div>
 
-            {/* Quick Actions */}
-            <div className="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
+            {/* Quick Actions - Redesigned with 2 buttons */}
+            <div className="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4">
               <motion.div
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
-                className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center"
+                className="w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg"
+                title={locale === 'zh' ? '查看详情' : 'View Details'}
               >
-                <Eye className="w-5 h-5" />
+                <Eye className="w-6 h-6" />
               </motion.div>
               <motion.button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  addToCart(product.id);
-                }}
+                onClick={handleAddToCart}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
-                className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center"
+                className="w-14 h-14 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center shadow-lg"
+                title={locale === 'zh' ? '加入购物车' : 'Add to Cart'}
               >
-                <ShoppingCart className="w-5 h-5" />
+                <ShoppingCart className="w-6 h-6" />
               </motion.button>
-              <motion.a
-                href={`https://wa.me/8613800138000?text=I'm interested in ${encodeURIComponent(name || '')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                className="w-12 h-12 rounded-full bg-[#25D366] text-white flex items-center justify-center"
-              >
-                <MessageCircle className="w-5 h-5" />
-              </motion.a>
             </div>
           </div>
 
