@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Award, Users, Globe, Truck, Target, Heart } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import Layout from '@/components/layout/Layout';
+import FloatingChatButton from '@/components/FloatingChatButton';
 
 export default function About() {
   const { locale } = useLanguage();
@@ -222,6 +223,9 @@ export default function About() {
           </div>
         </div>
       </section>
+
+      {/* Floating Chat Button */}
+      <FloatingChatButton />
     </Layout>
   );
 }

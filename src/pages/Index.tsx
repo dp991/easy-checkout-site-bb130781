@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import HeroSection from '@/components/home/HeroSection';
 import StickyBottomBar from '@/components/home/StickyBottomBar';
+import FloatingChatButton from '@/components/FloatingChatButton';
 
 export default function Index() {
   const { t, locale } = useLanguage();
@@ -170,6 +171,9 @@ export default function Index() {
 
       {/* Sticky Bottom Bar for Mobile */}
       <StickyBottomBar />
+      
+      {/* Floating Chat Button */}
+      <FloatingChatButton />
       
       {/* Bottom padding for sticky bar on mobile */}
       <div className="h-20 md:hidden" />
