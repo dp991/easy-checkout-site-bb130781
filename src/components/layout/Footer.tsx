@@ -15,9 +15,9 @@ export default function Footer() {
   return (
     <footer className="bg-card border-t border-border">
       <div className="container-wide py-6 md:py-8 lg:py-10 px-4 md:px-6">
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
           {/* Company Info */}
-          <div className="col-span-2 md:col-span-1 lg:col-span-1">
+          <div className="col-span-1 md:col-span-1 lg:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-3 md:mb-4">
               <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-gradient-gold flex items-center justify-center">
                 <span className="font-display font-bold text-lg md:text-xl text-primary-foreground">P</span>
@@ -87,8 +87,8 @@ export default function Footer() {
                 <MapPin className="w-5 h-5 text-primary mt-0.5" />
                 <div>
                   <p className="text-sm text-foreground">
-                    {locale === 'zh' 
-                      ? '广东省深圳市宝安区' 
+                    {locale === 'zh'
+                      ? '广东省深圳市宝安区'
                       : 'Bao\'an District, Shenzhen, China'}
                   </p>
                 </div>
@@ -96,30 +96,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Newsletter */}
-          <div>
-            <h3 className="font-display font-semibold text-lg text-foreground mb-4">
-              {locale === 'zh' ? '订阅最新资讯' : 'Stay Updated'}
-            </h3>
-            <p className="text-muted-foreground text-sm mb-4">
-              {locale === 'zh' 
-                ? '获取最新产品信息和优惠' 
-                : 'Get the latest products and offers'}
-            </p>
-            <form className="flex gap-2">
-              <input
-                type="email"
-                placeholder={locale === 'zh' ? '输入邮箱' : 'Enter email'}
-                className="flex-1 px-4 py-2 bg-muted border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
-              />
-              <button
-                type="submit"
-                className="px-4 py-2 bg-gradient-gold text-primary-foreground rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
-              >
-                {locale === 'zh' ? '订阅' : 'Subscribe'}
-              </button>
-            </form>
-          </div>
+
         </div>
 
         {/* Bottom Bar */}

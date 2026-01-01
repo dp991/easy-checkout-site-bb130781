@@ -69,7 +69,7 @@ export const translations = {
       quickLinks: "Quick Links",
       contactInfo: "Contact Info",
       followUs: "Follow Us",
-      copyright: "© 2024 杭州兴微技术有限公司 版权所有",
+      copyright: "© 2024 Hangzhou Xingwei Technology Co., Ltd. All Rights Reserved",
     },
     // Common
     common: {
