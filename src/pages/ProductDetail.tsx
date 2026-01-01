@@ -5,6 +5,7 @@ import { useProductBySlug, useProducts } from '@/hooks/useDatabase';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/products/ProductCard';
 import ProductDetailHero from '@/components/products/ProductDetailHero';
+import FloatingChatButton from '@/components/FloatingChatButton';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -242,6 +243,9 @@ export default function ProductDetail() {
         {/* Spacer for mobile sticky bottom bar */}
         <div className="h-20 lg:hidden" />
       </div>
+
+      {/* Floating Chat Button */}
+      <FloatingChatButton />
     </Layout>
   );
 }

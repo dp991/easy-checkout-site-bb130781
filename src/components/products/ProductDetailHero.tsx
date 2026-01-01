@@ -2,8 +2,6 @@ import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { 
-  MessageCircle, 
-  Send, 
   ChevronLeft, 
   ChevronRight, 
   Package, 
@@ -273,8 +271,8 @@ export default function ProductDetailHero({
             </div>
           </div>
 
-          {/* Desktop CTA Buttons */}
-          <div className="hidden lg:flex flex-col gap-3">
+          {/* Desktop CTA Button */}
+          <div className="hidden lg:block">
             <Button 
               onClick={() => setInquiryOpen(true)} 
               size="lg"
@@ -283,29 +281,6 @@ export default function ProductDetailHero({
               <Mail className="w-5 h-5 mr-2" />
               {locale === 'zh' ? '发送询盘' : 'Send Inquiry'}
             </Button>
-            
-            <div className="grid grid-cols-2 gap-3">
-              <a href={`https://wa.me/8613800138000?text=${whatsappMessage}`} target="_blank" rel="noopener noreferrer" className="block">
-                <Button 
-                  variant="outline" 
-                  size="lg"
-                  className="w-full h-11 border-[#25D366]/30 text-[#25D366] hover:bg-[#25D366]/10 hover:border-[#25D366] font-semibold"
-                >
-                  <MessageCircle className="w-4 h-4 mr-2" />
-                  WhatsApp
-                </Button>
-              </a>
-              <a href="https://t.me/posstore" target="_blank" rel="noopener noreferrer" className="block">
-                <Button 
-                  variant="outline" 
-                  size="lg"
-                  className="w-full h-11 border-[#0088cc]/30 text-[#0088cc] hover:bg-[#0088cc]/10 hover:border-[#0088cc] font-semibold"
-                >
-                  <Send className="w-4 h-4 mr-2" />
-                  Telegram
-                </Button>
-              </a>
-            </div>
           </div>
 
           {/* Desktop Trust Signals */}
@@ -344,27 +319,13 @@ export default function ProductDetailHero({
 
       {/* Mobile Sticky Bottom Bar */}
       <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-background/95 backdrop-blur-lg border-t border-border p-3 safe-area-bottom">
-        <div className="flex items-center gap-3">
-          {/* Chat Button */}
-          <a 
-            href={`https://wa.me/8613800138000?text=${whatsappMessage}`} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="flex flex-col items-center justify-center w-16 h-12 rounded-xl bg-muted hover:bg-muted/80 transition-colors"
-          >
-            <MessageCircle className="w-5 h-5 text-[#25D366]" />
-            <span className="text-[10px] text-muted-foreground mt-0.5">Chat</span>
-          </a>
-          
-          {/* Primary CTA */}
-          <Button 
-            onClick={() => setInquiryOpen(true)} 
-            className="flex-1 h-12 bg-gradient-cosmos text-primary-foreground hover:opacity-90 font-semibold text-base rounded-xl"
-          >
-            <Mail className="w-5 h-5 mr-2" />
-            {locale === 'zh' ? '发送询盘' : 'Send Inquiry'}
-          </Button>
-        </div>
+        <Button 
+          onClick={() => setInquiryOpen(true)} 
+          className="w-full h-12 bg-gradient-cosmos text-primary-foreground hover:opacity-90 font-semibold text-base rounded-xl"
+        >
+          <Mail className="w-5 h-5 mr-2" />
+          {locale === 'zh' ? '发送询盘' : 'Send Inquiry'}
+        </Button>
       </div>
 
       {/* Inquiry Dialog */}

@@ -238,13 +238,13 @@ export default function Contact() {
                       </Button>
                     </a>
                     <a
-                      href="https://t.me/posstore"
+                      href="https://m.me/yourpage"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <Button className="w-full h-10 bg-[#0088cc] hover:bg-[#0077b3] text-white font-semibold text-sm">
+                      <Button className="w-full h-10 bg-[#0084FF] hover:bg-[#0073e0] text-white font-semibold text-sm">
                         <Send className="w-4 h-4 mr-1.5" />
-                        Telegram
+                        Facebook
                       </Button>
                     </a>
                   </div>
