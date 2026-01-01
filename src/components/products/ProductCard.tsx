@@ -19,7 +19,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   const name = locale === 'zh' ? product.name_zh : product.name_en;
   const priceMin = product.price_min;
   const priceMax = product.price_max;
-  
+
   const formatPrice = () => {
     if (priceMin && priceMax && priceMin !== priceMax) {
       return `$${priceMin} - $${priceMax}`;
@@ -62,7 +62,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
               decoding="async"
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
-            
+
             {/* Badges */}
             <div className="absolute top-3 left-3 flex gap-2">
               {product.is_new && (
@@ -77,26 +77,35 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
               )}
             </div>
 
-            {/* Quick Actions - Redesigned with 2 buttons */}
-            <div className="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4">
+            {/* Desktop Quick Actions (Hover) */}
+            <div className="hidden md:flex absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 items-center justify-center gap-3">
               <motion.div
-                whileHover={{ scale: 1.1 }}
+                whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg"
+                className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center shadow-lg hover:bg-primary hover:text-white transition-colors"
                 title={locale === 'zh' ? '查看详情' : 'View Details'}
               >
-                <Eye className="w-6 h-6" />
+                <Eye className="w-5 h-5" />
               </motion.div>
               <motion.button
                 onClick={handleAddToCart}
-                whileHover={{ scale: 1.1 }}
+                whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="w-14 h-14 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center shadow-lg"
+                className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center shadow-lg hover:bg-primary/90 transition-colors"
                 title={locale === 'zh' ? '加入购物车' : 'Add to Cart'}
               >
-                <ShoppingCart className="w-6 h-6" />
+                <ShoppingCart className="w-5 h-5" />
               </motion.button>
             </div>
+
+            {/* Mobile Quick Action (Always visible, small) */}
+            <motion.button
+              onClick={handleAddToCart}
+              whileTap={{ scale: 0.9 }}
+              className="md:hidden absolute bottom-2 right-2 w-8 h-8 rounded-full bg-primary/90 backdrop-blur-sm text-primary-foreground flex items-center justify-center shadow-lg z-10"
+            >
+              <ShoppingCart className="w-4 h-4" />
+            </motion.button>
           </div>
 
           {/* Content */}
@@ -104,7 +113,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             <h3 className="font-display font-semibold text-foreground text-sm md:text-lg line-clamp-1 group-hover:text-primary transition-colors">
               {name}
             </h3>
-            
+
             <div className="mt-1.5 md:mt-2 flex items-end justify-between">
               <div>
                 <p className="text-primary font-bold text-base md:text-xl">{priceRange}</p>
@@ -112,11 +121,10 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                   {t.products.minOrder}: {product.min_order} {locale === 'zh' ? '台' : 'pcs'}
                 </p>
               </div>
-              <span className={`text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 md:py-1 rounded-full ${
-                product.is_active !== false 
-                  ? 'bg-green-500/10 text-green-500' 
+              <span className={`text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 md:py-1 rounded-full ${product.is_active !== false
+                  ? 'bg-green-500/10 text-green-500'
                   : 'bg-destructive/10 text-destructive'
-              }`}>
+                }`}>
                 {product.is_active !== false ? t.products.inStock : t.products.outOfStock}
               </span>
             </div>
