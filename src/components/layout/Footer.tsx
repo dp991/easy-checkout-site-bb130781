@@ -1,35 +1,6 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, MapPin, MessageCircle, Send, ChevronDown } from 'lucide-react';
+import { Mail, MapPin, MessageCircle, Send } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { motion, AnimatePresence } from 'framer-motion';
-
-function FooterSection({ title, children }: { title: string; children: React.ReactNode }) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <div className="border-b border-border md:border-none last:border-none">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between w-full py-4 md:py-0 md:mb-4 group select-none md:cursor-default"
-      >
-        <h3 className="font-display font-semibold text-base md:text-lg text-foreground group-hover:text-primary transition-colors md:group-hover:text-foreground">
-          {title}
-        </h3>
-        <ChevronDown
-          className={`w-4 h-4 text-muted-foreground transition-transform duration-200 md:hidden ${isOpen ? 'rotate-180 text-primary' : ''
-            }`}
-        />
-      </button>
-      <div
-        className={`overflow-hidden transition-all duration-300 ease-in-out md:h-auto md:opacity-100 ${isOpen ? 'max-h-[500px] opacity-100 mb-4' : 'max-h-0 opacity-0 md:max-h-none md:mb-0'
-          }`}
-      >
-        {children}
-      </div>
-    </div>
-  );
-}
 
 export default function Footer() {
   const { t, locale } = useLanguage();
@@ -81,8 +52,11 @@ export default function Footer() {
           </div>
 
           {/* Quick Links */}
-          <FooterSection title={t.footer.quickLinks}>
-            <ul className="space-y-3">
+          <div className="text-center md:text-left">
+            <h3 className="font-display font-semibold text-base md:text-lg text-foreground mb-4">
+              {t.footer.quickLinks}
+            </h3>
+            <ul className="space-y-3 flex flex-col items-center md:items-start">
               {quickLinks.map((link) => (
                 <li key={link.href}>
                   <Link
@@ -94,14 +68,17 @@ export default function Footer() {
                 </li>
               ))}
             </ul>
-          </FooterSection>
+          </div>
 
           {/* Contact Info */}
-          <FooterSection title={t.footer.contactInfo}>
-            <ul className="space-y-4">
-              <li className="flex items-start gap-3">
-                <Mail className="w-5 h-5 text-primary mt-0.5 shrink-0" />
-                <div>
+          <div className="text-center md:text-left">
+            <h3 className="font-display font-semibold text-base md:text-lg text-foreground mb-4">
+              {t.footer.contactInfo}
+            </h3>
+            <ul className="space-y-4 flex flex-col items-center md:items-start">
+              <li className="flex items-start gap-3 text-center md:text-left">
+                <Mail className="w-5 h-5 text-primary mt-0.5 shrink-0 hidden md:block" />
+                <div className="flex flex-col items-center md:items-start">
                   <a href="mailto:ceos@posstore.com" className="text-sm text-foreground hover:text-primary transition-colors">
                     ceos@posstore.com
                   </a>
@@ -110,10 +87,10 @@ export default function Footer() {
                   </p>
                 </div>
               </li>
-              <li className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-primary mt-0.5 shrink-0" />
-                <div>
-                  <p className="text-sm text-foreground leading-relaxed">
+              <li className="flex items-start gap-3 text-center md:text-left">
+                <MapPin className="w-5 h-5 text-primary mt-0.5 shrink-0 hidden md:block" />
+                <div className="flex flex-col items-center md:items-start">
+                  <p className="text-sm text-foreground leading-relaxed max-w-[200px] md:max-w-none mx-auto md:mx-0">
                     {locale === 'zh'
                       ? '广东省深圳市宝安区'
                       : 'Bao\'an District, Shenzhen, China'}
@@ -121,13 +98,13 @@ export default function Footer() {
                 </div>
               </li>
             </ul>
-          </FooterSection>
+          </div>
         </div>
 
-        {/* Bottom Bar */}
+        {/* Bottom Bar - Copyright Centered */}
         <div className="mt-8 md:mt-12 pt-6 border-t border-border">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm">
-            <p className="text-muted-foreground text-center md:text-left">
+            <p className="text-muted-foreground w-full text-center md:text-left">
               {t.footer.copyright}
             </p>
             {/* Optional: Add Policy Links here if needed later */}
