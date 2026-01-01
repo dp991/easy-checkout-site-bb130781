@@ -9,14 +9,13 @@ import {
   Package, 
   Truck, 
   Shield, 
-  ShoppingCart,
   Clock,
   Mail
 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import InquiryDialog from './InquiryDialog';
 
 interface ProductDetailHeroProps {
   product: any;
@@ -36,9 +35,9 @@ export default function ProductDetailHero({
   keyAttributes,
 }: ProductDetailHeroProps) {
   const { t, locale } = useLanguage();
-  const { addToCart } = useCart();
   const [currentImage, setCurrentImage] = useState(0);
   const [direction, setDirection] = useState(0);
+  const [inquiryOpen, setInquiryOpen] = useState(false);
   const constraintsRef = useRef(null);
 
   const displayImages = images.length > 0 ? images : ['https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800'];
@@ -277,7 +276,7 @@ export default function ProductDetailHero({
           {/* Desktop CTA Buttons */}
           <div className="hidden lg:flex flex-col gap-3">
             <Button 
-              onClick={() => addToCart(product.id)} 
+              onClick={() => setInquiryOpen(true)} 
               size="lg"
               className="w-full h-12 bg-gradient-cosmos text-primary-foreground hover:opacity-90 font-semibold text-base"
             >
@@ -359,7 +358,7 @@ export default function ProductDetailHero({
           
           {/* Primary CTA */}
           <Button 
-            onClick={() => addToCart(product.id)} 
+            onClick={() => setInquiryOpen(true)} 
             className="flex-1 h-12 bg-gradient-cosmos text-primary-foreground hover:opacity-90 font-semibold text-base rounded-xl"
           >
             <Mail className="w-5 h-5 mr-2" />
@@ -367,6 +366,14 @@ export default function ProductDetailHero({
           </Button>
         </div>
       </div>
+
+      {/* Inquiry Dialog */}
+      <InquiryDialog
+        open={inquiryOpen}
+        onOpenChange={setInquiryOpen}
+        productId={product.id}
+        productName={name}
+      />
 
     </>
   );
