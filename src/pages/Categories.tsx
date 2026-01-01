@@ -10,6 +10,7 @@ import Footer from '@/components/layout/Footer';
 import ProductCard from '@/components/products/ProductCard';
 import CategoryTree from '@/components/products/CategoryTree';
 import MobileCategoryPills from '@/components/products/MobileCategoryPills';
+import FloatingChatButton from '@/components/FloatingChatButton';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 
@@ -215,6 +216,9 @@ export default function Categories() {
           <Footer />
         </main>
       </div>
+
+      {/* Floating Chat Button */}
+      <FloatingChatButton />
     </div>
   );
 }
