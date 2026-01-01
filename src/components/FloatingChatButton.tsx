@@ -81,10 +81,10 @@ export default function FloatingChatButton({
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-colors ${
+        className={`w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 ${
           isOpen 
-            ? 'bg-muted text-foreground' 
-            : 'bg-primary text-primary-foreground'
+            ? 'bg-muted/90 text-foreground shadow-lg' 
+            : 'bg-gradient-to-r from-cyan-500 to-violet-500 text-white shadow-[0_0_20px_rgba(6,182,212,0.5)]'
         }`}
       >
         <AnimatePresence mode="wait">
@@ -114,7 +114,7 @@ export default function FloatingChatButton({
 
       {/* Pulse animation when closed */}
       {!isOpen && (
-        <span className="absolute inset-0 rounded-full bg-primary animate-ping opacity-20 pointer-events-none" />
+        <span className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-500 to-violet-500 animate-ping opacity-30 pointer-events-none" />
       )}
     </div>
   );
