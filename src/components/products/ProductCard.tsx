@@ -71,40 +71,33 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                 </Badge>
               )}
               {product.is_featured && (
-                <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm">
+                <motion.div
+                  animate={{
+                    boxShadow: [
+                      '0 0 8px rgba(251, 146, 60, 0.5)',
+                      '0 0 16px rgba(251, 146, 60, 0.8)',
+                      '0 0 8px rgba(251, 146, 60, 0.5)'
+                    ]
+                  }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                  className="px-2.5 py-1 rounded-full text-xs font-semibold text-white"
+                  style={{ background: 'linear-gradient(135deg, #f97316 0%, #ef4444 50%, #ec4899 100%)' }}
+                >
                   {locale === 'zh' ? '热门' : 'Featured'}
-                </Badge>
+                </motion.div>
               )}
             </div>
 
-            {/* Desktop Quick Actions (Hover) */}
-            <div className="hidden md:flex absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 items-center justify-center gap-3">
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center shadow-lg hover:bg-primary hover:text-white transition-colors"
-                title={locale === 'zh' ? '查看详情' : 'View Details'}
-              >
-                <Eye className="w-5 h-5" />
-              </motion.div>
-              <motion.button
-                onClick={handleAddToCart}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center shadow-lg hover:bg-primary/90 transition-colors"
-                title={locale === 'zh' ? '加入购物车' : 'Add to Cart'}
-              >
-                <ShoppingCart className="w-5 h-5" />
-              </motion.button>
-            </div>
-
-            {/* Mobile Quick Action (Always visible, small) */}
+            {/* Quick Add to Cart Button (Both Desktop and Mobile) */}
             <motion.button
               onClick={handleAddToCart}
+              whileHover={{ scale: 1.15 }}
               whileTap={{ scale: 0.9 }}
-              className="md:hidden absolute bottom-2 right-2 w-8 h-8 rounded-full bg-primary/90 backdrop-blur-sm text-primary-foreground flex items-center justify-center shadow-lg z-10"
+              className="absolute bottom-2 right-2 w-8 h-8 md:w-9 md:h-9 rounded-full text-white flex items-center justify-center shadow-lg z-10 cursor-pointer transition-shadow hover:shadow-xl"
+              style={{ background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f97316 100%)' }}
+              title={locale === 'zh' ? '加入购物车' : 'Add to Cart'}
             >
-              <ShoppingCart className="w-4 h-4" />
+              <ShoppingCart className="w-4 h-4 md:w-5 md:h-5" />
             </motion.button>
           </div>
 
@@ -116,14 +109,19 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
 
             <div className="mt-1.5 md:mt-2 flex items-end justify-between">
               <div>
-                <p className="text-primary font-bold text-base md:text-xl">{priceRange}</p>
+                <p
+                  className="font-bold text-base md:text-xl bg-clip-text text-transparent"
+                  style={{ backgroundImage: 'linear-gradient(90deg, #a855f7 0%, #ec4899 50%, #f97316 100%)' }}
+                >
+                  {priceRange}
+                </p>
                 <p className="text-muted-foreground text-[10px] md:text-xs mt-0.5 md:mt-1">
                   {t.products.minOrder}: {product.min_order} {locale === 'zh' ? '台' : 'pcs'}
                 </p>
               </div>
               <span className={`text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 md:py-1 rounded-full ${product.is_active !== false
-                  ? 'bg-green-500/10 text-green-500'
-                  : 'bg-destructive/10 text-destructive'
+                ? 'bg-green-500/10 text-green-500'
+                : 'bg-destructive/10 text-destructive'
                 }`}>
                 {product.is_active !== false ? t.products.inStock : t.products.outOfStock}
               </span>

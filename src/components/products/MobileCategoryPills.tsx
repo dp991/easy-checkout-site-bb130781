@@ -29,8 +29,8 @@ export default function MobileCategoryPills({
             whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-all
             flex-shrink-0
             ${selectedCategory === null
-              ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25'
-              : 'bg-accent/50 text-foreground border border-border hover:bg-accent'
+              ? 'bg-gradient-to-r from-primary to-pink-500 text-white shadow-lg shadow-primary/25'
+              : 'bg-card/80 text-muted-foreground border border-border/50 hover:border-primary/50 hover:text-foreground'
             }
           `}
         >
@@ -41,7 +41,7 @@ export default function MobileCategoryPills({
         {parentCategories.map((cat) => {
           const isSelected = selectedCategory === cat.slug;
           const name = locale === 'zh' ? cat.name_zh : (cat.name_en || cat.name_zh);
-          
+
           return (
             <motion.button
               key={cat.id}
@@ -51,8 +51,8 @@ export default function MobileCategoryPills({
                 whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-all
                 flex-shrink-0
                 ${isSelected
-                  ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25'
-                  : 'bg-accent/50 text-foreground border border-border hover:bg-accent'
+                  ? 'bg-gradient-to-r from-primary to-pink-500 text-white shadow-lg shadow-primary/25'
+                  : 'bg-card/80 text-muted-foreground border border-border/50 hover:border-primary/50 hover:text-foreground'
                 }
               `}
             >

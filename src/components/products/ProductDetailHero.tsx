@@ -1,12 +1,12 @@
 import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  Package, 
-  Truck, 
-  Shield, 
+import {
+  ChevronLeft,
+  ChevronRight,
+  Package,
+  Truck,
+  Shield,
   Clock,
   Mail
 } from 'lucide-react';
@@ -39,7 +39,7 @@ export default function ProductDetailHero({
   const constraintsRef = useRef(null);
 
   const displayImages = images.length > 0 ? images : ['https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800'];
-  
+
   const whatsappMessage = encodeURIComponent(`Hello, I'm interested in ${name}. Please provide more details and pricing.`);
 
   const handleSwipe = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
@@ -85,13 +85,13 @@ export default function ProductDetailHero({
       {/* Mobile + Desktop Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-10">
         {/* Left: Image Gallery */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }} 
-          animate={{ opacity: 1, y: 0 }} 
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           className="space-y-3"
         >
           {/* Main Image - Swipeable on Mobile */}
-          <div 
+          <div
             ref={constraintsRef}
             className="relative aspect-square lg:aspect-[4/3] rounded-xl overflow-hidden bg-card border border-border"
           >
@@ -134,14 +134,14 @@ export default function ProductDetailHero({
             {/* Desktop Navigation Arrows */}
             {displayImages.length > 1 && (
               <>
-                <button 
-                  onClick={prevImage} 
+                <button
+                  onClick={prevImage}
                   className="hidden lg:flex absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background/90 backdrop-blur-sm items-center justify-center hover:bg-background transition-colors border border-border shadow-lg"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
-                <button 
-                  onClick={nextImage} 
+                <button
+                  onClick={nextImage}
                   className="hidden lg:flex absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background/90 backdrop-blur-sm items-center justify-center hover:bg-background transition-colors border border-border shadow-lg"
                 >
                   <ChevronRight className="w-5 h-5" />
@@ -149,9 +149,9 @@ export default function ProductDetailHero({
               </>
             )}
 
-            {/* Mobile Dots Indicator */}
+            {/* Mobile Dots Indicator - With Dark Backdrop */}
             {displayImages.length > 1 && (
-              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10 lg:hidden">
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10 lg:hidden px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-sm">
                 {displayImages.map((_, idx) => (
                   <button
                     key={idx}
@@ -159,11 +159,10 @@ export default function ProductDetailHero({
                       setDirection(idx > currentImage ? 1 : -1);
                       setCurrentImage(idx);
                     }}
-                    className={`w-2 h-2 rounded-full transition-all ${
-                      idx === currentImage 
-                        ? 'bg-primary w-4' 
-                        : 'bg-foreground/40 hover:bg-foreground/60'
-                    }`}
+                    className={`h-2 rounded-full transition-all ${idx === currentImage
+                        ? 'bg-white w-4'
+                        : 'bg-white/50 w-2 hover:bg-white/70'
+                      }`}
                   />
                 ))}
               </div>
@@ -187,11 +186,10 @@ export default function ProductDetailHero({
                     setDirection(idx > currentImage ? 1 : -1);
                     setCurrentImage(idx);
                   }}
-                  className={`w-16 h-16 rounded-lg overflow-hidden border-2 flex-shrink-0 transition-all ${
-                    idx === currentImage 
-                      ? 'border-primary ring-2 ring-primary/30' 
-                      : 'border-border hover:border-muted-foreground'
-                  }`}
+                  className={`w-16 h-16 rounded-lg overflow-hidden border-2 flex-shrink-0 transition-all ${idx === currentImage
+                    ? 'border-primary ring-2 ring-primary/30'
+                    : 'border-border hover:border-muted-foreground'
+                    }`}
                 >
                   <img src={img} alt="" className="w-full h-full object-cover" />
                 </button>
@@ -201,8 +199,8 @@ export default function ProductDetailHero({
         </motion.div>
 
         {/* Right: Product Info */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }} 
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           className="space-y-4 lg:space-y-5"
@@ -225,11 +223,10 @@ export default function ProductDetailHero({
             <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
               <span>{locale === 'zh' ? '型号' : 'Model'}: {product.slug?.toUpperCase()}</span>
               <span className="text-border">|</span>
-              <span className={`px-2 py-0.5 rounded-full text-xs ${
-                product.is_active !== false 
-                  ? 'bg-green-500/10 text-green-500' 
-                  : 'bg-destructive/10 text-destructive'
-              }`}>
+              <span className={`px-2 py-0.5 rounded-full text-xs ${product.is_active !== false
+                ? 'bg-green-500/10 text-green-500'
+                : 'bg-destructive/10 text-destructive'
+                }`}>
                 {product.is_active !== false ? t.products.inStock : t.products.outOfStock}
               </span>
             </div>
@@ -239,8 +236,8 @@ export default function ProductDetailHero({
           {keyAttributes.length > 0 && (
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide lg:grid lg:grid-cols-2 lg:gap-2 lg:overflow-visible">
               {keyAttributes.slice(0, 4).map((attr, idx) => (
-                <div 
-                  key={idx} 
+                <div
+                  key={idx}
                   className="flex-shrink-0 px-3 py-2 rounded-lg bg-muted/50 border border-border/50 text-sm lg:flex-shrink lg:flex lg:justify-between"
                 >
                   <span className="text-muted-foreground lg:mr-2">{attr.key}:</span>
@@ -254,10 +251,15 @@ export default function ProductDetailHero({
           <div className="p-4 rounded-xl bg-gradient-to-br from-card to-muted/30 border border-border/50">
             {/* Price */}
             <div className="flex items-baseline gap-2 mb-3">
-              <span className="text-2xl lg:text-3xl font-bold text-primary">{priceRange}</span>
+              <span
+                className="text-2xl lg:text-3xl font-bold bg-clip-text text-transparent"
+                style={{ backgroundImage: 'linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f97316 100%)' }}
+              >
+                {priceRange}
+              </span>
               <span className="text-sm text-muted-foreground">/ {locale === 'zh' ? '台' : 'Piece'}</span>
             </div>
-            
+
             {/* MOQ & Lead Time */}
             <div className="flex flex-wrap gap-4 text-sm">
               <div className="flex items-center gap-2 text-muted-foreground">
@@ -273,8 +275,8 @@ export default function ProductDetailHero({
 
           {/* Desktop CTA Button */}
           <div className="hidden lg:block">
-            <Button 
-              onClick={() => setInquiryOpen(true)} 
+            <Button
+              onClick={() => setInquiryOpen(true)}
               size="lg"
               className="w-full h-12 bg-gradient-cosmos text-primary-foreground hover:opacity-90 font-semibold text-base"
             >
@@ -283,44 +285,56 @@ export default function ProductDetailHero({
             </Button>
           </div>
 
-          {/* Desktop Trust Signals */}
-          <div className="hidden lg:flex items-center justify-between pt-4 border-t border-border/50">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Shield className="w-4 h-4 text-primary" />
-              <span>{locale === 'zh' ? '质量保证' : 'Quality Assured'}</span>
+          {/* Desktop Trust Signals - Card Style */}
+          <div className="hidden lg:flex items-center gap-3 pt-4 border-t border-border/50">
+            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-card/30 border border-border/30">
+              <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Shield className="w-4 h-4 text-primary" />
+              </div>
+              <span className="text-sm text-foreground">{locale === 'zh' ? '质保无忧' : 'Warranty'}</span>
             </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Truck className="w-4 h-4 text-primary" />
-              <span>{locale === 'zh' ? '全球配送' : 'Global Shipping'}</span>
+            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-card/30 border border-border/30">
+              <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Truck className="w-4 h-4 text-primary" />
+              </div>
+              <span className="text-sm text-foreground">{locale === 'zh' ? '全球配送' : 'Shipping'}</span>
             </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Package className="w-4 h-4 text-primary" />
-              <span>{locale === 'zh' ? '安全包装' : 'Secure Packing'}</span>
+            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-card/30 border border-border/30">
+              <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Package className="w-4 h-4 text-primary" />
+              </div>
+              <span className="text-sm text-foreground">{locale === 'zh' ? '安全包装' : 'Packing'}</span>
             </div>
           </div>
         </motion.div>
       </div>
 
-      {/* Mobile Trust Signals - Readable */}
-      <div className="lg:hidden flex items-center justify-center gap-5 py-3 text-sm text-foreground/80">
-        <div className="flex items-center gap-1.5">
-          <Shield className="w-4 h-4 text-primary" />
-          <span>{locale === 'zh' ? '质量保证' : 'Quality'}</span>
+      {/* Mobile Trust Signals - Card Style */}
+      <div className="lg:hidden flex items-center justify-center gap-2 py-3">
+        <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-card/30 border border-border/30">
+          <div className="w-6 h-6 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Shield className="w-3.5 h-3.5 text-primary" />
+          </div>
+          <span className="text-xs text-foreground">{locale === 'zh' ? '质保' : 'Quality'}</span>
         </div>
-        <div className="flex items-center gap-1.5">
-          <Truck className="w-4 h-4 text-primary" />
-          <span>{locale === 'zh' ? '全球配送' : 'Shipping'}</span>
+        <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-card/30 border border-border/30">
+          <div className="w-6 h-6 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Truck className="w-3.5 h-3.5 text-primary" />
+          </div>
+          <span className="text-xs text-foreground">{locale === 'zh' ? '全球送' : 'Ship'}</span>
         </div>
-        <div className="flex items-center gap-1.5">
-          <Package className="w-4 h-4 text-primary" />
-          <span>{locale === 'zh' ? '安全包装' : 'Packing'}</span>
+        <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-card/30 border border-border/30">
+          <div className="w-6 h-6 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Package className="w-3.5 h-3.5 text-primary" />
+          </div>
+          <span className="text-xs text-foreground">{locale === 'zh' ? '安全' : 'Safe'}</span>
         </div>
       </div>
 
       {/* Mobile Sticky Bottom Bar */}
       <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-background/95 backdrop-blur-lg border-t border-border p-3 safe-area-bottom">
-        <Button 
-          onClick={() => setInquiryOpen(true)} 
+        <Button
+          onClick={() => setInquiryOpen(true)}
           className="w-full h-12 bg-gradient-cosmos text-primary-foreground hover:opacity-90 font-semibold text-base rounded-xl"
         >
           <Mail className="w-5 h-5 mr-2" />
