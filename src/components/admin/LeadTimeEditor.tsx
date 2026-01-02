@@ -31,9 +31,9 @@ export default function LeadTimeEditor({ items, onChange }: LeadTimeEditorProps)
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-foreground">交货时间</h3>
-      </div>
+      <h3 className="text-base font-semibold text-cyan-400 mb-3 border-b border-border pb-2">
+        交货时间 / Lead Time
+      </h3>
 
       {/* Table header */}
       {safeItems.length > 0 && (
