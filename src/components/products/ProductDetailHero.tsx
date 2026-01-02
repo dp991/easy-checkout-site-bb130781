@@ -120,14 +120,25 @@ export default function ProductDetailHero({
             {/* Badges - Overlay on Image */}
             <div className="absolute top-3 left-3 flex gap-2 z-10">
               {product.is_new && (
-                <Badge className="bg-gradient-cosmos text-primary-foreground border-0 text-xs font-semibold shadow-lg">
-                  NEW
+                <Badge className="bg-gradient-gold text-primary-foreground border-0 text-[11px] px-2 py-0.5 font-semibold shadow-lg">
+                  New
                 </Badge>
               )}
               {product.is_featured && (
-                <Badge className="bg-accent text-accent-foreground border-0 text-xs font-semibold shadow-lg">
-                  {locale === 'zh' ? '热门' : 'HOT'}
-                </Badge>
+                <motion.div
+                  animate={{
+                    boxShadow: [
+                      '0 0 6px rgba(251, 146, 60, 0.4)',
+                      '0 0 12px rgba(251, 146, 60, 0.7)',
+                      '0 0 6px rgba(251, 146, 60, 0.4)'
+                    ]
+                  }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                  className="px-2 py-0.5 rounded-full text-[11px] font-semibold text-white shadow-lg"
+                  style={{ background: 'linear-gradient(135deg, #f97316 0%, #ef4444 50%, #ec4899 100%)' }}
+                >
+                  {locale === 'zh' ? '热门' : 'Hot'}
+                </motion.div>
               )}
             </div>
 
@@ -160,8 +171,8 @@ export default function ProductDetailHero({
                       setCurrentImage(idx);
                     }}
                     className={`h-2 rounded-full transition-all ${idx === currentImage
-                        ? 'bg-white w-4'
-                        : 'bg-white/50 w-2 hover:bg-white/70'
+                      ? 'bg-white w-4'
+                      : 'bg-white/50 w-2 hover:bg-white/70'
                       }`}
                   />
                 ))}
