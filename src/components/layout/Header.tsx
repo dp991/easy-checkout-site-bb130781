@@ -31,8 +31,13 @@ export default function Header() {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-[hsl(222,47%,5%)]/95 backdrop-blur-xl border-b border-white/10">
-      <div className="container-wide">
+    <header className="fixed top-0 left-0 right-0 z-50">
+      {/* Glass background */}
+      <div className="absolute inset-0 bg-[hsl(222,47%,5%)]/90 backdrop-blur-xl" />
+      {/* Gradient bottom border */}
+      <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+
+      <div className="container-wide relative">
         <div className="flex items-center justify-between h-14 sm:h-16 md:h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
@@ -51,11 +56,10 @@ export default function Header() {
                 key={link.href}
                 to={link.href}
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  isActive(link.href)
-                    ? 'text-primary bg-primary/10'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                }`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${isActive(link.href)
+                  ? 'text-primary bg-primary/10'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                  }`}
               >
                 {link.label}
               </Link>
@@ -65,10 +69,13 @@ export default function Header() {
           {/* Right Section */}
           <div className="flex items-center gap-1 sm:gap-2">
             {/* Cart Button */}
-            <Link to="/cart" className="relative p-2 rounded-lg hover:bg-muted transition-colors">
-              <ShoppingCart className="w-5 h-5 text-muted-foreground" />
+            <Link to="/cart" className="relative p-2 rounded-lg hover:bg-white/5 transition-colors group">
+              <ShoppingCart className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
               {itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-xs font-bold rounded-full flex items-center justify-center">
+                <span
+                  className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 text-[10px] font-bold rounded-full flex items-center justify-center text-white"
+                  style={{ background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)' }}
+                >
                   {itemCount > 99 ? '99+' : itemCount}
                 </span>
               )}
@@ -124,33 +131,35 @@ export default function Header() {
                 <span className="hidden sm:inline">{locale === 'en' ? 'EN' : '中文'}</span>
                 <ChevronDown className="w-3 h-3" />
               </button>
-              
+
               <AnimatePresence>
                 {isLangOpen && (
                   <>
-                    <div 
-                      className="fixed inset-0 z-10" 
-                      onClick={() => setIsLangOpen(false)} 
+                    <div
+                      className="fixed inset-0 z-10"
+                      onClick={() => setIsLangOpen(false)}
                     />
                     <motion.div
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      className="absolute right-0 top-full mt-2 py-2 w-32 bg-card border border-border rounded-lg shadow-lg z-20"
+                      className="absolute right-0 top-full mt-2 p-1.5 w-32 bg-[hsl(222,47%,8%)]/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-xl shadow-black/20 z-20"
                     >
                       <button
                         onClick={() => { setLocale('en'); setIsLangOpen(false); }}
-                        className={`w-full px-4 py-2 text-left text-sm hover:bg-muted transition-colors ${
-                          locale === 'en' ? 'text-primary' : 'text-foreground'
-                        }`}
+                        className={`w-full px-3 py-2.5 text-left text-sm rounded-lg transition-all ${locale === 'en'
+                            ? 'bg-white/5 text-foreground'
+                            : 'text-muted-foreground hover:bg-white/5 hover:text-foreground'
+                          }`}
                       >
                         English
                       </button>
                       <button
                         onClick={() => { setLocale('zh'); setIsLangOpen(false); }}
-                        className={`w-full px-4 py-2 text-left text-sm hover:bg-muted transition-colors ${
-                          locale === 'zh' ? 'text-primary' : 'text-foreground'
-                        }`}
+                        className={`w-full px-3 py-2.5 text-left text-sm rounded-lg transition-all ${locale === 'zh'
+                            ? 'bg-white/5 text-foreground'
+                            : 'text-muted-foreground hover:bg-white/5 hover:text-foreground'
+                          }`}
                       >
                         中文
                       </button>
@@ -165,9 +174,9 @@ export default function Header() {
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 rounded-lg text-foreground hover:bg-muted transition-colors"
+              className="md:hidden p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors"
             >
-              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
@@ -179,25 +188,35 @@ export default function Header() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden border-t border-border overflow-hidden"
+              className="md:hidden overflow-hidden"
             >
-              <div className="py-4 space-y-1">
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    to={link.href}
-                    onClick={() => { setIsMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                    className={`block px-4 py-3 rounded-lg text-base font-medium transition-colors ${
-                      isActive(link.href)
-                        ? 'text-primary bg-primary/10'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                    }`}
-                  >
-                    {link.label}
-                  </Link>
-                ))}
+              {/* Gradient top border */}
+              <div className="h-[1px] bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
+              <div className="py-3 px-2 space-y-1">
+                {navLinks.map((link, index) => (
+                  <motion.div
+                    key={link.href}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                  >
+                    <Link
+                      to={link.href}
+                      onClick={() => { setIsMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                      className={`block px-4 py-3 rounded-xl text-base font-medium transition-all duration-200 ${isActive(link.href)
+                        ? 'bg-gradient-to-r from-primary/20 to-pink-500/10 text-white border border-primary/30'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
+                        }`}
+                    >
+                      {link.label}
+                    </Link>
+                  </motion.div>
+                ))}
               </div>
+
+              {/* Gradient bottom border */}
+              <div className="h-[1px] bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
             </motion.nav>
           )}
         </AnimatePresence>
