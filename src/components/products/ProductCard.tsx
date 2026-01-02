@@ -102,29 +102,33 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
           </div>
 
           {/* Content */}
-          <div className="p-2.5 md:p-4">
-            <h3 className="font-display font-semibold text-foreground text-sm md:text-lg line-clamp-1 group-hover:text-primary transition-colors">
+          <div className="p-2 md:p-4">
+            <h3 className="font-display font-semibold text-foreground text-xs md:text-lg line-clamp-1 group-hover:text-primary transition-colors">
               {name}
             </h3>
 
-            <div className="mt-1.5 md:mt-2 flex items-end justify-between">
-              <div>
-                <p
-                  className="font-bold text-base md:text-xl bg-clip-text text-transparent"
+            <div className="mt-1 md:mt-2">
+              {/* Price Row */}
+              <div className="flex items-center gap-1.5">
+                <span
+                  className="font-bold text-sm md:text-xl bg-clip-text text-transparent whitespace-nowrap"
                   style={{ backgroundImage: 'linear-gradient(90deg, #a855f7 0%, #ec4899 50%, #f97316 100%)' }}
                 >
                   {priceRange}
-                </p>
-                <p className="text-muted-foreground text-[10px] md:text-xs mt-0.5 md:mt-1">
-                  {t.products.minOrder}: {product.min_order} {locale === 'zh' ? '台' : 'pcs'}
-                </p>
+                </span>
+                <span className={`text-[9px] md:text-xs px-1.5 py-0.5 rounded-full whitespace-nowrap ${product.is_active !== false
+                    ? 'bg-green-500/10 text-green-500'
+                    : 'bg-destructive/10 text-destructive'
+                  }`}>
+                  {product.is_active !== false
+                    ? (locale === 'zh' ? '有货' : 'Stock')
+                    : (locale === 'zh' ? '缺货' : 'Out')}
+                </span>
               </div>
-              <span className={`text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 md:py-1 rounded-full ${product.is_active !== false
-                ? 'bg-green-500/10 text-green-500'
-                : 'bg-destructive/10 text-destructive'
-                }`}>
-                {product.is_active !== false ? t.products.inStock : t.products.outOfStock}
-              </span>
+              {/* MOQ Row */}
+              <p className="text-muted-foreground text-[9px] md:text-xs mt-0.5">
+                MOQ: {product.min_order} {locale === 'zh' ? '台' : 'pcs'}
+              </p>
             </div>
           </div>
         </div>
