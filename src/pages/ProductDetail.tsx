@@ -11,15 +11,19 @@ import ProductDescriptionDisplay from '@/components/products/ProductDescriptionD
 import { parseProductDescription, ProductDescriptionData } from '@/components/admin/ProductDescriptionEditor';
 
 interface ProductAttribute {
-  key: string;
-  value: string;
+  key_zh: string;
+  key_en: string;
+  value_zh: string;
+  value_en: string;
   is_key_attribute?: boolean;
   group?: string;
 }
 
 interface PackagingItem {
-  key: string;
-  value: string;
+  key_zh: string;
+  key_en: string;
+  value_zh: string;
+  value_en: string;
 }
 
 interface LeadTimeItem {
@@ -28,8 +32,10 @@ interface LeadTimeItem {
 }
 
 interface CustomizationItem {
-  service_name: string;
-  moq: string;
+  service_name_zh: string;
+  service_name_en: string;
+  moq_zh: string;
+  moq_en: string;
 }
 
 export default function ProductDetail() {
@@ -125,7 +131,12 @@ export default function ProductDetail() {
   const packagingInfo: PackagingItem[] = productAny.packaging_info || [];
   const leadTimes: LeadTimeItem[] = productAny.lead_times || [];
   const customizations: CustomizationItem[] = productAny.customizations || [];
-  const keyAttributes = attributes.filter(a => a.is_key_attribute);
+  const keyAttributes = attributes
+    .filter(a => a.is_key_attribute)
+    .map(a => ({
+      key: locale === 'zh' ? a.key_zh : a.key_en,
+      value: locale === 'zh' ? a.value_zh : a.value_en
+    }));
 
   const hasSpecs = attributes.length > 0 || packagingInfo.length > 0 || leadTimes.length > 0 || customizations.length > 0;
 
@@ -200,8 +211,8 @@ export default function ProductDetail() {
                     <div className="grid grid-cols-1 md:grid-cols-2">
                       {attributes.map((attr, idx) => (
                         <div key={idx} className={`flex border-b border-border last:border-b-0 md:odd:border-r ${idx % 4 < 2 ? 'bg-muted/30' : 'bg-transparent'}`}>
-                          <div className="w-2/5 p-3 text-sm text-cyan-400 font-medium border-r border-border">{attr.key}</div>
-                          <div className="w-3/5 p-3 text-sm text-foreground">{attr.value}</div>
+                          <div className="w-2/5 p-3 text-sm text-cyan-400 font-medium border-r border-border">{locale === 'zh' ? attr.key_zh : attr.key_en}</div>
+                          <div className="w-3/5 p-3 text-sm text-foreground">{locale === 'zh' ? attr.value_zh : attr.value_en}</div>
                         </div>
                       ))}
                     </div>
@@ -220,8 +231,8 @@ export default function ProductDetail() {
                     <div className="grid grid-cols-1 md:grid-cols-2">
                       {packagingInfo.map((item, idx) => (
                         <div key={idx} className={`flex border-b border-border last:border-b-0 md:odd:border-r ${idx % 4 < 2 ? 'bg-muted/30' : 'bg-transparent'}`}>
-                          <div className="w-2/5 p-3 text-sm text-cyan-400 font-medium border-r border-border">{item.key}</div>
-                          <div className="w-3/5 p-3 text-sm text-foreground">{item.value}</div>
+                          <div className="w-2/5 p-3 text-sm text-cyan-400 font-medium border-r border-border">{locale === 'zh' ? item.key_zh : item.key_en}</div>
+                          <div className="w-3/5 p-3 text-sm text-foreground">{locale === 'zh' ? item.value_zh : item.value_en}</div>
                         </div>
                       ))}
                     </div>
@@ -270,9 +281,9 @@ export default function ProductDetail() {
                     <div className="grid grid-cols-1 md:grid-cols-2">
                       {customizations.map((item, idx) => (
                         <div key={idx} className={`flex border-b border-border last:border-b-0 md:odd:border-r ${idx % 4 < 2 ? 'bg-muted/30' : 'bg-transparent'}`}>
-                          <div className="w-2/5 p-3 text-sm text-cyan-400 font-medium border-r border-border">{item.service_name}</div>
+                          <div className="w-2/5 p-3 text-sm text-cyan-400 font-medium border-r border-border">{locale === 'zh' ? item.service_name_zh : item.service_name_en}</div>
                           <div className="w-3/5 p-3 text-sm text-foreground">
-                            {item.moq || '-'}
+                            {(locale === 'zh' ? item.moq_zh : item.moq_en) || '-'}
                           </div>
                         </div>
                       ))}
@@ -312,6 +323,6 @@ export default function ProductDetail() {
 
       {/* Floating Chat Button */}
       <FloatingChatButton />
-    </Layout>
+    </Layout >
   );
 }
