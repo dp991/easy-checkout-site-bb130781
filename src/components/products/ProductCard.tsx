@@ -66,8 +66,8 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             {/* Badges */}
             <div className="absolute top-3 left-3 flex gap-2">
               {product.is_new && (
-                <Badge className="bg-gradient-gold text-primary-foreground border-0">
-                  NEW
+                <Badge className="bg-gradient-gold text-primary-foreground border-0 text-[10px] px-2 py-0.5">
+                  New
                 </Badge>
               )}
               {product.is_featured && (
@@ -80,24 +80,23 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                     ]
                   }}
                   transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-                  className="px-2.5 py-1 rounded-full text-xs font-semibold text-white"
+                  className="px-2 py-0.5 rounded-full text-[10px] font-semibold text-white"
                   style={{ background: 'linear-gradient(135deg, #f97316 0%, #ef4444 50%, #ec4899 100%)' }}
                 >
-                  {locale === 'zh' ? '热门' : 'Featured'}
+                  {locale === 'zh' ? '热门' : 'Hot'}
                 </motion.div>
               )}
             </div>
 
-            {/* Quick Add to Cart Button (Both Desktop and Mobile) */}
             <motion.button
               onClick={handleAddToCart}
               whileHover={{ scale: 1.15 }}
               whileTap={{ scale: 0.9 }}
-              className="absolute bottom-2 right-2 w-8 h-8 md:w-9 md:h-9 rounded-full text-white flex items-center justify-center shadow-lg z-10 cursor-pointer transition-shadow hover:shadow-xl"
+              className="absolute bottom-2 right-2 w-7 h-7 md:w-8 md:h-8 rounded-full text-white flex items-center justify-center shadow-lg z-10 cursor-pointer transition-shadow hover:shadow-xl"
               style={{ background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f97316 100%)' }}
               title={locale === 'zh' ? '加入购物车' : 'Add to Cart'}
             >
-              <ShoppingCart className="w-4 h-4 md:w-5 md:h-5" />
+              <ShoppingCart className="w-3.5 h-3.5 md:w-4 md:h-4" />
             </motion.button>
           </div>
 
