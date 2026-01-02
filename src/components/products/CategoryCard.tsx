@@ -44,12 +44,22 @@ export default function CategoryCard({ category, index = 0 }: CategoryCardProps)
                             {name}
                         </h3>
 
-                        <div className="flex items-center justify-between mt-2">
-                            <span className="text-muted-foreground text-xs md:text-sm">
-                                {locale === 'zh' ? '查看产品' : 'View Products'}
-                            </span>
-                            <div className="w-6 h-6 md:w-7 md:h-7 rounded-full bg-muted flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-                                <ArrowRight className="w-3 h-3 md:w-4 md:h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                        {/* CTA Button - Subtle with gradient border */}
+                        <div className="mt-2">
+                            <div
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] md:text-xs font-medium transition-all duration-300 group-hover:gap-1.5"
+                                style={{
+                                    background: 'transparent',
+                                    border: '1px solid transparent',
+                                    backgroundImage: 'linear-gradient(hsl(222,47%,11%), hsl(222,47%,11%)), linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f97316 100%)',
+                                    backgroundOrigin: 'border-box',
+                                    backgroundClip: 'padding-box, border-box'
+                                }}
+                            >
+                                <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f97316 100%)' }}>
+                                    {locale === 'zh' ? '探索' : 'Explore'}
+                                </span>
+                                <ArrowRight className="w-3 h-3 text-primary transition-transform group-hover:translate-x-0.5" />
                             </div>
                         </div>
                     </div>
