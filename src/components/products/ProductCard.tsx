@@ -63,10 +63,10 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
 
-            {/* Badges */}
-            <div className="absolute top-3 left-3 flex gap-2">
+            {/* Badges - Top Left, Stacked Vertically */}
+            <div className="absolute top-2 left-2 flex flex-col gap-1">
               {product.is_new && (
-                <Badge className="bg-gradient-gold text-primary-foreground border-0 text-[10px] px-2 py-0.5">
+                <Badge className="bg-gradient-gold text-primary-foreground border-0 text-[10px] px-1.5 py-0.5 shadow-sm">
                   New
                 </Badge>
               )}
@@ -74,13 +74,13 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                 <motion.div
                   animate={{
                     boxShadow: [
-                      '0 0 8px rgba(251, 146, 60, 0.5)',
-                      '0 0 16px rgba(251, 146, 60, 0.8)',
-                      '0 0 8px rgba(251, 146, 60, 0.5)'
+                      '0 0 6px rgba(251, 146, 60, 0.4)',
+                      '0 0 12px rgba(251, 146, 60, 0.7)',
+                      '0 0 6px rgba(251, 146, 60, 0.4)'
                     ]
                   }}
                   transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-                  className="px-2 py-0.5 rounded-full text-[10px] font-semibold text-white"
+                  className="px-1.5 py-0.5 rounded-full text-[10px] font-semibold text-white shadow-sm"
                   style={{ background: 'linear-gradient(135deg, #f97316 0%, #ef4444 50%, #ec4899 100%)' }}
                 >
                   {locale === 'zh' ? '热门' : 'Hot'}
@@ -88,11 +88,12 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
               )}
             </div>
 
+            {/* Cart Button - Top Right */}
             <motion.button
               onClick={handleAddToCart}
-              whileHover={{ scale: 1.15 }}
+              whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              className="absolute bottom-2 right-2 w-7 h-7 md:w-8 md:h-8 rounded-full text-white flex items-center justify-center shadow-lg z-10 cursor-pointer transition-shadow hover:shadow-xl"
+              className="absolute top-2 right-2 w-7 h-7 md:w-8 md:h-8 rounded-full text-white flex items-center justify-center shadow-md z-10 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
               style={{ background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f97316 100%)' }}
               title={locale === 'zh' ? '加入购物车' : 'Add to Cart'}
             >
