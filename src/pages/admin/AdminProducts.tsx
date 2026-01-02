@@ -9,7 +9,7 @@ import AttributesEditor, { ProductAttribute } from '@/components/admin/Attribute
 import PackagingEditor, { PackagingItem } from '@/components/admin/PackagingEditor';
 import LeadTimeEditor, { LeadTimeItem } from '@/components/admin/LeadTimeEditor';
 import CustomizationEditor, { CustomizationItem } from '@/components/admin/CustomizationEditor';
-import RichTextEditor from '@/components/admin/RichTextEditor';
+import ProductDescriptionEditor, { ProductDescriptionData, createEmptyProductDescription, parseProductDescription } from '@/components/admin/ProductDescriptionEditor';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -52,8 +52,8 @@ export default function AdminProducts() {
     category_id: '',
     description_zh: '',
     description_en: '',
-    description_html_zh: '',
-    description_html_en: '',
+    description_data_zh: createEmptyProductDescription(),
+    description_data_en: createEmptyProductDescription(),
     price_min: '',
     price_max: '',
     min_order: '1',
@@ -158,7 +158,7 @@ export default function AdminProducts() {
   const getPageNumbers = () => {
     const pages: (number | 'ellipsis')[] = [];
     const showPages = 5;
-    
+
     if (totalPages <= showPages + 2) {
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i);
@@ -202,8 +202,8 @@ export default function AdminProducts() {
         category_id: data.category_id || null,
         description_zh: data.description_zh,
         description_en: data.description_en,
-        description_html_zh: data.description_html_zh || null,
-        description_html_en: data.description_html_en || null,
+        description_data_zh: data.description_data_zh || null,
+        description_data_en: data.description_data_en || null,
         price_min: parseFloat(data.price_min) || null,
         price_max: parseFloat(data.price_max) || null,
         min_order: parseInt(data.min_order) || 1,
@@ -237,8 +237,8 @@ export default function AdminProducts() {
           category_id: data.category_id || null,
           description_zh: data.description_zh,
           description_en: data.description_en,
-          description_html_zh: data.description_html_zh || null,
-          description_html_en: data.description_html_en || null,
+          description_data_zh: data.description_data_zh || null,
+          description_data_en: data.description_data_en || null,
           price_min: data.price_min ? parseFloat(data.price_min) : null,
           price_max: data.price_max ? parseFloat(data.price_max) : null,
           min_order: parseInt(data.min_order) || 1,
@@ -334,8 +334,8 @@ export default function AdminProducts() {
       category_id: '',
       description_zh: '',
       description_en: '',
-      description_html_zh: '',
-      description_html_en: '',
+      description_data_zh: createEmptyProductDescription(),
+      description_data_en: createEmptyProductDescription(),
       price_min: '',
       price_max: '',
       min_order: '1',
@@ -360,8 +360,8 @@ export default function AdminProducts() {
       category_id: product.category_id || '',
       description_zh: product.description_zh || '',
       description_en: product.description_en || '',
-      description_html_zh: productAny.description_html_zh || '',
-      description_html_en: productAny.description_html_en || '',
+      description_data_zh: parseProductDescription(productAny.description_data_zh),
+      description_data_en: parseProductDescription(productAny.description_data_en),
       price_min: String(product.price_min || ''),
       price_max: String(product.price_max || ''),
       min_order: String(product.min_order || 1),
@@ -394,7 +394,7 @@ export default function AdminProducts() {
       setFormData(prev => ({ ...prev, images: [...prev.images, ...urls] }));
       toast.success(`成功上传 ${urls.length} 张图片`);
     }
-    
+
     // Reset input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -517,11 +517,10 @@ export default function AdminProducts() {
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: Math.min(index * 0.02, 0.3) }}
-                        className={`relative group rounded-lg border overflow-hidden transition-all ${
-                          selectedIds.has(product.id) 
-                            ? 'border-primary ring-2 ring-primary/20' 
-                            : 'border-border hover:border-primary/50'
-                        }`}
+                        className={`relative group rounded-lg border overflow-hidden transition-all ${selectedIds.has(product.id)
+                          ? 'border-primary ring-2 ring-primary/20'
+                          : 'border-border hover:border-primary/50'
+                          }`}
                       >
                         {/* Checkbox */}
                         <div className="absolute top-2 left-2 z-10">
@@ -872,21 +871,21 @@ export default function AdminProducts() {
                       onChange={(attrs) => setFormData({ ...formData, attributes: attrs })}
                     />
                   </div>
-                  
+
                   <div className="border-t border-border pt-4">
                     <PackagingEditor
                       items={formData.packaging_info}
                       onChange={(items) => setFormData({ ...formData, packaging_info: items })}
                     />
                   </div>
-                  
+
                   <div className="border-t border-border pt-4">
                     <LeadTimeEditor
                       items={formData.lead_times}
                       onChange={(items) => setFormData({ ...formData, lead_times: items })}
                     />
                   </div>
-                  
+
                   <div className="border-t border-border pt-4">
                     <CustomizationEditor
                       items={formData.customizations}
@@ -896,21 +895,21 @@ export default function AdminProducts() {
                 </TabsContent>
 
                 {/* Description Tab */}
-                <TabsContent value="description" className="space-y-4 mt-4">
-                  <div className="space-y-2">
+                <TabsContent value="description" className="space-y-6 mt-4">
+                  <div className="space-y-3">
                     <label className="text-sm font-medium">详细描述 (中文)</label>
-                    <RichTextEditor
-                      value={formData.description_html_zh}
-                      onChange={(html) => setFormData({ ...formData, description_html_zh: html })}
-                      placeholder="输入详细的产品描述..."
+                    <ProductDescriptionEditor
+                      value={formData.description_data_zh}
+                      onChange={(data) => setFormData({ ...formData, description_data_zh: data })}
+                      language="zh"
                     />
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <label className="text-sm font-medium">详细描述 (英文)</label>
-                    <RichTextEditor
-                      value={formData.description_html_en}
-                      onChange={(html) => setFormData({ ...formData, description_html_en: html })}
-                      placeholder="Enter detailed product description..."
+                    <ProductDescriptionEditor
+                      value={formData.description_data_en}
+                      onChange={(data) => setFormData({ ...formData, description_data_en: data })}
+                      language="en"
                     />
                   </div>
                 </TabsContent>
