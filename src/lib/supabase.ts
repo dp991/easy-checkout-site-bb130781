@@ -25,6 +25,8 @@ export interface DbProduct {
   slug: string;
   description_zh: string | null;
   description_en: string | null;
+  description_data_zh: unknown | null;
+  description_data_en: unknown | null;
   price: number | null;
   price_min: number | null;
   price_max: number | null;
