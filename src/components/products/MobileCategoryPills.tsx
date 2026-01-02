@@ -19,7 +19,7 @@ export default function MobileCategoryPills({
   const parentCategories = categories.filter(c => !c.parent_id);
 
   return (
-    <div className="md:hidden sticky top-16 z-40 bg-background/95 backdrop-blur-md border-b border-border">
+    <div className="md:hidden sticky top-14 sm:top-16 z-40 bg-[hsl(222,47%,5%)] shadow-md shadow-black/20">
       <div className="flex overflow-x-auto gap-2 px-4 py-3 scrollbar-hide">
         {/* All Products Pill */}
         <motion.button
