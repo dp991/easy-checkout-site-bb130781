@@ -1,5 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
-import { Settings, Clock, ChevronRight, ArrowLeft } from 'lucide-react';
+import { Settings, Clock, ChevronRight, ArrowLeft, ListChecks, Package } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useProductBySlug, useProducts } from '@/hooks/useDatabase';
 import Layout from '@/components/layout/Layout';
@@ -7,7 +7,8 @@ import ProductCard from '@/components/products/ProductCard';
 import ProductDetailHero from '@/components/products/ProductDetailHero';
 import FloatingChatButton from '@/components/FloatingChatButton';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import ProductDescriptionDisplay from '@/components/products/ProductDescriptionDisplay';
+import { parseProductDescription, ProductDescriptionData } from '@/components/admin/ProductDescriptionEditor';
 
 interface ProductAttribute {
   key: string;
@@ -73,7 +74,40 @@ export default function ProductDetail() {
   const productAny = product as any;
   const name = locale === 'zh' ? product.name_zh : product.name_en;
   const description = locale === 'zh' ? product.description_zh : product.description_en;
-  const descriptionHtml = locale === 'zh' ? productAny.description_html_zh : productAny.description_html_en;
+
+  // Smart merge: features/specTables are language-specific, but images are shared
+  const getDescriptionData = () => {
+    const zhData = parseProductDescription(productAny.description_data_zh);
+    const enData = parseProductDescription(productAny.description_data_en);
+
+    // Get primary data based on locale
+    const primaryData = locale === 'zh' ? zhData : enData;
+    const fallbackData = locale === 'zh' ? enData : zhData;
+
+    // Use primary features/specTables, fallback if empty
+    const features = primaryData.features.length > 0 ? primaryData.features : fallbackData.features;
+    const specTables = primaryData.specTables.length > 0 ? primaryData.specTables : fallbackData.specTables;
+
+    // For richContent: use primary text, but merge images from both languages
+    const primaryTexts = primaryData.richContent.filter(block => block.type === 'text');
+    const fallbackTexts = fallbackData.richContent.filter(block => block.type === 'text');
+    const texts = primaryTexts.length > 0 ? primaryTexts : fallbackTexts;
+
+    // Merge all images from both languages (deduplicate by content URL)
+    const allImages = [
+      ...zhData.richContent.filter(block => block.type === 'image'),
+      ...enData.richContent.filter(block => block.type === 'image')
+    ];
+    const uniqueImages = allImages.filter((img, index, self) =>
+      index === self.findIndex(i => i.content === img.content)
+    );
+
+    // Combine: texts first, then images
+    const richContent = [...texts, ...uniqueImages];
+
+    return { features, specTables, richContent };
+  };
+  const descriptionData: ProductDescriptionData = getDescriptionData();
   const priceMin = product.price_min;
   const priceMax = product.price_max;
 
@@ -126,110 +160,140 @@ export default function ProductDetail() {
           keyAttributes={keyAttributes}
         />
 
-        {/* Tabs Section */}
-        <div className="mt-4 md:mt-12">
-          <Tabs defaultValue={hasSpecs ? "specs" : "description"} className="w-full">
-            <TabsList className="w-full justify-start border-b border-border rounded-none bg-transparent h-auto p-0">
-              {hasSpecs && <TabsTrigger value="specs" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary">{locale === 'zh' ? '规格参数' : 'Specifications'}</TabsTrigger>}
-              <TabsTrigger value="description" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary">{locale === 'zh' ? '产品详情' : 'Description'}</TabsTrigger>
-            </TabsList>
-            <TabsContent value="description" className="mt-6">
-              {descriptionHtml ? (
-                <div className="prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: descriptionHtml }} />
-              ) : (
-                <p className="text-muted-foreground">{description || (locale === 'zh' ? '暂无详细描述' : 'No description available')}</p>
-              )}
-            </TabsContent>
+        {/* Anchor Navigation */}
+        <div className="mt-4 md:mt-12 sticky top-14 sm:top-16 z-30 bg-background/95 backdrop-blur-sm -mx-4 md:-mx-6 px-4 md:px-6 py-2 border-b border-border">
+          <nav className="flex gap-6">
             {hasSpecs && (
-              <TabsContent value="specs" className="mt-6 space-y-8">
-                {/* Key Attributes Section */}
-                {attributes.length > 0 && (
-                  <div>
-                    <h3 className="text-lg font-bold text-foreground mb-4">{locale === 'zh' ? '重要属性' : 'Key Attributes'}</h3>
-                    <div className="rounded-lg border border-border overflow-hidden">
-                      <div className="grid grid-cols-1 md:grid-cols-2">
-                        {attributes.map((attr, idx) => (
-                          <div key={idx} className={`flex border-b border-border last:border-b-0 md:odd:border-r ${idx % 4 < 2 ? 'bg-muted/30' : 'bg-transparent'}`}>
-                            <div className="w-2/5 p-3 text-sm text-primary border-r border-border">{attr.key}</div>
-                            <div className="w-3/5 p-3 text-sm text-foreground">{attr.value}</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Packaging & Delivery Section */}
-                {packagingInfo.length > 0 && (
-                  <div>
-                    <h3 className="text-lg font-bold text-foreground mb-4">{locale === 'zh' ? '包装和发货信息' : 'Packaging & Delivery'}</h3>
-                    <div className="rounded-lg border border-border overflow-hidden">
-                      <div className="grid grid-cols-1 md:grid-cols-2">
-                        {packagingInfo.map((item, idx) => (
-                          <div key={idx} className={`flex border-b border-border last:border-b-0 md:odd:border-r ${idx % 4 < 2 ? 'bg-muted/30' : 'bg-transparent'}`}>
-                            <div className="w-2/5 p-3 text-sm text-primary border-r border-border">{item.key}</div>
-                            <div className="w-3/5 p-3 text-sm text-foreground">{item.value}</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Lead Time Section */}
-                {leadTimes.length > 0 && (
-                  <div>
-                    <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
-                      <Clock className="w-5 h-5 text-primary" />
-                      {locale === 'zh' ? '交货时间' : 'Lead Time'}
-                    </h3>
-                    <div className="rounded-lg border border-border overflow-x-auto">
-                      <table className="w-full min-w-max">
-                        <thead>
-                          <tr className="bg-muted/30">
-                            <td className="p-3 text-sm text-primary border-r border-border font-medium">{locale === 'zh' ? '数量 (pieces)' : 'Quantity (pieces)'}</td>
-                            {leadTimes.map((item, idx) => (
-                              <td key={idx} className="p-3 text-sm text-foreground text-center border-r border-border last:border-r-0">{item.quantity_range}</td>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td className="p-3 text-sm text-primary border-r border-border font-medium">{locale === 'zh' ? '预计时间 (天)' : 'Est. Time (days)'}</td>
-                            {leadTimes.map((item, idx) => (
-                              <td key={idx} className="p-3 text-sm text-foreground text-center border-r border-border last:border-r-0">{item.lead_days}</td>
-                            ))}
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                )}
-
-                {/* Customization Section */}
-                {customizations.length > 0 && (
-                  <div>
-                    <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
-                      <Settings className="w-5 h-5 text-primary" />
-                      {locale === 'zh' ? '定制选项' : 'Customization'}
-                    </h3>
-                    <div className="rounded-lg border border-border overflow-hidden">
-                      <div className="grid grid-cols-1 md:grid-cols-2">
-                        {customizations.map((item, idx) => (
-                          <div key={idx} className={`flex border-b border-border last:border-b-0 md:odd:border-r ${idx % 4 < 2 ? 'bg-muted/30' : 'bg-transparent'}`}>
-                            <div className="w-2/5 p-3 text-sm text-primary border-r border-border">{item.service_name}</div>
-                            <div className="w-3/5 p-3 text-sm text-foreground">
-                              {item.moq || '-'}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </TabsContent>
+              <button
+                onClick={() => document.getElementById('specs-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors pb-2 border-b-2 border-transparent hover:border-primary"
+              >
+                {locale === 'zh' ? '规格参数' : 'Specifications'}
+              </button>
             )}
-          </Tabs>
+            <button
+              onClick={() => document.getElementById('description-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors pb-2 border-b-2 border-transparent hover:border-primary"
+            >
+              {locale === 'zh' ? '产品详情' : 'Description'}
+            </button>
+          </nav>
+        </div>
+
+        {/* Continuous Scrollable Content */}
+        <div className="mt-6 space-y-12">
+          {/* Specifications Section */}
+          {hasSpecs && (
+            <section id="specs-section" className="scroll-mt-32 space-y-8">
+              <h2 className="text-xl font-bold text-foreground border-b border-border pb-3">
+                {locale === 'zh' ? '规格参数' : 'Specifications'}
+              </h2>
+
+              {/* Key Attributes Section */}
+              {attributes.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+                    <ListChecks className="w-5 h-5 text-primary" />
+                    {locale === 'zh' ? '重要属性' : 'Key Attributes'}
+                  </h3>
+                  <div className="rounded-lg border border-border overflow-hidden">
+                    <div className="grid grid-cols-1 md:grid-cols-2">
+                      {attributes.map((attr, idx) => (
+                        <div key={idx} className={`flex border-b border-border last:border-b-0 md:odd:border-r ${idx % 4 < 2 ? 'bg-muted/30' : 'bg-transparent'}`}>
+                          <div className="w-2/5 p-3 text-sm text-cyan-400 font-medium border-r border-border">{attr.key}</div>
+                          <div className="w-3/5 p-3 text-sm text-foreground">{attr.value}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Packaging & Delivery Section */}
+              {packagingInfo.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+                    <Package className="w-5 h-5 text-primary" />
+                    {locale === 'zh' ? '包装和发货信息' : 'Packaging & Delivery'}
+                  </h3>
+                  <div className="rounded-lg border border-border overflow-hidden">
+                    <div className="grid grid-cols-1 md:grid-cols-2">
+                      {packagingInfo.map((item, idx) => (
+                        <div key={idx} className={`flex border-b border-border last:border-b-0 md:odd:border-r ${idx % 4 < 2 ? 'bg-muted/30' : 'bg-transparent'}`}>
+                          <div className="w-2/5 p-3 text-sm text-cyan-400 font-medium border-r border-border">{item.key}</div>
+                          <div className="w-3/5 p-3 text-sm text-foreground">{item.value}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Lead Time Section */}
+              {leadTimes.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-primary" />
+                    {locale === 'zh' ? '交货时间' : 'Lead Time'}
+                  </h3>
+                  <div className="rounded-lg border border-border overflow-x-auto">
+                    <table className="w-full min-w-max">
+                      <thead>
+                        <tr className="bg-muted/30">
+                          <td className="p-3 text-sm text-cyan-400 font-medium border-r border-border font-medium">{locale === 'zh' ? '数量 (pieces)' : 'Quantity (pieces)'}</td>
+                          {leadTimes.map((item, idx) => (
+                            <td key={idx} className="p-3 text-sm text-foreground text-center border-r border-border last:border-r-0">{item.quantity_range}</td>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td className="p-3 text-sm text-cyan-400 font-medium border-r border-border font-medium">{locale === 'zh' ? '预计时间 (天)' : 'Est. Time (days)'}</td>
+                          {leadTimes.map((item, idx) => (
+                            <td key={idx} className="p-3 text-sm text-foreground text-center border-r border-border last:border-r-0">{item.lead_days}</td>
+                          ))}
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* Customization Section */}
+              {customizations.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+                    <Settings className="w-5 h-5 text-primary" />
+                    {locale === 'zh' ? '定制选项' : 'Customization'}
+                  </h3>
+                  <div className="rounded-lg border border-border overflow-hidden">
+                    <div className="grid grid-cols-1 md:grid-cols-2">
+                      {customizations.map((item, idx) => (
+                        <div key={idx} className={`flex border-b border-border last:border-b-0 md:odd:border-r ${idx % 4 < 2 ? 'bg-muted/30' : 'bg-transparent'}`}>
+                          <div className="w-2/5 p-3 text-sm text-cyan-400 font-medium border-r border-border">{item.service_name}</div>
+                          <div className="w-3/5 p-3 text-sm text-foreground">
+                            {item.moq || '-'}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* Description Section */}
+          <section id="description-section" className="scroll-mt-32">
+            <h2 className="text-xl font-bold text-foreground border-b border-border pb-3 mb-6">
+              {locale === 'zh' ? '产品详情' : 'Description'}
+            </h2>
+            <ProductDescriptionDisplay
+              data={descriptionData}
+              locale={locale}
+              fallbackText={description}
+            />
+          </section>
         </div>
 
         {/* Related Products */}

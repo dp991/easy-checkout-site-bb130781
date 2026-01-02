@@ -157,7 +157,7 @@ export default function Index() {
                   className="w-full sm:w-48"
                 >
                   <Button
-                    className="w-full h-12 bg-[#25D366] text-white hover:bg-[#20bd5a] hover:scale-105 hover:shadow-[0_0_30px_-5px_rgba(37,211,102,0.6)] transition-all duration-300"
+                    className="w-full h-12 bg-violet-600 text-white hover:bg-violet-700 hover:scale-105 hover:shadow-[0_0_30px_-5px_rgba(139,92,246,0.6)] transition-all duration-300"
                   >
                     {t.contact.whatsapp}
                   </Button>

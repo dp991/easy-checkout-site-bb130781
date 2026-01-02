@@ -76,11 +76,11 @@ export default function Contact() {
   const { user, isLoading: authLoading } = useAuth();
   const location = useLocation();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const isLoggedIn = !!user;
-  
+
   const contactSchema = createContactSchema(locale);
-  
+
   const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactSchema),
     defaultValues: {
@@ -97,8 +97,8 @@ export default function Contact() {
   useEffect(() => {
     const cartItems = location.state?.cartItems as CartItemInfo[] | undefined;
     if (cartItems && cartItems.length > 0) {
-      const header = locale === 'zh' 
-        ? '我想咨询以下购物车商品：\n\n' 
+      const header = locale === 'zh'
+        ? '我想咨询以下购物车商品：\n\n'
         : 'I would like to inquire about the following cart items:\n\n';
 
       const itemsText = cartItems.map((item, index) => {
@@ -120,7 +120,7 @@ export default function Contact() {
   const onSubmit = async (data: ContactFormValues) => {
     try {
       setIsSubmitting(true);
-      
+
       await submitInquiry({
         customer_name: data.name,
         customer_email: data.email,
@@ -129,7 +129,7 @@ export default function Contact() {
         message: data.message,
         source: 'web',
       });
-      
+
       toast.success(t.contact.success);
     } catch (error) {
       console.error('Contact form submission error:', error);
@@ -153,7 +153,7 @@ export default function Contact() {
     {
       icon: MapPin,
       title: locale === 'zh' ? '地址' : 'Address',
-      value: locale === 'zh' ? '广东省深圳市宝安区' : "Bao'an District, Shenzhen, China",
+      value: locale === 'zh' ? '浙江省杭州市' : "Hangzhou, China",
     },
     {
       icon: Clock,
@@ -165,8 +165,8 @@ export default function Contact() {
   return (
     <Layout>
       <title>{locale === 'zh' ? '联系我们 - 收银机商城' : 'Contact Us - POS Store'}</title>
-      <meta name="description" content={locale === 'zh' 
-        ? '联系我们的销售团队，获取收银机产品报价和技术支持。' 
+      <meta name="description" content={locale === 'zh'
+        ? '联系我们的销售团队，获取收银机产品报价和技术支持。'
         : 'Contact our sales team for POS product quotes and technical support.'
       } />
 
@@ -232,7 +232,7 @@ export default function Contact() {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <Button className="w-full h-10 bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold text-sm">
+                      <Button className="w-full h-10 bg-violet-600 hover:bg-violet-700 text-white font-semibold text-sm">
                         <MessageCircle className="w-4 h-4 mr-1.5" />
                         WhatsApp
                       </Button>
@@ -242,7 +242,7 @@ export default function Contact() {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <Button className="w-full h-10 bg-[#0084FF] hover:bg-[#0073e0] text-white font-semibold text-sm">
+                      <Button className="w-full h-10 bg-slate-700 hover:bg-slate-600 text-white font-semibold text-sm">
                         <Send className="w-4 h-4 mr-1.5" />
                         Facebook
                       </Button>
@@ -385,8 +385,8 @@ export default function Contact() {
                         <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400">
                           <LogIn className="w-4 h-4 flex-shrink-0" />
                           <span className="text-sm">
-                            {locale === 'zh' 
-                              ? '请先登录后再发送询盘' 
+                            {locale === 'zh'
+                              ? '请先登录后再发送询盘'
                               : 'Please login before sending an inquiry'}
                           </span>
                           <Link to="/auth" className="ml-auto">
