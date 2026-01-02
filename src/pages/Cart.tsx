@@ -79,7 +79,7 @@ export default function Cart() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <Link
-              to="/products"
+              to="/categories"
               className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-2 transition-colors text-sm"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -111,7 +111,7 @@ export default function Cart() {
             <p className="text-muted-foreground mb-4 text-sm">
               {locale === 'zh' ? '快去挑选您喜欢的产品吧' : 'Start adding products you like'}
             </p>
-            <Link to="/products">
+            <Link to="/categories">
               <Button size="sm" className="bg-gradient-gold text-primary-foreground">
                 {locale === 'zh' ? '浏览产品' : 'Browse Products'}
               </Button>
@@ -202,12 +202,12 @@ export default function Cart() {
                 </span>
               </div>
               <p className="text-xs text-muted-foreground mb-3">
-                {locale === 'zh' 
-                  ? '请联系我们获取详细报价和下单' 
+                {locale === 'zh'
+                  ? '请联系我们获取详细报价和下单'
                   : 'Please contact us for detailed pricing and ordering'}
               </p>
-              <Button 
-                size="sm" 
+              <Button
+                size="sm"
                 className="w-full bg-gradient-gold text-primary-foreground"
                 onClick={handleContactInquiry}
               >

@@ -1,5 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
-import { Settings, Clock } from 'lucide-react';
+import { Settings, Clock, ChevronRight, ArrowLeft } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useProductBySlug, useProducts } from '@/hooks/useDatabase';
 import Layout from '@/components/layout/Layout';
@@ -76,7 +76,7 @@ export default function ProductDetail() {
   const descriptionHtml = locale === 'zh' ? productAny.description_html_zh : productAny.description_html_en;
   const priceMin = product.price_min;
   const priceMax = product.price_max;
-  
+
   const formatPrice = () => {
     if (priceMin && priceMax && priceMin !== priceMax) {
       return `$${priceMin} - $${priceMax}`;
@@ -92,7 +92,7 @@ export default function ProductDetail() {
   const leadTimes: LeadTimeItem[] = productAny.lead_times || [];
   const customizations: CustomizationItem[] = productAny.customizations || [];
   const keyAttributes = attributes.filter(a => a.is_key_attribute);
-  
+
   const hasSpecs = attributes.length > 0 || packagingInfo.length > 0 || leadTimes.length > 0 || customizations.length > 0;
 
   const relatedProducts = allProducts
@@ -105,13 +105,15 @@ export default function ProductDetail() {
       <meta name="description" content={description?.slice(0, 160) || ''} />
 
       <div className="container-wide py-4 md:py-8 px-4 md:px-6">
-        {/* Mobile Breadcrumb */}
-        <nav className="flex lg:hidden items-center gap-2 text-xs text-muted-foreground mb-4 flex-wrap">
-          <Link to="/" className="hover:text-foreground transition-colors">{t.nav.home}</Link>
-          <span>/</span>
-          <Link to="/products" className="hover:text-foreground transition-colors">{t.nav.products}</Link>
-          <span>/</span>
-          <span className="text-foreground line-clamp-1">{name}</span>
+        {/* Mobile Back Navigation */}
+        <nav className="lg:hidden mb-4">
+          <Link
+            to="/categories"
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            {t.nav.products}
+          </Link>
         </nav>
 
         {/* Hero Section */}

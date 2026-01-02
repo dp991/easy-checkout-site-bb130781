@@ -117,13 +117,13 @@ export default function Index() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-8 md:py-12">
+      <section className="pb-4 md:py-12">
         <div className="container-wide px-4 md:px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="relative overflow-hidden rounded-2xl md:rounded-3xl bg-card/50 backdrop-blur-xl border border-border/50 p-6 md:p-10 lg:p-16"
+            className="relative overflow-hidden rounded-2xl md:rounded-3xl bg-card/50 backdrop-blur-xl border border-border/50 p-5 md:p-10 lg:p-16"
           >
             {/* Background effects */}
             <div className="absolute inset-0 industrial-grid opacity-20" />
@@ -132,22 +132,21 @@ export default function Index() {
 
             <div className="relative z-10 max-w-2xl mx-auto text-center">
 
-              <h2 className="font-display text-2xl sm:text-3xl md:text-5xl font-bold text-foreground tracking-tighter">
-                {locale === 'zh' ? '准备好开始了吗？' : 'Ready to get started?'}
+              <h2 className="font-display text-xl sm:text-2xl md:text-4xl font-bold text-foreground tracking-tight">
+                {locale === 'zh' ? '立即咨询' : 'Get in Touch'}
               </h2>
-              <p className="mt-4 text-muted-foreground text-sm md:text-lg max-w-lg mx-auto">
-                {locale === 'zh' 
-                  ? '联系我们的销售团队，获取专属报价和定制解决方案。'
-                  : 'Contact our sales team for exclusive quotes and customized solutions.'}
+              <p className="mt-2 md:mt-4 text-muted-foreground text-sm md:text-base">
+                {locale === 'zh'
+                  ? '专业团队为您提供一对一服务'
+                  : 'Our team is ready to assist you'}
               </p>
-              
-              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+
+              <div className="mt-4 md:mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
                 <div className="relative group w-full sm:w-48">
                   <div className="absolute -inset-1 bg-gradient-gold rounded-lg blur-lg opacity-40 group-hover:opacity-70 transition-opacity" />
                   <Link to="/contact" onClick={() => window.scrollTo({ top: 0, behavior: 'instant' })} className="block">
                     <Button className="relative w-full bg-gradient-gold text-primary-foreground hover:opacity-90 font-semibold h-12">
                       {t.nav.inquiry}
-                      <ArrowRight className="ml-2 w-4 h-4" />
                     </Button>
                   </Link>
                 </div>
@@ -157,7 +156,7 @@ export default function Index() {
                   rel="noopener noreferrer"
                   className="w-full sm:w-48"
                 >
-                  <Button 
+                  <Button
                     className="w-full h-12 bg-[#25D366] text-white hover:bg-[#20bd5a] hover:scale-105 hover:shadow-[0_0_30px_-5px_rgba(37,211,102,0.6)] transition-all duration-300"
                   >
                     {t.contact.whatsapp}
@@ -171,12 +170,12 @@ export default function Index() {
 
       {/* Sticky Bottom Bar for Mobile */}
       <StickyBottomBar />
-      
+
       {/* Floating Chat Button */}
       <FloatingChatButton />
-      
+
       {/* Bottom padding for sticky bar on mobile */}
-      <div className="h-20 md:hidden" />
+      <div className="h-16 md:hidden" />
     </Layout>
   );
 }
