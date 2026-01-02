@@ -469,9 +469,9 @@ export default function AdminProducts() {
           </div>
         </div>
 
-        <div className="flex gap-4 min-h-[calc(100vh-180px)]">
+        <div className="flex gap-6 h-[calc(100vh-7.5rem)]">
           {/* Category Tree Sidebar */}
-          <Card className="w-48 flex-shrink-0 p-3 bg-card border-border sticky top-4 self-start min-h-[calc(100vh-180px)] overflow-y-auto">
+          <Card className="w-48 flex-shrink-0 p-3 bg-card border-border overflow-y-auto">
             {categories && (
               <AdminCategoryTree
                 categories={categories}
@@ -482,9 +482,9 @@ export default function AdminProducts() {
           </Card>
 
           {/* Main Content */}
-          <div className="flex-1 space-y-3">
+          <div className="flex-1 flex flex-col gap-3 min-h-0">
             {/* Search & Select All */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-shrink-0">
               <div className="relative flex-1 max-w-sm">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
@@ -503,184 +503,185 @@ export default function AdminProducts() {
             </div>
 
             {/* Products Grid */}
-            <Card className="p-4 bg-card border-border">
+            <Card className="flex-1 p-4 bg-card border-border overflow-y-auto min-h-0">
               {isLoading ? (
                 <div className="flex items-center justify-center py-8">
                   <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                 </div>
               ) : allProducts.length > 0 ? (
-                <>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-                    {allProducts.map((product, index) => (
-                      <motion.div
-                        key={product.id}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: Math.min(index * 0.02, 0.3) }}
-                        className={`relative group rounded-lg border overflow-hidden transition-all ${selectedIds.has(product.id)
-                          ? 'border-primary ring-2 ring-primary/20'
-                          : 'border-border hover:border-primary/50'
-                          }`}
-                      >
-                        {/* Checkbox */}
-                        <div className="absolute top-2 left-2 z-10">
-                          <Checkbox
-                            checked={selectedIds.has(product.id)}
-                            onCheckedChange={() => toggleSelect(product.id)}
-                            className="bg-background/80 backdrop-blur-sm"
-                          />
-                        </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+                  {allProducts.map((product, index) => (
+                    <motion.div
+                      key={product.id}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: Math.min(index * 0.02, 0.3) }}
+                      className={`relative group rounded-lg border overflow-hidden transition-all ${selectedIds.has(product.id)
+                        ? 'border-primary ring-2 ring-primary/20'
+                        : 'border-border hover:border-primary/50'
+                        }`}
+                    >
+                      {/* Checkbox */}
+                      <div className="absolute top-2 left-2 z-10">
+                        <Checkbox
+                          checked={selectedIds.has(product.id)}
+                          onCheckedChange={() => toggleSelect(product.id)}
+                          className="bg-background/80 backdrop-blur-sm"
+                        />
+                      </div>
 
-                        {/* Image */}
-                        <div className="aspect-square bg-muted">
-                          <img
-                            src={product.images?.[0] || 'https://via.placeholder.com/200'}
-                            alt={product.name_zh}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
+                      {/* Image */}
+                      <div className="aspect-square bg-muted">
+                        <img
+                          src={product.images?.[0] || 'https://via.placeholder.com/200'}
+                          alt={product.name_zh}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
 
-                        {/* Info */}
-                        <div className="p-3 space-y-1">
-                          <p className="font-medium text-foreground text-sm truncate">{product.name_zh}</p>
-                          <p className="text-xs text-muted-foreground truncate">{product.name_en}</p>
-                          <div className="flex items-center gap-1 flex-wrap">
-                            <span className="text-xs text-primary font-medium">
-                              {product.price_min && product.price_max && product.price_min !== product.price_max
-                                ? `$${product.price_min} - $${product.price_max}`
-                                : product.price_min
-                                  ? `$${product.price_min}`
-                                  : product.price_max
-                                    ? `$${product.price_max}`
-                                    : '询价'}
+                      {/* Info */}
+                      <div className="p-3 space-y-1">
+                        <p className="font-medium text-foreground text-sm truncate">{product.name_zh}</p>
+                        <p className="text-xs text-muted-foreground truncate">{product.name_en}</p>
+                        <div className="flex items-center gap-1 flex-wrap">
+                          <span className="text-xs text-primary font-medium">
+                            {product.price_min && product.price_max && product.price_min !== product.price_max
+                              ? `$${product.price_min} - $${product.price_max}`
+                              : product.price_min
+                                ? `$${product.price_min}`
+                                : product.price_max
+                                  ? `$${product.price_max}`
+                                  : '询价'}
+                          </span>
+                          {product.category_id && getCategoryName(product.category_id) !== '-' && (
+                            <span className="text-xs text-muted-foreground px-1 py-0.5 rounded bg-muted truncate max-w-[80px]">
+                              {getCategoryName(product.category_id)}
                             </span>
-                            {product.category_id && getCategoryName(product.category_id) !== '-' && (
-                              <span className="text-xs text-muted-foreground px-1 py-0.5 rounded bg-muted truncate max-w-[80px]">
-                                {getCategoryName(product.category_id)}
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex gap-1">
-                            {product.is_featured && (
-                              <span className="text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary">热门</span>
-                            )}
-                            {product.is_new && (
-                              <span className="text-xs px-1.5 py-0.5 rounded bg-green-500/10 text-green-500">新品</span>
-                            )}
-                          </div>
+                          )}
                         </div>
-
-                        {/* Actions */}
-                        <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Button
-                            variant="secondary"
-                            size="icon"
-                            className="h-7 w-7"
-                            onClick={() => openEditDialog(product)}
-                            title="编辑"
-                          >
-                            <Pencil className="w-3 h-3" />
-                          </Button>
-                          <Button
-                            variant="secondary"
-                            size="icon"
-                            className="h-7 w-7"
-                            onClick={() => handleCopyProduct(product)}
-                            disabled={copyMutation.isPending}
-                            title="复制"
-                          >
-                            <Copy className="w-3 h-3" />
-                          </Button>
-                          <Button
-                            variant="secondary"
-                            size="icon"
-                            className="h-7 w-7 text-destructive"
-                            onClick={() => {
-                              if (confirm('确定要删除这个产品吗？')) {
-                                deleteMutation.mutate(product.id);
-                              }
-                            }}
-                            title="删除"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
+                        <div className="flex gap-1">
+                          {product.is_featured && (
+                            <span className="text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary">热门</span>
+                          )}
+                          {product.is_new && (
+                            <span className="text-xs px-1.5 py-0.5 rounded bg-green-500/10 text-green-500">新品</span>
+                          )}
                         </div>
-                      </motion.div>
-                    ))}
-                  </div>
+                      </div>
 
-                  {/* Pagination & Page Size Controls */}
-                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-4 border-t border-border">
-                    {/* Page Size Selector */}
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-muted-foreground">每页</span>
-                      <Select value={pageSize.toString()} onValueChange={handlePageSizeChange}>
-                        <SelectTrigger className="w-20 h-9">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {PAGE_SIZE_OPTIONS.map((size) => (
-                            <SelectItem key={size} value={size.toString()}>
-                              {size}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <span className="text-sm text-muted-foreground">
-                        共 {totalCount} 个产品
-                      </span>
-                    </div>
-
-                    {/* Page Numbers */}
-                    {totalPages > 1 && (
-                      <div className="flex items-center gap-1">
+                      {/* Actions */}
+                      <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Button
-                          variant="ghost"
+                          variant="secondary"
                           size="icon"
-                          onClick={() => handlePageChange(currentPage - 1)}
-                          disabled={currentPage === 1}
-                          className="h-9 w-9"
+                          className="h-7 w-7"
+                          onClick={() => openEditDialog(product)}
+                          title="编辑"
                         >
-                          <ChevronLeft className="w-4 h-4" />
+                          <Pencil className="w-3 h-3" />
                         </Button>
-
-                        {getPageNumbers().map((page, index) => (
-                          page === 'ellipsis' ? (
-                            <div key={`ellipsis-${index}`} className="w-9 h-9 flex items-center justify-center">
-                              <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
-                            </div>
-                          ) : (
-                            <Button
-                              key={page}
-                              variant={currentPage === page ? 'default' : 'ghost'}
-                              size="icon"
-                              onClick={() => handlePageChange(page)}
-                              className={`h-9 w-9 ${currentPage === page ? 'bg-primary text-primary-foreground' : ''}`}
-                            >
-                              {page}
-                            </Button>
-                          )
-                        ))}
-
                         <Button
-                          variant="ghost"
+                          variant="secondary"
                           size="icon"
-                          onClick={() => handlePageChange(currentPage + 1)}
-                          disabled={currentPage === totalPages}
-                          className="h-9 w-9"
+                          className="h-7 w-7"
+                          onClick={() => handleCopyProduct(product)}
+                          disabled={copyMutation.isPending}
+                          title="复制"
                         >
-                          <ChevronRight className="w-4 h-4" />
+                          <Copy className="w-3 h-3" />
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          size="icon"
+                          className="h-7 w-7 text-destructive"
+                          onClick={() => {
+                            if (confirm('确定要删除这个产品吗？')) {
+                              deleteMutation.mutate(product.id);
+                            }
+                          }}
+                          title="删除"
+                        >
+                          <Trash2 className="w-3 h-3" />
                         </Button>
                       </div>
-                    )}
-                  </div>
-                </>
+                    </motion.div>
+                  ))}
+                </div>
               ) : (
                 <p className="text-muted-foreground text-center py-12">
                   {selectedCategoryId ? '该分类下暂无产品' : '暂无产品'}
                 </p>
               )}
             </Card>
+
+            {/* Pagination Bar - Outside card, at bottom */}
+            {allProducts.length > 0 && (
+              <div className="flex-shrink-0 py-2 flex items-center justify-between text-sm">
+                <div className="flex items-center gap-3 text-muted-foreground">
+                  <span>共 {totalCount} 个产品</span>
+                  <span className="text-border">|</span>
+                  <div className="flex items-center gap-2">
+                    <span>每页</span>
+                    <Select value={pageSize.toString()} onValueChange={handlePageSizeChange}>
+                      <SelectTrigger className="w-16 h-7 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {PAGE_SIZE_OPTIONS.map((size) => (
+                          <SelectItem key={size} value={size.toString()}>
+                            {size}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {totalPages > 1 && (
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className="h-7 w-7"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </Button>
+
+                    <div className="flex items-center gap-0.5">
+                      {getPageNumbers().map((page, index) => (
+                        page === 'ellipsis' ? (
+                          <div key={`ellipsis-${index}`} className="w-7 h-7 flex items-center justify-center">
+                            <MoreHorizontal className="w-3 h-3 text-muted-foreground" />
+                          </div>
+                        ) : (
+                          <Button
+                            key={page}
+                            variant={currentPage === page ? 'default' : 'ghost'}
+                            size="icon"
+                            onClick={() => handlePageChange(page)}
+                            className={`h-7 w-7 text-xs ${currentPage === page ? 'bg-primary text-primary-foreground' : ''}`}
+                          >
+                            {page}
+                          </Button>
+                        )
+                      ))}
+                    </div>
+
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      className="h-7 w-7"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
@@ -863,9 +864,9 @@ export default function AdminProducts() {
                 {/* Attributes Tab */}
                 <TabsContent value="attributes" className="space-y-6 mt-4">
                   <div>
-                    <div className="text-sm text-muted-foreground mb-2">
-                      添加产品核心属性（如品牌、型号、产地等）。勾选星标的属性将在商品首屏显示。
-                    </div>
+                    <h3 className="text-base font-semibold text-cyan-400 mb-3 border-b border-border pb-2">
+                      核心属性 / Core Attributes
+                    </h3>
                     <AttributesEditor
                       attributes={formData.attributes}
                       onChange={(attrs) => setFormData({ ...formData, attributes: attrs })}
