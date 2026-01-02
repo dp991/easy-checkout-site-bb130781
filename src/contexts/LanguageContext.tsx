@@ -18,11 +18,8 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('locale') as Locale;
       if (saved && ['zh', 'en'].includes(saved)) return saved;
-      
-      // Check browser language
-      const browserLang = navigator.language.toLowerCase();
-      if (browserLang.startsWith('zh')) return 'zh';
     }
+    // Default to English for all new visitors
     return defaultLocale;
   });
 
