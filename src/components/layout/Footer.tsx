@@ -70,7 +70,7 @@ export default function Footer() {
                 <div className="flex items-start gap-2">
                   <MapPin className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                   <p className="text-sm text-foreground">
-                    {locale === 'zh' ? '深圳市宝安区' : 'Shenzhen, China'}
+                    {locale === 'zh' ? '浙江省杭州市' : 'Hangzhou, China'}
                   </p>
                 </div>
               </div>
@@ -129,7 +129,7 @@ export default function Footer() {
               <div className="flex items-center justify-center gap-2">
                 <MapPin className="w-4 h-4 text-primary shrink-0" />
                 <span className="text-sm text-foreground">
-                  {locale === 'zh' ? '广东省深圳市宝安区' : 'Shenzhen, China'}
+                  {locale === 'zh' ? '浙江省杭州市' : 'Hangzhou, China'}
                 </span>
               </div>
             </div>

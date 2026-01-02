@@ -34,18 +34,19 @@ export default function Header() {
     <header className="fixed top-0 left-0 right-0 z-50">
       {/* Glass background */}
       <div className="absolute inset-0 bg-[hsl(222,47%,5%)]/90 backdrop-blur-xl" />
-      {/* Gradient bottom border */}
-      <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
 
       <div className="container-wide relative">
         <div className="flex items-center justify-between h-14 sm:h-16 md:h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-gold flex items-center justify-center">
-              <span className="font-display font-bold text-lg sm:text-xl text-primary-foreground">P</span>
+          <Link to="/" className="flex items-center gap-1.5 sm:gap-2 group flex-shrink-0">
+            <div
+              className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center shadow-lg"
+              style={{ background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f97316 100%)' }}
+            >
+              <span className="font-display font-bold text-sm sm:text-lg text-white">P</span>
             </div>
-            <span className="font-display font-bold text-lg sm:text-xl text-foreground group-hover:text-primary transition-colors">
-              POS Store
+            <span className="font-display font-bold text-base sm:text-xl text-foreground group-hover:text-primary transition-colors whitespace-nowrap">
+              POStore
             </span>
           </Link>
 
@@ -148,8 +149,8 @@ export default function Header() {
                       <button
                         onClick={() => { setLocale('en'); setIsLangOpen(false); }}
                         className={`w-full px-3 py-2.5 text-left text-sm rounded-lg transition-all ${locale === 'en'
-                            ? 'bg-white/5 text-foreground'
-                            : 'text-muted-foreground hover:bg-white/5 hover:text-foreground'
+                          ? 'bg-white/5 text-foreground'
+                          : 'text-muted-foreground hover:bg-white/5 hover:text-foreground'
                           }`}
                       >
                         English
@@ -157,8 +158,8 @@ export default function Header() {
                       <button
                         onClick={() => { setLocale('zh'); setIsLangOpen(false); }}
                         className={`w-full px-3 py-2.5 text-left text-sm rounded-lg transition-all ${locale === 'zh'
-                            ? 'bg-white/5 text-foreground'
-                            : 'text-muted-foreground hover:bg-white/5 hover:text-foreground'
+                          ? 'bg-white/5 text-foreground'
+                          : 'text-muted-foreground hover:bg-white/5 hover:text-foreground'
                           }`}
                       >
                         中文
