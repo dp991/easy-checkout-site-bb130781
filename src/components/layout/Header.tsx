@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Globe, ChevronDown, ShoppingCart, User, LogOut } from 'lucide-react';
@@ -20,6 +20,18 @@ export default function Header() {
   const { user, isAdmin, signOut } = useAuth();
   const { itemCount } = useCart();
   const location = useLocation();
+
+  // Close mobile menu on scroll
+  useEffect(() => {
+    if (!isMenuOpen) return;
+
+    const handleScroll = () => {
+      setIsMenuOpen(false);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isMenuOpen]);
 
   const navLinks = [
     { href: '/', label: t.nav.home },

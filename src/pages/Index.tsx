@@ -56,6 +56,7 @@ export default function Index() {
             </div>
             <Link
               to="/categories"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               className="flex items-center gap-2 text-primary hover:text-primary/80 font-medium transition-colors text-sm group"
             >
               {t.common.seeAll}
@@ -103,6 +104,7 @@ export default function Index() {
             </div>
             <Link
               to="/categories"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               className="flex items-center gap-2 text-primary hover:text-primary/80 font-medium transition-colors text-sm group"
             >
               {t.common.seeAll}
