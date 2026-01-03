@@ -151,7 +151,7 @@ export default function Index() {
                   </Link>
                 </div>
                 <a
-                  href="https://wa.me/8613800138000"
+                  href="https://wa.me/8613221018869"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full sm:w-48"

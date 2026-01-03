@@ -23,7 +23,7 @@ interface FloatingChatButtonProps {
 }
 
 export default function FloatingChatButton({
-  whatsappNumber = '8613800138000',
+  whatsappNumber = '8613221018869',
   facebookUrl = 'https://m.me/yourpage'
 }: FloatingChatButtonProps) {
   const { locale } = useLanguage();

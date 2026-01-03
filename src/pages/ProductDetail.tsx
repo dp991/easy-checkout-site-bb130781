@@ -196,9 +196,6 @@ export default function ProductDetail() {
           {/* Specifications Section */}
           {hasSpecs && (
             <section id="specs-section" className="scroll-mt-32 space-y-8">
-              <h2 className="text-xl font-bold text-foreground border-b border-border pb-3">
-                {locale === 'zh' ? '规格参数' : 'Specifications'}
-              </h2>
 
               {/* Key Attributes Section */}
               {attributes.length > 0 && (
@@ -296,9 +293,6 @@ export default function ProductDetail() {
 
           {/* Description Section */}
           <section id="description-section" className="scroll-mt-32">
-            <h2 className="text-xl font-bold text-foreground border-b border-border pb-3 mb-6">
-              {locale === 'zh' ? '产品详情' : 'Description'}
-            </h2>
             <ProductDescriptionDisplay
               data={descriptionData}
               locale={locale}

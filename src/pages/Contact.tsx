@@ -228,7 +228,7 @@ export default function Contact() {
                   </h3>
                   <div className="grid grid-cols-2 gap-3">
                     <a
-                      href="https://wa.me/8613800138000?text=Hello%2C%20I%20want%20to%20inquire%20about%20your%20POS%20products"
+                      href="https://wa.me/8613221018869?text=Hello%2C%20I%20want%20to%20inquire%20about%20your%20POS%20products"
                       target="_blank"
                       rel="noopener noreferrer"
                     >

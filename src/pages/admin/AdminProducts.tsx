@@ -544,7 +544,7 @@ export default function AdminProducts() {
                         <p className="font-medium text-foreground text-sm truncate">{product.name_zh}</p>
                         <p className="text-xs text-muted-foreground truncate">{product.name_en}</p>
                         <div className="flex items-center gap-1 flex-wrap">
-                          <span className="text-xs text-primary font-medium">
+                          <span className="text-xs font-medium text-gradient-cosmos">
                             {product.price_min && product.price_max && product.price_min !== product.price_max
                               ? `$${product.price_min} - $${product.price_max}`
                               : product.price_min
@@ -750,50 +750,44 @@ export default function AdminProducts() {
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">简短描述 (中文)</label>
-                    <Textarea
-                      value={formData.description_zh}
-                      onChange={(e) => setFormData({ ...formData, description_zh: e.target.value })}
-                      rows={2}
-                      placeholder="用于列表展示的简短描述"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">简短描述 (英文)</label>
-                    <Textarea
-                      value={formData.description_en}
-                      onChange={(e) => setFormData({ ...formData, description_en: e.target.value })}
-                      rows={2}
-                      placeholder="Short description for listing"
-                    />
-                  </div>
-
                   <div className="grid grid-cols-3 gap-4">
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">最低价格</label>
-                      <Input
-                        type="number"
-                        value={formData.price_min}
-                        onChange={(e) => setFormData({ ...formData, price_min: e.target.value })}
-                      />
+                      <label className="text-sm font-medium text-gradient-cosmos">最低价格 (USD)</label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-pink-400 text-sm font-medium">$</span>
+                        <Input
+                          type="number"
+                          value={formData.price_min}
+                          onChange={(e) => setFormData({ ...formData, price_min: e.target.value })}
+                          className="pl-7"
+                          placeholder="199"
+                        />
+                      </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">最高价格</label>
-                      <Input
-                        type="number"
-                        value={formData.price_max}
-                        onChange={(e) => setFormData({ ...formData, price_max: e.target.value })}
-                      />
+                      <label className="text-sm font-medium text-gradient-cosmos">最高价格 (USD)</label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-pink-400 text-sm font-medium">$</span>
+                        <Input
+                          type="number"
+                          value={formData.price_max}
+                          onChange={(e) => setFormData({ ...formData, price_max: e.target.value })}
+                          className="pl-7"
+                          placeholder="599"
+                        />
+                      </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">最小起订量</label>
-                      <Input
-                        type="number"
-                        value={formData.min_order}
-                        onChange={(e) => setFormData({ ...formData, min_order: e.target.value })}
-                      />
+                      <label className="text-sm font-medium text-cyan-400">最小起订量 (MOQ)</label>
+                      <div className="relative">
+                        <Input
+                          type="number"
+                          value={formData.min_order}
+                          onChange={(e) => setFormData({ ...formData, min_order: e.target.value })}
+                          placeholder="1"
+                        />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-cyan-400 text-sm">pcs</span>
+                      </div>
                     </div>
                   </div>
 
@@ -898,7 +892,7 @@ export default function AdminProducts() {
                 {/* Description Tab */}
                 <TabsContent value="description" className="space-y-6 mt-4">
                   <div className="space-y-3">
-                    <label className="text-sm font-medium">详细描述 (中文)</label>
+                    <label className="text-sm font-medium text-cyan-400">详细描述 (中文)</label>
                     <ProductDescriptionEditor
                       value={formData.description_data_zh}
                       onChange={(data) => setFormData({ ...formData, description_data_zh: data })}
@@ -906,7 +900,7 @@ export default function AdminProducts() {
                     />
                   </div>
                   <div className="space-y-3">
-                    <label className="text-sm font-medium">详细描述 (英文)</label>
+                    <label className="text-sm font-medium text-cyan-400">详细描述 (英文)</label>
                     <ProductDescriptionEditor
                       value={formData.description_data_en}
                       onChange={(data) => setFormData({ ...formData, description_data_en: data })}

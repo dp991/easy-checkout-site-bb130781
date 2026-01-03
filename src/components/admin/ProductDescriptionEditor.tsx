@@ -54,7 +54,7 @@ function Section({
                 onClick={() => setIsOpen(!isOpen)}
                 className="w-full flex items-center justify-between p-3 bg-muted/50 hover:bg-muted transition-colors"
             >
-                <span className="font-medium text-sm">{title}</span>
+                <span className="font-medium text-sm text-cyan-400">{title}</span>
                 {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             </button>
             <AnimatePresence>
