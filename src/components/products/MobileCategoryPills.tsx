@@ -1,3 +1,4 @@
+import { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { DbCategory } from '@/lib/supabase';
@@ -14,15 +15,43 @@ export default function MobileCategoryPills({
   onSelectCategory,
 }: MobileCategoryPillsProps) {
   const { locale } = useLanguage();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const buttonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
 
   // Get only parent categories for pills
   const parentCategories = categories.filter(c => !c.parent_id);
 
+  // Auto-scroll to selected category when it changes
+  useEffect(() => {
+    if (!scrollContainerRef.current) return;
+
+    const selectedSlug = selectedCategory || 'all';
+    const selectedButton = buttonRefs.current.get(selectedSlug);
+
+    if (selectedButton) {
+      const container = scrollContainerRef.current;
+      const containerRect = container.getBoundingClientRect();
+      const buttonRect = selectedButton.getBoundingClientRect();
+
+      // Calculate scroll position to center the button in view
+      const scrollLeft = selectedButton.offsetLeft - (containerRect.width / 2) + (buttonRect.width / 2);
+
+      container.scrollTo({
+        left: Math.max(0, scrollLeft),
+        behavior: 'smooth'
+      });
+    }
+  }, [selectedCategory]);
+
   return (
     <div className="md:hidden sticky top-14 sm:top-16 z-40 bg-[hsl(222,47%,5%)] shadow-md shadow-black/20">
-      <div className="flex overflow-x-auto gap-2 px-4 py-3 scrollbar-hide">
+      <div
+        ref={scrollContainerRef}
+        className="flex overflow-x-auto gap-2 px-4 py-3 scrollbar-hide"
+      >
         {/* All Products Pill */}
         <motion.button
+          ref={(el) => { if (el) buttonRefs.current.set('all', el); }}
           whileTap={{ scale: 0.95 }}
           onClick={() => onSelectCategory('', locale === 'zh' ? '全部产品' : 'All Products')}
           className={`
@@ -45,6 +74,7 @@ export default function MobileCategoryPills({
           return (
             <motion.button
               key={cat.id}
+              ref={(el) => { if (el) buttonRefs.current.set(cat.slug, el); }}
               whileTap={{ scale: 0.95 }}
               onClick={() => onSelectCategory(cat.slug, name)}
               className={`
@@ -64,3 +94,4 @@ export default function MobileCategoryPills({
     </div>
   );
 }
+
