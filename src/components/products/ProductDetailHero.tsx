@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import {
@@ -36,9 +36,21 @@ export default function ProductDetailHero({
   const [currentImage, setCurrentImage] = useState(0);
   const [direction, setDirection] = useState(0);
   const [inquiryOpen, setInquiryOpen] = useState(false);
+  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set([0]));
   const constraintsRef = useRef(null);
 
   const displayImages = images.length > 0 ? images : ['https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800'];
+
+  // Preload all images on mount
+  useEffect(() => {
+    displayImages.forEach((src, idx) => {
+      const img = new Image();
+      img.onload = () => {
+        setLoadedImages(prev => new Set([...prev, idx]));
+      };
+      img.src = src;
+    });
+  }, [displayImages]);
 
   const whatsappMessage = encodeURIComponent(`Hello, I'm interested in ${name}. Please provide more details and pricing.`);
 
@@ -73,11 +85,10 @@ export default function ProductDetailHero({
       x: 0,
       opacity: 1,
     },
-    exit: (direction: number) => ({
+    exit: {
       zIndex: 0,
-      x: direction < 0 ? 300 : -300,
       opacity: 0,
-    }),
+    },
   };
 
   return (
@@ -95,20 +106,19 @@ export default function ProductDetailHero({
             ref={constraintsRef}
             className="relative aspect-square lg:aspect-[4/3] rounded-xl overflow-hidden bg-card border border-border"
           >
-            <AnimatePresence initial={false} custom={direction} mode="wait">
+            {/* Crossfade animation - no slide, just opacity */}
+            <AnimatePresence initial={false} mode="popLayout">
               <motion.img
                 key={currentImage}
                 src={displayImages[currentImage]}
                 alt={name}
                 className="absolute inset-0 w-full h-full object-cover cursor-grab active:cursor-grabbing"
-                custom={direction}
                 variants={slideVariants}
                 initial="enter"
                 animate="center"
                 exit="exit"
                 transition={{
-                  x: { type: "spring", stiffness: 300, damping: 30 },
-                  opacity: { duration: 0.2 },
+                  opacity: { duration: 0.25, ease: "easeInOut" },
                 }}
                 drag="x"
                 dragConstraints={{ left: 0, right: 0 }}

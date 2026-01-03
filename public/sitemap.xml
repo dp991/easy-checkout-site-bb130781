@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <!-- Homepage -->
+  <url>
+    <loc>https://postore.com/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://postore.com/"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://postore.com/?lang=zh"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://postore.com/"/>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  
+  <!-- Categories Page -->
+  <url>
+    <loc>https://postore.com/categories</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://postore.com/categories"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://postore.com/categories?lang=zh"/>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <!-- About Page -->
+  <url>
+    <loc>https://postore.com/about</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://postore.com/about"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://postore.com/about?lang=zh"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- Contact Page -->
+  <url>
+    <loc>https://postore.com/contact</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://postore.com/contact"/>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://postore.com/contact?lang=zh"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+</urlset>

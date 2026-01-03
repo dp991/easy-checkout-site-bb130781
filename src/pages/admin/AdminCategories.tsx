@@ -73,7 +73,7 @@ function CategoryTreeItem({ category, categories, level, onEdit, onDelete, selec
         ) : (
           <span className="w-6" />
         )}
-        
+
         {isOpen && hasChildren ? (
           <FolderOpen className="w-5 h-5 text-primary" />
         ) : (
@@ -184,7 +184,7 @@ export default function AdminCategories() {
   // Get random product image from category
   const getRandomProductImage = (categoryId: string): string | null => {
     if (!products) return null;
-    const categoryProducts = products.filter(p => 
+    const categoryProducts = products.filter(p =>
       p.category_id === categoryId && p.images && p.images.length > 0
     );
     if (categoryProducts.length === 0) return null;
@@ -217,7 +217,7 @@ export default function AdminCategories() {
   const updateMutation = useMutation({
     mutationFn: async (data: typeof formData & { id: string }) => {
       let imageUrl = data.image_url || null;
-      
+
       // If no image provided, try to get one from products
       if (!imageUrl) {
         imageUrl = getRandomProductImage(data.id);
@@ -258,10 +258,10 @@ export default function AdminCategories() {
   const bulkDeleteMutation = useMutation({
     mutationFn: async (ids: string[]) => {
       // Check if any selected category has children
-      const hasChildrenIds = ids.filter(id => 
+      const hasChildrenIds = ids.filter(id =>
         categories?.some(c => c.parent_id === id)
       );
-      
+
       if (hasChildrenIds.length > 0) {
         throw new Error('选中的分类包含子分类，请先删除子分类');
       }
@@ -318,7 +318,7 @@ export default function AdminCategories() {
       setFormData(prev => ({ ...prev, image_url: urls[0] }));
       toast.success('图片上传成功');
     }
-    
+
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -357,7 +357,7 @@ export default function AdminCategories() {
   const getAvailableParents = () => {
     if (!categories) return [];
     if (!editingCategory) return categories;
-    
+
     const getDescendantIds = (id: string): string[] => {
       const children = categories.filter(c => c.parent_id === id);
       let ids = [id];
@@ -366,7 +366,7 @@ export default function AdminCategories() {
       }
       return ids;
     };
-    
+
     const excludeIds = getDescendantIds(editingCategory.id);
     return categories.filter(c => !excludeIds.includes(c.id));
   };
@@ -492,7 +492,7 @@ export default function AdminCategories() {
                     onChange={handleFileChange}
                     className="hidden"
                   />
-                  
+
                   {formData.image_url ? (
                     <div className="relative">
                       <img

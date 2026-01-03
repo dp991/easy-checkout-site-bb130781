@@ -3,6 +3,7 @@ import { Award, Users, Globe, Truck, Target, Heart } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import Layout from '@/components/layout/Layout';
 import FloatingChatButton from '@/components/FloatingChatButton';
+import SEOHead from '@/components/seo/SEOHead';
 
 export default function About() {
   const { locale } = useLanguage();
@@ -40,11 +41,18 @@ export default function About() {
 
   return (
     <Layout>
-      <title>{locale === 'zh' ? '关于我们 - 收银机商城' : 'About Us - POS Store'}</title>
-      <meta name="description" content={locale === 'zh' 
-        ? '了解收银机商城 - 10年专注POS设备出口，为全球50+国家客户提供优质服务。' 
-        : 'Learn about POS Store - 10+ years focused on POS equipment export, serving customers in 50+ countries worldwide.'
-      } />
+      <SEOHead
+        title="About Us - POStore"
+        titleZh="关于我们 - 收银机商城"
+        description="Learn about POStore - 10+ years focused on POS equipment export, serving customers in 50+ countries worldwide. CE, FCC, RoHS, ISO 9001 certified."
+        descriptionZh="了解收银机商城 - 10年专注POS设备出口，为全球50+国家客户提供优质服务。通过CE、FCC、RoHS、ISO 9001认证。"
+        keywords="POS supplier, cash register manufacturer, POS equipment factory, wholesale POS, POS机厂家, 收银机供应商"
+        url="/about"
+        breadcrumbs={[
+          { name: locale === 'zh' ? '首页' : 'Home', url: '/' },
+          { name: locale === 'zh' ? '关于我们' : 'About Us', url: '/about' },
+        ]}
+      />
 
       {/* Hero */}
       <section className="py-8 md:py-12 bg-card/50 border-b border-border">

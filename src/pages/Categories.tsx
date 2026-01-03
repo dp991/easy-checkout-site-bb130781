@@ -13,6 +13,7 @@ import MobileCategoryPills from '@/components/products/MobileCategoryPills';
 import FloatingChatButton from '@/components/FloatingChatButton';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
+import SEOHead from '@/components/seo/SEOHead';
 
 const PAGE_SIZE = 16;
 
@@ -28,14 +29,14 @@ export default function Categories() {
   // Calculate category IDs for filtering (including children)
   const categoryIds = useMemo(() => {
     if (!selectedCategory || !categories) return null;
-    
+
     const selectedCat = categories.find(c => c.slug === selectedCategory);
     if (!selectedCat) return null;
-    
+
     const ids = [selectedCat.id];
     const childCategories = categories.filter(c => c.parent_id === selectedCat.id);
     childCategories.forEach(child => ids.push(child.id));
-    
+
     return ids;
   }, [selectedCategory, categories]);
 
@@ -54,7 +55,7 @@ export default function Categories() {
   // Handle URL parameter for category
   useEffect(() => {
     const categorySlug = searchParams.get('category');
-    
+
     if (categorySlug && categories) {
       const category = categories.find(c => c.slug === categorySlug);
       if (category) {
@@ -88,7 +89,7 @@ export default function Categories() {
   };
 
   const isLoading = productsLoading || categoriesLoading;
-  
+
   // Flatten all pages into single products array
   const products = data?.pages.flatMap(page => page.products) || [];
   const totalCount = data?.pages[0]?.totalCount || 0;
@@ -96,12 +97,20 @@ export default function Categories() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <title>{locale === 'zh' ? '产品分类 - 收银机商城' : 'Categories - POS Store'}</title>
-      <meta name="description" content={locale === 'zh' 
-        ? '浏览收银机商城产品分类，包括POS终端、收银机、打印机、扫描器等。' 
-        : 'Browse POS Store categories including POS terminals, cash registers, printers, scanners and more.'
-      } />
-      
+      <SEOHead
+        title={`${selectedCategoryName} - POS Store`}
+        titleZh={`${selectedCategoryName} - 收银机商城`}
+        description="Browse POS Store categories including POS terminals, cash registers, printers, scanners and more. Factory direct, competitive prices."
+        descriptionZh="浏览收银机商城产品分类，包括POS终端、收银机、打印机、扫描器等。厂家直销，价格优惠。"
+        keywords="POS terminal categories, cash register types, barcode scanner, receipt printer, POS机分类, 收银机种类"
+        url="/categories"
+        breadcrumbs={[
+          { name: locale === 'zh' ? '首页' : 'Home', url: '/' },
+          { name: locale === 'zh' ? '产品分类' : 'Categories', url: '/categories' },
+          ...(selectedCategory ? [{ name: selectedCategoryName, url: `/categories?category=${selectedCategory}` }] : []),
+        ]}
+      />
+
       <Header />
 
       {/* Mobile Category Pills - Sticky under header */}
@@ -149,8 +158,8 @@ export default function Categories() {
                   {selectedCategoryName}
                 </h1>
                 <p className="text-muted-foreground mt-1 text-sm md:text-base">
-                  {locale === 'zh' 
-                    ? `共 ${totalCount} 款产品` 
+                  {locale === 'zh'
+                    ? `共 ${totalCount} 款产品`
                     : `${totalCount} products`}
                 </p>
               </div>
@@ -186,8 +195,8 @@ export default function Categories() {
                             {locale === 'zh' ? '加载中...' : 'Loading...'}
                           </>
                         ) : (
-                          locale === 'zh' 
-                            ? `加载更多商品 (${loadedCount}/${totalCount})` 
+                          locale === 'zh'
+                            ? `加载更多商品 (${loadedCount}/${totalCount})`
                             : `Load More (${loadedCount}/${totalCount})`
                         )}
                       </Button>
@@ -203,8 +212,8 @@ export default function Categories() {
                     {locale === 'zh' ? '暂无产品' : 'No products found'}
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    {locale === 'zh' 
-                      ? '该分类下暂时没有产品，请选择其他分类' 
+                    {locale === 'zh'
+                      ? '该分类下暂时没有产品，请选择其他分类'
                       : 'No products in this category, please select another'}
                   </p>
                 </div>

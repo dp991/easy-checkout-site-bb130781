@@ -9,6 +9,7 @@ import FloatingChatButton from '@/components/FloatingChatButton';
 import { Skeleton } from '@/components/ui/skeleton';
 import ProductDescriptionDisplay from '@/components/products/ProductDescriptionDisplay';
 import { parseProductDescription, ProductDescriptionData } from '@/components/admin/ProductDescriptionEditor';
+import SEOHead from '@/components/seo/SEOHead';
 
 interface ProductAttribute {
   key_zh: string;
@@ -146,8 +147,30 @@ export default function ProductDetail() {
 
   return (
     <Layout>
-      <title>{name} - {locale === 'zh' ? '收银机商城' : 'POS Store'}</title>
-      <meta name="description" content={description?.slice(0, 160) || ''} />
+      <SEOHead
+        title={`${name} - POS Store`}
+        titleZh={`${name} - 收银机商城`}
+        description={description?.slice(0, 160) || `Buy ${name} at competitive prices. Factory direct, worldwide shipping.`}
+        descriptionZh={description?.slice(0, 160) || `购买${name}，厂家直销，全球配送。`}
+        keywords={`${name}, POS terminal, cash register, ${name}`}
+        url={`/product/${slug}`}
+        image={images[0] || '/og-image.jpg'}
+        type="product"
+        productData={{
+          name: name || '',
+          description: description || '',
+          image: images[0] || '',
+          price: priceMin || undefined,
+          priceCurrency: 'USD',
+          availability: 'InStock',
+          sku: product.slug,
+        }}
+        breadcrumbs={[
+          { name: locale === 'zh' ? '首页' : 'Home', url: '/' },
+          { name: locale === 'zh' ? '产品分类' : 'Categories', url: '/categories' },
+          { name: name || '', url: `/product/${slug}` },
+        ]}
+      />
 
       <div className="container-wide py-4 md:py-8 px-4 md:px-6">
         {/* Mobile Back Navigation */}
@@ -244,11 +267,13 @@ export default function ProductDetail() {
                     <Clock className="w-5 h-5 text-primary" />
                     {locale === 'zh' ? '交货时间' : 'Lead Time'}
                   </h3>
-                  <div className="rounded-lg border border-border overflow-x-auto">
+
+                  {/* Desktop: Horizontal table */}
+                  <div className="hidden md:block rounded-lg border border-border overflow-x-auto">
                     <table className="w-full min-w-max">
                       <thead>
                         <tr className="bg-muted/30">
-                          <td className="p-3 text-sm text-cyan-400 font-medium border-r border-border font-medium">{locale === 'zh' ? '数量 (pieces)' : 'Quantity (pieces)'}</td>
+                          <td className="p-3 text-sm text-cyan-400 font-medium border-r border-border">{locale === 'zh' ? '数量 (pieces)' : 'Quantity (pieces)'}</td>
                           {leadTimes.map((item, idx) => (
                             <td key={idx} className="p-3 text-sm text-foreground text-center border-r border-border last:border-r-0">{item.quantity_range}</td>
                           ))}
@@ -256,11 +281,35 @@ export default function ProductDetail() {
                       </thead>
                       <tbody>
                         <tr>
-                          <td className="p-3 text-sm text-cyan-400 font-medium border-r border-border font-medium">{locale === 'zh' ? '预计时间 (天)' : 'Est. Time (days)'}</td>
+                          <td className="p-3 text-sm text-cyan-400 font-medium border-r border-border">{locale === 'zh' ? '预计时间 (天)' : 'Est. Time (days)'}</td>
                           {leadTimes.map((item, idx) => (
                             <td key={idx} className="p-3 text-sm text-foreground text-center border-r border-border last:border-r-0">{item.lead_days}</td>
                           ))}
                         </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Mobile: Transposed two-column table */}
+                  <div className="md:hidden rounded-lg border border-border overflow-hidden">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="bg-muted/30">
+                          <th className="p-3 text-sm text-cyan-400 font-medium text-left border-r border-border w-1/2">
+                            {locale === 'zh' ? '数量 (pieces)' : 'Quantity (pieces)'}
+                          </th>
+                          <th className="p-3 text-sm text-cyan-400 font-medium text-left w-1/2">
+                            {locale === 'zh' ? '预计时间 (天)' : 'Est. Time (days)'}
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {leadTimes.map((item, idx) => (
+                          <tr key={idx} className={idx % 2 === 0 ? 'bg-transparent' : 'bg-muted/30'}>
+                            <td className="p-3 text-sm text-foreground border-r border-border border-t">{item.quantity_range}</td>
+                            <td className="p-3 text-sm text-foreground border-t">{item.lead_days}</td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   </div>

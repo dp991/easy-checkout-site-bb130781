@@ -21,6 +21,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { toast } from 'sonner';
+import SEOHead from '@/components/seo/SEOHead';
 
 interface CartItemInfo {
   nameZh: string;
@@ -164,11 +165,18 @@ export default function Contact() {
 
   return (
     <Layout>
-      <title>{locale === 'zh' ? '联系我们 - 收银机商城' : 'Contact Us - POS Store'}</title>
-      <meta name="description" content={locale === 'zh'
-        ? '联系我们的销售团队，获取收银机产品报价和技术支持。'
-        : 'Contact our sales team for POS product quotes and technical support.'
-      } />
+      <SEOHead
+        title="Contact Us - POStore"
+        titleZh="联系我们 - 收银机商城"
+        description="Contact POStore sales team for POS product quotes, technical support, and business inquiries. WhatsApp, Email support available."
+        descriptionZh="联系收银机商城销售团队，获取POS产品报价、技术支持和商务咨询。支持WhatsApp、邮件联系。"
+        keywords="contact POS supplier, POS quote, cash register inquiry, 联系收银机厂家, POS报价咨询"
+        url="/contact"
+        breadcrumbs={[
+          { name: locale === 'zh' ? '首页' : 'Home', url: '/' },
+          { name: locale === 'zh' ? '联系我们' : 'Contact Us', url: '/contact' },
+        ]}
+      />
 
       {/* Hero */}
       <section className="py-6 md:py-8 bg-card/50 border-b border-border">

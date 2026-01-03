@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import HeroSection from '@/components/home/HeroSection';
 import StickyBottomBar from '@/components/home/StickyBottomBar';
 import FloatingChatButton from '@/components/FloatingChatButton';
+import SEOHead from '@/components/seo/SEOHead';
 
 export default function Index() {
   const { t, locale } = useLanguage();
@@ -19,6 +20,15 @@ export default function Index() {
 
   return (
     <Layout>
+      <SEOHead
+        title="Professional POS & Cash Register Solutions"
+        titleZh="专业POS收银机解决方案"
+        description="Global supplier of POS terminals, cash registers, barcode scanners, and receipt printers for retail and restaurant business. Factory direct pricing, worldwide shipping."
+        descriptionZh="专业POS收银机供应商，提供收银机、POS终端、条码扫描枪、小票打印机等收银设备，厂家直销，全球配送。"
+        keywords="POS terminal, cash register, POS machine, barcode scanner, receipt printer, POS机, 收银机, 收款机, 条码扫描枪"
+        url="/"
+      />
+
       {/* Hero Section */}
       <HeroSection />
 
