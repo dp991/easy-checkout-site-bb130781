@@ -1,8 +1,11 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { motion } from 'framer-motion';
-import { Plus, Pencil, Trash2, ChevronRight, ChevronDown, Folder, FolderOpen, Upload, X, Check } from 'lucide-react';
-import { supabase, DbCategory, DbProduct } from '@/lib/supabase';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  Plus, Pencil, Trash2, ChevronRight, ChevronDown, Folder, FolderOpen,
+  Upload, X, Check, FolderTree, ImageOff, Package
+} from 'lucide-react';
+import { supabase, DbCategory } from '@/lib/supabase';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,6 +32,7 @@ import { generateSnowflakeId } from '@/lib/snowflake';
 interface CategoryTreeItemProps {
   category: DbCategory;
   categories: DbCategory[];
+  productCounts: Map<string, number>;
   level: number;
   onEdit: (category: DbCategory) => void;
   onDelete: (id: string) => void;
@@ -36,10 +40,27 @@ interface CategoryTreeItemProps {
   onToggleSelect: (id: string) => void;
 }
 
-function CategoryTreeItem({ category, categories, level, onEdit, onDelete, selectedIds, onToggleSelect }: CategoryTreeItemProps) {
+function CategoryTreeItem({
+  category,
+  categories,
+  productCounts,
+  level,
+  onEdit,
+  onDelete,
+  selectedIds,
+  onToggleSelect
+}: CategoryTreeItemProps) {
   const [isOpen, setIsOpen] = useState(true);
   const children = categories.filter(c => c.parent_id === category.id);
   const hasChildren = children.length > 0;
+  const productCount = productCounts.get(category.id) || 0;
+
+  // Level colors
+  const levelColors = [
+    'border-l-primary bg-primary/5',
+    'border-l-cyan-500 bg-cyan-500/5',
+    'border-l-orange-500 bg-orange-500/5',
+  ];
 
   return (
     <div>
@@ -47,9 +68,11 @@ function CategoryTreeItem({ category, categories, level, onEdit, onDelete, selec
         initial={{ opacity: 0, x: -10 }}
         animate={{ opacity: 1, x: 0 }}
         className={cn(
-          "flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/30 hover:bg-muted/50 transition-colors",
-          level > 0 && "ml-6 border-l-2 border-l-primary/30",
-          selectedIds.has(category.id) && "ring-2 ring-primary/50 border-primary"
+          "flex items-center gap-3 p-4 rounded-lg border border-border/50 transition-all duration-200 cursor-pointer group",
+          "hover:border-primary/40 hover:shadow-md hover:shadow-primary/5",
+          level > 0 && "ml-6 border-l-4",
+          level > 0 && levelColors[Math.min(level, levelColors.length - 1)],
+          selectedIds.has(category.id) && "ring-2 ring-primary/50 border-primary bg-primary/10"
         )}
       >
         {/* Checkbox */}
@@ -59,52 +82,80 @@ function CategoryTreeItem({ category, categories, level, onEdit, onDelete, selec
           className="flex-shrink-0"
         />
 
+        {/* Expand/Collapse */}
         {hasChildren ? (
           <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="p-1 hover:bg-muted rounded"
+            onClick={(e) => { e.stopPropagation(); setIsOpen(!isOpen); }}
+            className="p-1.5 hover:bg-muted rounded-md transition-colors"
           >
-            {isOpen ? (
-              <ChevronDown className="w-4 h-4 text-muted-foreground" />
-            ) : (
+            <motion.div
+              initial={false}
+              animate={{ rotate: isOpen ? 90 : 0 }}
+              transition={{ duration: 0.2 }}
+            >
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
-            )}
+            </motion.div>
           </button>
         ) : (
-          <span className="w-6" />
+          <span className="w-7" />
         )}
 
-        {isOpen && hasChildren ? (
-          <FolderOpen className="w-5 h-5 text-primary" />
-        ) : (
-          <Folder className="w-5 h-5 text-muted-foreground" />
-        )}
+        {/* Icon */}
+        <div className={cn(
+          "w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors",
+          isOpen && hasChildren ? "bg-primary/20" : "bg-muted/50",
+          "group-hover:bg-primary/20"
+        )}>
+          {isOpen && hasChildren ? (
+            <FolderOpen className="w-5 h-5 text-primary" />
+          ) : (
+            <Folder className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+          )}
+        </div>
 
-        {category.image_url && (
+        {/* Image */}
+        {category.image_url ? (
           <img
             src={category.image_url}
             alt={category.name_zh}
-            className="w-10 h-10 rounded-lg object-cover"
+            className="w-12 h-12 rounded-lg object-cover border border-border/50 flex-shrink-0"
           />
+        ) : (
+          <div className="w-12 h-12 rounded-lg bg-muted/30 border border-dashed border-border flex items-center justify-center flex-shrink-0">
+            <ImageOff className="w-5 h-5 text-muted-foreground/50" />
+          </div>
         )}
 
+        {/* Info */}
         <div className="flex-1 min-w-0">
-          <p className="font-medium text-foreground truncate">{category.name_zh}</p>
+          <div className="flex items-center gap-2">
+            <p className="font-medium text-foreground truncate">{category.name_zh}</p>
+            {productCount > 0 && (
+              <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                <Package className="w-3 h-3" />
+                {productCount}
+              </span>
+            )}
+          </div>
           <p className="text-sm text-muted-foreground truncate">{category.name_en}</p>
         </div>
 
-        <div className="flex items-center gap-2">
+        {/* Actions */}
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
-            onClick={() => onEdit(category)}
+            className="h-8 w-8 p-0"
+            onClick={(e) => { e.stopPropagation(); onEdit(category); }}
           >
             <Pencil className="w-4 h-4" />
           </Button>
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
-            onClick={() => {
+            className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+            onClick={(e) => {
+              e.stopPropagation();
               if (hasChildren) {
                 toast.error('请先删除子分类');
                 return;
@@ -113,31 +164,40 @@ function CategoryTreeItem({ category, categories, level, onEdit, onDelete, selec
                 onDelete(category.id);
               }
             }}
-            className="text-destructive hover:text-destructive"
           >
             <Trash2 className="w-4 h-4" />
           </Button>
         </div>
       </motion.div>
 
-      {hasChildren && isOpen && (
-        <div className="mt-2 space-y-2">
-          {children
-            .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
-            .map(child => (
-              <CategoryTreeItem
-                key={child.id}
-                category={child}
-                categories={categories}
-                level={level + 1}
-                onEdit={onEdit}
-                onDelete={onDelete}
-                selectedIds={selectedIds}
-                onToggleSelect={onToggleSelect}
-              />
-            ))}
-        </div>
-      )}
+      {/* Children */}
+      <AnimatePresence>
+        {hasChildren && isOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+            className="mt-2 space-y-2 overflow-hidden"
+          >
+            {children
+              .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+              .map(child => (
+                <CategoryTreeItem
+                  key={child.id}
+                  category={child}
+                  categories={categories}
+                  productCounts={productCounts}
+                  level={level + 1}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
+                  selectedIds={selectedIds}
+                  onToggleSelect={onToggleSelect}
+                />
+              ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -181,6 +241,29 @@ export default function AdminCategories() {
     },
   });
 
+  // Calculate product counts per category
+  const productCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    if (products) {
+      products.forEach(p => {
+        if (p.category_id) {
+          counts.set(p.category_id, (counts.get(p.category_id) || 0) + 1);
+        }
+      });
+    }
+    return counts;
+  }, [products]);
+
+  // Statistics
+  const stats = useMemo(() => {
+    if (!categories) return { total: 0, root: 0, sub: 0, noImage: 0 };
+    const total = categories.length;
+    const root = categories.filter(c => !c.parent_id).length;
+    const sub = total - root;
+    const noImage = categories.filter(c => !c.image_url).length;
+    return { total, root, sub, noImage };
+  }, [categories]);
+
   // Get random product image from category
   const getRandomProductImage = (categoryId: string): string | null => {
     if (!products) return null;
@@ -217,8 +300,6 @@ export default function AdminCategories() {
   const updateMutation = useMutation({
     mutationFn: async (data: typeof formData & { id: string }) => {
       let imageUrl = data.image_url || null;
-
-      // If no image provided, try to get one from products
       if (!imageUrl) {
         imageUrl = getRandomProductImage(data.id);
       }
@@ -257,7 +338,6 @@ export default function AdminCategories() {
 
   const bulkDeleteMutation = useMutation({
     mutationFn: async (ids: string[]) => {
-      // Check if any selected category has children
       const hasChildrenIds = ids.filter(id =>
         categories?.some(c => c.parent_id === id)
       );
@@ -350,10 +430,8 @@ export default function AdminCategories() {
     }
   };
 
-  // Get root categories
   const rootCategories = categories?.filter(c => !c.parent_id).sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)) || [];
 
-  // Get available parent categories (exclude current category and its children when editing)
   const getAvailableParents = () => {
     if (!categories) return [];
     if (!editingCategory) return categories;
@@ -371,55 +449,92 @@ export default function AdminCategories() {
     return categories.filter(c => !excludeIds.includes(c.id));
   };
 
+  // Stat cards
+  const statCards = [
+    { label: '总分类', value: stats.total, icon: Folder, color: 'text-primary', bgColor: 'bg-primary/10' },
+    { label: '一级分类', value: stats.root, icon: FolderTree, color: 'text-cyan-500', bgColor: 'bg-cyan-500/10' },
+    { label: '二级分类', value: stats.sub, icon: FolderOpen, color: 'text-orange-500', bgColor: 'bg-orange-500/10' },
+    { label: '无封面', value: stats.noImage, icon: ImageOff, color: 'text-yellow-500', bgColor: 'bg-yellow-500/10' },
+  ];
+
   return (
     <AdminLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="font-display text-3xl font-bold text-foreground">分类管理</h1>
-            <p className="text-muted-foreground mt-1">管理产品分类（支持多级目录）</p>
-          </div>
-          <div className="flex gap-2">
-            {selectedIds.size > 0 && (
-              <Button
-                variant="destructive"
-                onClick={handleBulkDelete}
-                disabled={bulkDeleteMutation.isPending}
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
-                删除选中 ({selectedIds.size})
-              </Button>
-            )}
-            {categories && categories.length > 0 && (
-              <Button variant="outline" onClick={toggleSelectAll}>
-                <Check className="w-4 h-4 mr-2" />
-                {selectedIds.size === categories.length ? '取消全选' : '全选'}
-              </Button>
-            )}
-            <Button
-              onClick={() => { resetForm(); setIsDialogOpen(true); }}
-              className="bg-gradient-gold text-primary-foreground hover:opacity-90"
+      <div className="space-y-4">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {statCards.map((stat, index) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
             >
-              <Plus className="w-4 h-4 mr-2" />
-              添加分类
-            </Button>
-          </div>
+              <Card className="p-4 bg-card border-border hover:border-primary/30 transition-colors cursor-pointer">
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-lg ${stat.bgColor} flex items-center justify-center shrink-0`}>
+                    <stat.icon className={`w-5 h-5 ${stat.color}`} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                    <p className="text-xs text-muted-foreground">{stat.label}</p>
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+          ))}
         </div>
 
+        {/* Toolbar */}
+        <Card className="p-4 bg-card border-border">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div>
+              <h1 className="font-display text-xl font-bold text-foreground">分类管理</h1>
+              <p className="text-sm text-muted-foreground">管理产品分类（支持多级目录）</p>
+            </div>
+            <div className="flex gap-2">
+              {selectedIds.size > 0 && (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={handleBulkDelete}
+                  disabled={bulkDeleteMutation.isPending}
+                >
+                  <Trash2 className="w-4 h-4 mr-1" />
+                  删除 ({selectedIds.size})
+                </Button>
+              )}
+              {categories && categories.length > 0 && (
+                <Button variant="outline" size="sm" onClick={toggleSelectAll}>
+                  <Check className="w-4 h-4 mr-1" />
+                  {selectedIds.size === categories.length ? '取消' : '全选'}
+                </Button>
+              )}
+              <Button
+                size="sm"
+                onClick={() => { resetForm(); setIsDialogOpen(true); }}
+                className="bg-gradient-cosmos text-primary-foreground hover:opacity-90"
+              >
+                <Plus className="w-4 h-4 mr-1" />
+                添加分类
+              </Button>
+            </div>
+          </div>
+        </Card>
+
         {/* Categories Tree */}
-        <Card className="p-6 bg-card border-border">
+        <Card className="p-4 bg-card border-border" style={{ maxHeight: 'calc(100vh - 340px)', overflowY: 'auto' }}>
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
               <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             </div>
           ) : rootCategories.length > 0 ? (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {rootCategories.map(category => (
                 <CategoryTreeItem
                   key={category.id}
                   category={category}
                   categories={categories || []}
+                  productCounts={productCounts}
                   level={0}
                   onEdit={openEditDialog}
                   onDelete={(id) => deleteMutation.mutate(id)}
@@ -429,7 +544,19 @@ export default function AdminCategories() {
               ))}
             </div>
           ) : (
-            <p className="text-muted-foreground text-center py-12">暂无分类</p>
+            <div className="text-center py-12">
+              <Folder className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+              <p className="text-muted-foreground">暂无分类</p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-4"
+                onClick={() => { resetForm(); setIsDialogOpen(true); }}
+              >
+                <Plus className="w-4 h-4 mr-1" />
+                创建第一个分类
+              </Button>
+            </div>
           )}
         </Card>
 
@@ -437,54 +564,70 @@ export default function AdminCategories() {
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle>
+              <DialogTitle className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                  {editingCategory ? <Pencil className="w-4 h-4 text-primary" /> : <Plus className="w-4 h-4 text-primary" />}
+                </div>
                 {editingCategory ? '编辑分类' : '添加分类'}
               </DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+            <form onSubmit={handleSubmit} className="space-y-5 mt-4">
+              {/* Parent Category */}
               <div className="space-y-2">
                 <label className="text-sm font-medium">父级分类</label>
                 <Select
-                  value={formData.parent_id}
+                  value={formData.parent_id || 'none'}
                   onValueChange={(value) => setFormData({ ...formData, parent_id: value === 'none' ? '' : value })}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="选择父级分类（可选）" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">无（一级分类）</SelectItem>
+                    <SelectItem value="none">
+                      <span className="flex items-center gap-2">
+                        <FolderTree className="w-4 h-4" />
+                        无（一级分类）
+                      </span>
+                    </SelectItem>
                     {getAvailableParents().map((cat) => (
                       <SelectItem key={cat.id} value={cat.id}>
-                        {cat.parent_id ? '└ ' : ''}{cat.name_zh}
+                        <span className="flex items-center gap-2">
+                          <Folder className="w-4 h-4" />
+                          {cat.parent_id ? '└ ' : ''}{cat.name_zh}
+                        </span>
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium">中文名称 *</label>
-                <Input
-                  value={formData.name_zh}
-                  onChange={(e) => setFormData({ ...formData, name_zh: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">英文名称 *</label>
-                <Input
-                  value={formData.name_en}
-                  onChange={(e) => setFormData({ ...formData, name_en: e.target.value })}
-                  required
-                />
+              {/* Names */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">中文名称 *</label>
+                  <Input
+                    value={formData.name_zh}
+                    onChange={(e) => setFormData({ ...formData, name_zh: e.target.value })}
+                    placeholder="如：收银机"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">英文名称 *</label>
+                  <Input
+                    value={formData.name_en}
+                    onChange={(e) => setFormData({ ...formData, name_en: e.target.value })}
+                    placeholder="e.g. POS Machine"
+                    required
+                  />
+                </div>
               </div>
 
               {/* Image Upload */}
               <div className="space-y-2">
                 <label className="text-sm font-medium">封面图片</label>
                 <p className="text-xs text-muted-foreground">如不上传，将自动从该分类下的产品中选择一张图片</p>
-                <div className="border-2 border-dashed border-border rounded-lg p-4">
+                <div className="border-2 border-dashed border-border rounded-lg p-4 hover:border-primary/50 transition-colors">
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -498,12 +641,12 @@ export default function AdminCategories() {
                       <img
                         src={formData.image_url}
                         alt="封面图片"
-                        className="w-full h-32 object-cover rounded-lg"
+                        className="w-full h-40 object-cover rounded-lg"
                       />
                       <button
                         type="button"
                         onClick={() => setFormData(prev => ({ ...prev, image_url: '' }))}
-                        className="absolute top-2 right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center"
+                        className="absolute top-2 right-2 w-7 h-7 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center hover:opacity-90 transition-opacity"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -514,16 +657,21 @@ export default function AdminCategories() {
                       variant="outline"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={isUploading}
-                      className="w-full"
+                      className="w-full h-24 border-0"
                     >
-                      <Upload className="w-4 h-4 mr-2" />
-                      {isUploading ? `上传中 ${uploadProgress}%` : '选择图片上传'}
+                      <div className="flex flex-col items-center gap-2">
+                        <Upload className="w-6 h-6 text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">
+                          {isUploading ? `上传中 ${uploadProgress}%` : '点击上传图片'}
+                        </span>
+                      </div>
                     </Button>
                   )}
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 pt-4">
+              {/* Actions */}
+              <div className="flex justify-end gap-3 pt-2">
                 <Button
                   type="button"
                   variant="outline"
@@ -533,7 +681,7 @@ export default function AdminCategories() {
                 </Button>
                 <Button
                   type="submit"
-                  className="bg-gradient-gold text-primary-foreground hover:opacity-90"
+                  className="bg-gradient-cosmos text-primary-foreground hover:opacity-90"
                   disabled={createMutation.isPending || updateMutation.isPending}
                 >
                   {createMutation.isPending || updateMutation.isPending ? '保存中...' : '保存'}

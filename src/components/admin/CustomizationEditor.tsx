@@ -46,7 +46,8 @@ export default function CustomizationEditor({ items, onChange }: CustomizationEd
 
   return (
     <div className="space-y-4">
-      <h3 className="text-base font-semibold text-cyan-400 mb-3 border-b border-border pb-2">
+      <h3 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
+        <span className="w-1 h-4 bg-green-500 rounded-full"></span>
         定制选项 / Customization
       </h3>
 
@@ -125,7 +126,7 @@ export default function CustomizationEditor({ items, onChange }: CustomizationEd
         variant="outline"
         size="sm"
         onClick={addItem}
-        className="w-full"
+        className="w-full border-dashed border-primary/50 text-primary hover:bg-primary/10 hover:border-primary"
       >
         <Plus className="w-4 h-4 mr-2" />
         添加定制服务 / Add Customization

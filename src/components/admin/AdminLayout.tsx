@@ -1,12 +1,12 @@
 import { ReactNode, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { 
-  LayoutDashboard, 
-  Package, 
-  FolderTree, 
-  MessageSquare, 
-  Settings, 
+import {
+  LayoutDashboard,
+  Package,
+  FolderTree,
+  MessageSquare,
+  Settings,
   LogOut,
   Menu,
   X
@@ -109,11 +109,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 key={item.href}
                 to={item.href}
                 onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                  isActive(item.href)
+                className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${isActive(item.href)
                     ? 'bg-primary/10 text-primary'
                     : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                }`}
+                  }`}
               >
                 <item.icon className="w-4 h-4" />
                 {item.label}
@@ -154,7 +153,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="p-4 lg:p-6"
+          className="p-3 lg:p-4"
         >
           {children}
         </motion.div>

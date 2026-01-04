@@ -140,7 +140,7 @@ export default function AttributesEditor({ attributes, onChange }: AttributesEdi
         variant="outline"
         size="sm"
         onClick={addAttribute}
-        className="w-full"
+        className="w-full border-dashed border-primary/50 text-primary hover:bg-primary/10 hover:border-primary"
       >
         <Plus className="w-4 h-4 mr-2" />
         添加属性 / Add Attribute

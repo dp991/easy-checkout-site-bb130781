@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Plus, Pencil, Trash2, Search, Upload, X, Check, ChevronLeft, ChevronRight, MoreHorizontal, Copy } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, Upload, X, Check, ChevronLeft, ChevronRight, MoreHorizontal, Copy, Package } from 'lucide-react';
 import { supabase, DbProduct, DbCategory } from '@/lib/supabase';
 import AdminLayout from '@/components/admin/AdminLayout';
 import AdminCategoryTree from '@/components/admin/AdminCategoryTree';
@@ -442,8 +442,7 @@ export default function AdminProducts() {
 
   return (
     <AdminLayout>
-      <div className="space-y-4">
-        {/* Header */}
+      <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h1 className="font-display text-2xl font-bold text-foreground">产品管理</h1>
           <div className="flex gap-2">
@@ -469,9 +468,9 @@ export default function AdminProducts() {
           </div>
         </div>
 
-        <div className="flex gap-6 h-[calc(100vh-7.5rem)]">
+        <div className="flex gap-2 h-[calc(100vh-5.5rem)]">
           {/* Category Tree Sidebar */}
-          <Card className="w-48 flex-shrink-0 p-3 bg-card border-border overflow-y-auto">
+          <Card className="w-40 flex-shrink-0 p-1.5 bg-card border-border overflow-y-auto">
             {categories && (
               <AdminCategoryTree
                 categories={categories}
@@ -482,7 +481,7 @@ export default function AdminProducts() {
           </Card>
 
           {/* Main Content */}
-          <div className="flex-1 flex flex-col gap-3 min-h-0">
+          <div className="flex-1 flex flex-col gap-2 min-h-0">
             {/* Search & Select All */}
             <div className="flex items-center gap-3 flex-shrink-0">
               <div className="relative flex-1 max-w-sm">
@@ -503,13 +502,13 @@ export default function AdminProducts() {
             </div>
 
             {/* Products Grid */}
-            <Card className="flex-1 p-4 bg-card border-border overflow-y-auto min-h-0">
+            <Card className="flex-1 p-3 bg-card border-border overflow-y-auto min-h-0">
               {isLoading ? (
                 <div className="flex items-center justify-center py-8">
                   <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                 </div>
               ) : allProducts.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
                   {allProducts.map((product, index) => (
                     <motion.div
                       key={product.id}
@@ -688,55 +687,68 @@ export default function AdminProducts() {
         {/* Dialog */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>
-                {editingProduct ? '编辑产品' : '添加产品'}
+            <DialogHeader className="pb-4 border-b border-border">
+              <DialogTitle className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                  <Package className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <span className="text-lg font-bold">{editingProduct ? '编辑产品' : '添加产品'}</span>
+                  <p className="text-xs text-muted-foreground font-normal mt-0.5">
+                    {editingProduct ? '修改产品信息' : '填写产品详细信息'}
+                  </p>
+                </div>
               </DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4 mt-4">
               <Tabs defaultValue="basic" className="w-full">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="basic">基本信息</TabsTrigger>
-                  <TabsTrigger value="attributes">商品属性</TabsTrigger>
-                  <TabsTrigger value="description">详细描述</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-3 bg-muted/50">
+                  <TabsTrigger value="basic" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">基本信息</TabsTrigger>
+                  <TabsTrigger value="attributes" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">商品属性</TabsTrigger>
+                  <TabsTrigger value="description" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">详细描述</TabsTrigger>
                 </TabsList>
 
                 {/* Basic Info Tab */}
-                <TabsContent value="basic" className="space-y-4 mt-4">
+                <TabsContent value="basic" className="space-y-5 mt-4">
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">中文名称 *</label>
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-semibold text-foreground">中文名称 <span className="text-destructive">*</span></label>
                       <Input
                         value={formData.name_zh}
                         onChange={(e) => setFormData({ ...formData, name_zh: e.target.value })}
+                        placeholder="请输入产品中文名称"
                         required
+                        className="bg-background"
                       />
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">英文名称</label>
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-semibold text-foreground">英文名称</label>
                       <Input
                         value={formData.name_en}
                         onChange={(e) => setFormData({ ...formData, name_en: e.target.value })}
+                        placeholder="Enter product name in English"
+                        className="bg-background"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">URL Slug</label>
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-semibold text-foreground">URL Slug</label>
                       <Input
                         value={formData.slug}
                         onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                         placeholder="留空将自动生成"
+                        className="bg-background"
                       />
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">分类</label>
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-semibold text-foreground">分类</label>
                       <Select
                         value={formData.category_id}
                         onValueChange={(value) => setFormData({ ...formData, category_id: value })}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className="bg-background">
                           <SelectValue placeholder="选择分类" />
                         </SelectTrigger>
                         <SelectContent>
@@ -751,50 +763,51 @@ export default function AdminProducts() {
                   </div>
 
                   <div className="grid grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gradient-cosmos">最低价格 (USD)</label>
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-semibold text-primary">最低价格 (USD)</label>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-pink-400 text-sm font-medium">$</span>
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-primary text-sm font-bold">$</span>
                         <Input
                           type="number"
                           value={formData.price_min}
                           onChange={(e) => setFormData({ ...formData, price_min: e.target.value })}
-                          className="pl-7"
+                          className="pl-7 bg-background"
                           placeholder="199"
                         />
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gradient-cosmos">最高价格 (USD)</label>
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-semibold text-primary">最高价格 (USD)</label>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-pink-400 text-sm font-medium">$</span>
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-primary text-sm font-bold">$</span>
                         <Input
                           type="number"
                           value={formData.price_max}
                           onChange={(e) => setFormData({ ...formData, price_max: e.target.value })}
-                          className="pl-7"
+                          className="pl-7 bg-background"
                           placeholder="599"
                         />
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-cyan-400">最小起订量 (MOQ)</label>
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-semibold text-accent">最小起订量 (MOQ)</label>
                       <div className="relative">
                         <Input
                           type="number"
                           value={formData.min_order}
                           onChange={(e) => setFormData({ ...formData, min_order: e.target.value })}
                           placeholder="1"
+                          className="bg-background"
                         />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-cyan-400 text-sm">pcs</span>
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-accent text-sm font-medium">pcs</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Image Upload */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">产品图片</label>
-                    <div className="border-2 border-dashed border-border rounded-lg p-4">
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-semibold text-foreground">产品图片</label>
+                    <div className="border-2 border-dashed border-border rounded-lg p-4 hover:border-primary/50 transition-colors bg-muted/20">
                       <input
                         ref={fileInputRef}
                         type="file"
@@ -857,8 +870,9 @@ export default function AdminProducts() {
 
                 {/* Attributes Tab */}
                 <TabsContent value="attributes" className="space-y-6 mt-4">
-                  <div>
-                    <h3 className="text-base font-semibold text-cyan-400 mb-3 border-b border-border pb-2">
+                  <div className="p-4 rounded-lg bg-muted/20 border border-border/50">
+                    <h3 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
+                      <span className="w-1 h-4 bg-primary rounded-full"></span>
                       核心属性 / Core Attributes
                     </h3>
                     <AttributesEditor
@@ -891,16 +905,22 @@ export default function AdminProducts() {
 
                 {/* Description Tab */}
                 <TabsContent value="description" className="space-y-6 mt-4">
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium text-cyan-400">详细描述 (中文)</label>
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-foreground flex items-center gap-2">
+                      <span className="w-1 h-4 bg-primary rounded-full"></span>
+                      详细描述 (中文)
+                    </label>
                     <ProductDescriptionEditor
                       value={formData.description_data_zh}
                       onChange={(data) => setFormData({ ...formData, description_data_zh: data })}
                       language="zh"
                     />
                   </div>
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium text-cyan-400">详细描述 (英文)</label>
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-foreground flex items-center gap-2">
+                      <span className="w-1 h-4 bg-accent rounded-full"></span>
+                      详细描述 (英文)
+                    </label>
                     <ProductDescriptionEditor
                       value={formData.description_data_en}
                       onChange={(data) => setFormData({ ...formData, description_data_en: data })}
@@ -916,15 +936,16 @@ export default function AdminProducts() {
                   type="button"
                   variant="outline"
                   onClick={() => setIsDialogOpen(false)}
+                  className="min-w-[80px]"
                 >
                   取消
                 </Button>
                 <Button
                   type="submit"
-                  className="bg-gradient-gold text-primary-foreground hover:opacity-90"
+                  className="min-w-[100px] bg-gradient-to-r from-primary to-accent text-primary-foreground hover:opacity-90"
                   disabled={createMutation.isPending || updateMutation.isPending}
                 >
-                  {createMutation.isPending || updateMutation.isPending ? '保存中...' : '保存'}
+                  {createMutation.isPending || updateMutation.isPending ? '保存中...' : '保存产品'}
                 </Button>
               </div>
             </form>

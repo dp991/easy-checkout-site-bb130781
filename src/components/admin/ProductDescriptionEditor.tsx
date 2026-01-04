@@ -39,23 +39,34 @@ interface ProductDescriptionEditorProps {
 function Section({
     title,
     children,
-    defaultOpen = true
+    defaultOpen = true,
+    accentColor = 'primary'
 }: {
     title: string;
     children: React.ReactNode;
     defaultOpen?: boolean;
+    accentColor?: 'primary' | 'accent' | 'orange';
 }) {
     const [isOpen, setIsOpen] = useState(defaultOpen);
 
+    const colorClasses = {
+        primary: 'bg-primary',
+        accent: 'bg-accent',
+        orange: 'bg-orange-500'
+    };
+
     return (
-        <div className="border border-border rounded-lg overflow-hidden">
+        <div className="border border-border/50 rounded-lg overflow-hidden bg-card/50">
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full flex items-center justify-between p-3 bg-muted/50 hover:bg-muted transition-colors"
+                className="w-full flex items-center justify-between p-3 bg-muted/30 hover:bg-muted/50 transition-colors"
             >
-                <span className="font-medium text-sm text-cyan-400">{title}</span>
-                {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                <span className="font-semibold text-sm text-foreground flex items-center gap-2">
+                    <span className={`w-1 h-4 ${colorClasses[accentColor]} rounded-full`}></span>
+                    {title}
+                </span>
+                {isOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
             </button>
             <AnimatePresence>
                 {isOpen && (
@@ -66,7 +77,7 @@ function Section({
                         transition={{ duration: 0.2 }}
                         className="overflow-hidden"
                     >
-                        <div className="p-4 space-y-3">
+                        <div className="p-4 space-y-3 bg-background/50">
                             {children}
                         </div>
                     </motion.div>
@@ -229,7 +240,7 @@ export default function ProductDescriptionEditor({
     return (
         <div className="space-y-4">
             {/* Features Section */}
-            <Section title={t.features}>
+            <Section title={t.features} accentColor="primary">
                 {value.features.map((feature, index) => (
                     <div key={index} className="flex gap-2 items-start p-3 bg-muted/30 rounded-lg">
                         <div className="flex items-center gap-1 text-muted-foreground pt-2">
@@ -261,14 +272,14 @@ export default function ProductDescriptionEditor({
                         </Button>
                     </div>
                 ))}
-                <Button type="button" variant="outline" size="sm" onClick={addFeature}>
+                <Button type="button" variant="outline" size="sm" onClick={addFeature} className="border-dashed border-primary/50 text-primary hover:bg-primary/10 hover:border-primary">
                     <Plus className="w-4 h-4 mr-1" />
                     {t.addFeature}
                 </Button>
             </Section>
 
             {/* Spec Tables Section */}
-            <Section title={t.specTables}>
+            <Section title={t.specTables} accentColor="accent">
                 {value.specTables.map((table, tableIndex) => (
                     <div key={tableIndex} className="border border-border/50 rounded-lg p-3 space-y-3 bg-muted/20">
                         <div className="flex gap-2 items-center">
@@ -317,52 +328,65 @@ export default function ProductDescriptionEditor({
                             ))}
                         </div>
 
-                        <Button type="button" variant="ghost" size="sm" onClick={() => addSpec(tableIndex)}>
+                        <Button type="button" variant="ghost" size="sm" onClick={() => addSpec(tableIndex)} className="text-primary hover:bg-primary/10">
                             <Plus className="w-3 h-3 mr-1" />
                             {t.addSpec}
                         </Button>
                     </div>
                 ))}
-                <Button type="button" variant="outline" size="sm" onClick={addSpecTable}>
+                <Button type="button" variant="outline" size="sm" onClick={addSpecTable} className="border-dashed border-primary/50 text-primary hover:bg-primary/10 hover:border-primary">
                     <Plus className="w-4 h-4 mr-1" />
                     {t.addTable}
                 </Button>
             </Section>
 
             {/* Rich Content Section */}
-            <Section title={t.richContent}>
-                {value.richContent.map((block, index) => (
-                    <div key={index} className="flex gap-2 items-start">
-                        {block.type === 'text' ? (
-                            <Textarea
-                                value={block.content}
-                                onChange={(e) => updateRichContent(index, e.target.value)}
-                                placeholder={t.textPlaceholder}
-                                rows={3}
-                                className="flex-1 text-sm"
-                            />
+            <Section title={t.richContent} accentColor="orange">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                    {value.richContent.map((block, index) => (
+                        block.type === 'text' ? (
+                            <div key={index} className="col-span-2 md:col-span-4 group relative flex gap-2 items-start">
+                                <Textarea
+                                    value={block.content}
+                                    onChange={(e) => updateRichContent(index, e.target.value)}
+                                    placeholder={t.textPlaceholder}
+                                    rows={3}
+                                    className="flex-1 text-sm bg-background"
+                                />
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => removeRichContent(index)}
+                                    className="text-muted-foreground hover:text-destructive h-9 w-9 shrink-0"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </Button>
+                            </div>
                         ) : (
-                            <div className="flex-1 relative">
+                            <div key={index} className="col-span-1 group relative aspect-square bg-background rounded-lg border-2 border-dashed border-border/50 hover:border-primary/50 transition-all overflow-hidden flex items-center justify-center">
                                 <img
                                     src={block.content}
                                     alt=""
-                                    className="w-full max-h-48 object-contain rounded-lg bg-muted"
+                                    className="max-w-full max-h-full object-contain p-2"
                                 />
+                                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                                    <Button
+                                        type="button"
+                                        variant="destructive"
+                                        size="icon"
+                                        onClick={() => removeRichContent(index)}
+                                        className="h-7 w-7 shadow-sm"
+                                    >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                    </Button>
+                                </div>
                             </div>
-                        )}
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => removeRichContent(index)}
-                            className="text-destructive hover:text-destructive h-9 w-9"
-                        >
-                            <Trash2 className="w-4 h-4" />
-                        </Button>
-                    </div>
-                ))}
+                        )
+                    ))}
+                </div>
                 <div className="flex gap-2">
-                    <Button type="button" variant="outline" size="sm" onClick={addTextBlock}>
+                    <Button type="button" variant="outline" size="sm" onClick={addTextBlock} className="border-dashed border-primary/50 text-primary hover:bg-primary/10 hover:border-primary">
                         <Plus className="w-4 h-4 mr-1" />
                         {t.addText}
                     </Button>
@@ -372,6 +396,7 @@ export default function ProductDescriptionEditor({
                         size="sm"
                         onClick={() => fileInputRef.current?.click()}
                         disabled={isUploading}
+                        className="border-dashed border-accent/50 text-accent hover:bg-accent/10 hover:border-accent"
                     >
                         <ImageIcon className="w-4 h-4 mr-1" />
                         {t.addImage}

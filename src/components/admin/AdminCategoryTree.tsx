@@ -25,7 +25,7 @@ interface TreeNodeProps {
 
 function TreeNode({ category, categories, level, selectedId, onSelect }: TreeNodeProps) {
   const [isOpen, setIsOpen] = useState(true);
-  
+
   const children = categories.filter(c => c.parent_id === category.id);
   const hasChildren = children.length > 0;
   const isSelected = selectedId === category.id;
@@ -36,10 +36,10 @@ function TreeNode({ category, categories, level, selectedId, onSelect }: TreeNod
         <TooltipTrigger asChild>
           <div
             className={cn(
-              "flex items-center gap-2 py-2 px-3 rounded-lg cursor-pointer transition-colors",
+              "flex items-center gap-1.5 py-1.5 px-2 rounded-md cursor-pointer transition-colors text-sm",
               isSelected ? "bg-primary/10 text-primary" : "hover:bg-muted"
             )}
-            style={{ paddingLeft: `${12 + level * 16}px` }}
+            style={{ paddingLeft: `${8 + level * 12}px` }}
             onClick={() => onSelect(category)}
           >
             {hasChildren ? (
@@ -67,16 +67,16 @@ function TreeNode({ category, categories, level, selectedId, onSelect }: TreeNod
             <span className="text-sm truncate">{category.name_zh}</span>
           </div>
         </TooltipTrigger>
-        <TooltipContent 
-          side="top" 
+        <TooltipContent
+          side="top"
           align="start"
-          sideOffset={8} 
+          sideOffset={8}
           className="z-[100] max-w-xs bg-primary text-primary-foreground border-primary shadow-lg"
         >
           <p className="font-medium">{category.name_zh}</p>
         </TooltipContent>
       </Tooltip>
-      
+
       {hasChildren && isOpen && (
         <div>
           {children
@@ -107,7 +107,7 @@ export default function AdminCategoryTree({ categories, selectedId, onSelect }: 
       <div className="space-y-1">
         <div
           className={cn(
-            "flex items-center gap-2 py-2 px-3 rounded-lg cursor-pointer transition-colors",
+            "flex items-center gap-1.5 py-1.5 px-2 rounded-md cursor-pointer transition-colors text-sm",
             selectedId === null ? "bg-primary/10 text-primary" : "hover:bg-muted"
           )}
           onClick={() => onSelect(null)}
@@ -115,7 +115,7 @@ export default function AdminCategoryTree({ categories, selectedId, onSelect }: 
           <Folder className="w-4 h-4" />
           <span className="text-sm font-medium">全部分类</span>
         </div>
-        
+
         {rootCategories.map(category => (
           <TreeNode
             key={category.id}
